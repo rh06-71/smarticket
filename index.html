@@ -48,9 +48,9 @@ body{
 }
 
 .event-card{
-  background:#fff;margin:8px 12px;border-radius:10px;
+  background:#fff;margin:8px 12px 0;border-radius:10px 10px 0 0;
   padding:16px;position:relative;
-  box-shadow:0 1px 4px rgba(0,0,0,.08);
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
 .event-year{font-size:12px;color:#888;margin-bottom:2px;}
 .event-date-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;}
@@ -62,27 +62,32 @@ body{
 .event-menu{position:absolute;top:14px;right:14px;color:#aaa;font-size:18px;cursor:pointer;}
 
 .ticket-name-bar{
-  background:#FCE4EC;margin:0 12px;
+  background:#E91E8C;margin:0 12px;
   padding:10px 14px;
   display:flex;justify-content:space-between;align-items:center;
   border-radius:0;
 }
-.ticket-name-bar .name{color:#E91E8C;font-size:16px;font-weight:bold;}
-.ticket-name-bar .num{color:#aaa;font-size:12px;}
+.ticket-name-bar .name{color:#fff;font-size:16px;font-weight:bold;}
+.ticket-name-bar .num{color:rgba(255,255,255,.8);font-size:12px;}
 
 .ticket-body{
   background:#fff;margin:0 12px;
   padding:16px 14px;
-  border-bottom:1px solid #f0f0f0;
+  border-bottom:1.5px dashed #E91E8C;
   display:flex;align-items:flex-start;gap:12px;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
-.ticket-icon-wrap{flex-shrink:0;text-align:center;}
-.ticket-icon{font-size:32px;display:block;}
+.ticket-icon-wrap{flex-shrink:0;text-align:center;width:68px;}
+.ticket-icon-circle{
+  width:64px;height:64px;border-radius:50%;
+  background:#F0F0F0;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 4px;
+}
+.ticket-icon-circle svg{width:36px;height:26px;}
+.ticket-icon-circle.used-icon{filter:grayscale(100%) opacity(40%);}
 .status-badge{
   font-size:10px;font-weight:bold;
   padding:2px 6px;border-radius:3px;
-  margin-top:4px;display:inline-block;
+  display:inline-block;
 }
 .status-unused{background:#E91E8C;color:#fff;}
 .status-used{background:#9E9E9E;color:#fff;}
@@ -107,15 +112,14 @@ body{
 .btn-distribute{
   display:flex;align-items:center;gap:8px;
   background:#fff;border:1.5px dashed #E91E8C;
-  border-radius:8px;margin:10px 12px;padding:10px 16px;
+  border-radius:8px;margin:8px 12px;padding:10px 16px;
   color:#E91E8C;font-size:13px;cursor:pointer;width:calc(100% - 24px);
 }
 .btn-distribute .icon{font-size:16px;}
 
 .detail-section{
-  background:#fff;margin:8px 12px;border-radius:8px;
+  background:#FCE4EC;margin:0 12px;border-radius:0 0 8px 8px;
   padding:14px;font-size:11px;color:#555;line-height:1.8;
-  box-shadow:0 1px 3px rgba(0,0,0,.06);
 }
 .detail-title{font-size:13px;font-weight:bold;color:#333;margin-bottom:8px;}
 
@@ -308,7 +312,15 @@ body{
 
   <div class="ticket-body" id="ticketBody">
     <div class="ticket-icon-wrap">
-      <span class="ticket-icon" id="s1Icon">🎫</span>
+      <div class="ticket-icon-circle" id="s1IconCircle">
+        <svg viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="3" width="36" height="20" rx="2" fill="#E91E8C"/>
+          <circle cx="0" cy="13" r="3" fill="#F0F0F0"/>
+          <circle cx="36" cy="13" r="3" fill="#F0F0F0"/>
+          <line x1="10" y1="3" x2="10" y2="23" stroke="#FCE4EC" stroke-width="1" stroke-dasharray="2,2"/>
+          <rect x="13" y="8" width="16" height="10" rx="1" fill="white" opacity="0.3"/>
+        </svg>
+      </div>
       <span class="status-badge status-unused" id="s1Badge">未使用</span>
     </div>
     <div class="ticket-info used-stamp-wrap" id="ticketInfoWrap">
@@ -453,8 +465,7 @@ let usedTime = sessionStorage.getItem('usedTime') || '';
 
 function applyUsedState(){
   if(isUsed){
-    document.getElementById('s1Icon').textContent = '🎟️';
-    document.getElementById('s1Icon').style.filter = 'grayscale(100%) opacity(50%)';
+    document.getElementById('s1IconCircle').classList.add('used-icon');
     const badge = document.getElementById('s1Badge');
     badge.textContent = '入場済';
     badge.className = 'status-badge status-used';
