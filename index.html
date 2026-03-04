@@ -4,415 +4,337 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>スマートチケット</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;background:#f0f0f0;display:flex;justify-content:center;min-height:100vh;}
-#app{width:100%;max-width:390px;min-height:100vh;background:#f5f5f5;position:relative;overflow:hidden;}
-
-/* ===== SCREENS ===== */
-.screen{width:100%;min-height:100vh;position:absolute;top:0;left:0;background:#f5f5f5;transition:transform .3s ease,opacity .3s ease;}
-.screen.hidden{transform:translateX(100%);pointer-events:none;}
-.screen.out{transform:translateX(-25%);opacity:.5;pointer-events:none;}
-#s1{overflow-y:auto;}
-
-/* ===== SCREEN 1 ===== */
-/* Header */
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10;}
-.btn-back{background:none;border:none;color:#E91E8C;font-size:24px;font-weight:300;cursor:pointer;padding:2px 6px;line-height:1;}
-.btn-enter{background:#E91E8C;color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;letter-spacing:.3px;}
-
-/* Event card */
-.ev-card{background:#fff;margin:8px 10px 0;border-radius:8px 8px 0 0;padding:14px 14px 10px;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.06);}
-.ev-year{font-size:12px;color:#888;margin-bottom:2px;}
-.ev-date-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
-.ev-date{font-size:38px;font-weight:bold;color:#111;line-height:1.05;}
-.ev-date-right{display:flex;flex-direction:column;padding-top:6px;}
-.ev-day{font-size:14px;font-weight:bold;color:#111;}
-.ev-times{font-size:12px;color:#444;line-height:1.9;white-space:nowrap;}
-.ev-name{font-size:15px;font-weight:bold;color:#111;line-height:1.4;margin-bottom:3px;}
-.ev-venue{font-size:12px;color:#888;}
-.ev-menu{position:absolute;top:12px;right:12px;color:#E91E8C;font-size:20px;cursor:pointer;line-height:1;}
-
-/* Name bar */
-.name-bar{background:#E91E8C;margin:0 10px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;}
-.name-bar .nm{color:#fff;font-size:17px;font-weight:bold;}
-.name-bar .num{color:rgba(255,255,255,.75);font-size:12px;}
-
-/* Ticket body */
-.tkt-body{background:#fff;margin:0 10px;padding:14px;display:flex;align-items:flex-start;gap:12px;border-bottom:1.5px dashed #F48FB1;}
-.tkt-icon-wrap{flex-shrink:0;text-align:center;}
-.tkt-icon{display:block;margin:0 auto 5px;}
-.badge-unused{display:inline-block;font-size:10px;font-weight:bold;color:#E53935;border:1.5px solid #E53935;border-radius:3px;padding:1px 5px;}
-.badge-used{display:inline-block;font-size:10px;font-weight:bold;color:#888;border:1.5px solid #888;border-radius:3px;padding:1px 5px;}
-.tkt-info{flex:1;position:relative;}
-.tkt-type{font-size:17px;font-weight:bold;color:#111;margin-bottom:3px;}
-.tkt-seat{font-size:13px;color:#444;margin-bottom:3px;line-height:1.6;}
-.tkt-price{font-size:17px;font-weight:bold;color:#111;}
-.stamp{position:absolute;right:0;top:50%;transform:translateY(-60%) rotate(15deg);color:#D32F2F;border:2.5px solid #D32F2F;border-radius:4px;padding:3px 7px;font-size:16px;font-weight:bold;opacity:.88;background:rgba(255,255,255,.55);white-space:nowrap;}
-
-/* Distribute button */
-.btn-dist{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px dashed #00A5A8;border-radius:6px;margin:8px 10px;padding:10px 14px;color:#00A5A8;font-size:13px;font-weight:bold;cursor:pointer;width:calc(100%-20px);}
-
-/* Detail section */
-.detail{background:#FFF5F7;margin:0 10px;padding:12px 14px;font-size:11px;color:#333;line-height:1.75;}
-.detail-sep{border:none;border-top:1px dashed #F48FB1;margin:0 10px;}
-
-/* Ticket number */
-.tkt-num{margin:6px 10px 2px;font-size:12px;color:#E91E8C;font-weight:bold;}
-.tkt-used-dt{margin:0 10px 6px;font-size:11px;color:#555;}
-.link-back{display:block;margin:2px 10px 30px;font-size:12px;color:#E91E8C;text-decoration:none;}
-
-/* Scroll top btn */
-.btn-top{position:fixed;bottom:22px;right:calc(50% - 195px + 10px);width:38px;height:38px;border-radius:50%;background:#00A5A8;color:#fff;border:none;font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:20;display:flex;align-items:center;justify-content:center;}
-
-/* ===== SCREEN 2 ===== */
-#s2{background:#111;display:flex;flex-direction:column;}
-.s2-hdr{background:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-.s2-hdr .cnt{font-size:14px;font-weight:bold;color:#111;}
-.btn-x{width:30px;height:30px;border-radius:50%;background:#E91E8C;color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:bold;}
-
-.warn{background:#FFEB3B;padding:9px 14px;flex-shrink:0;}
-.warn p{font-size:11.5px;color:#C62828;font-weight:bold;line-height:1.55;}
-
-.ts-bar{background:#4DB6AC;padding:7px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:14px;}
-.ts-txt{font-size:13px;color:#fff;font-weight:bold;letter-spacing:.5px;font-variant-numeric:tabular-nums;}
-.ts-valid{font-size:10px;color:rgba(255,255,255,.85);}
-
-.stars{display:flex;justify-content:center;gap:22px;padding:10px 0 2px;flex-shrink:0;}
-.star{font-size:26px;color:#4CAF50;}
-.star.off{opacity:.1;}
-
-.gate-card{background:#fff;margin:10px 16px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 18px rgba(0,0,0,.4);}
-.gate-top{background:linear-gradient(170deg,#5C9CE6 0%,#7B6FC4 45%,#D63AAF 100%);height:175px;display:flex;align-items:center;justify-content:center;}
-.gate-lbl{font-size:50px;font-weight:900;color:#0D47A1;text-decoration:underline;letter-spacing:6px;}
-.gate-nm{background:#4DB6AC;padding:9px 14px;}
-.gate-nm span{font-size:15px;font-weight:bold;color:#fff;}
-.gate-bot{background:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;}
-.chk{width:40px;height:40px;border-radius:50%;background:#E91E8C;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.gate-type{font-size:14px;color:#333;}
-
-/* Slider */
-.slide-area{margin:12px 16px;flex-shrink:0;}
-.slide-track{background:#2a2a2a;border-radius:28px;height:50px;position:relative;overflow:hidden;display:flex;align-items:center;border:1.5px solid #444;}
-.slide-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#E91E8C,#ff79b8);border-radius:28px;width:0%;}
-.slide-lbl{position:absolute;width:100%;text-align:center;color:rgba(255,255,255,.6);font-size:13px;font-weight:bold;pointer-events:none;z-index:1;}
-.slide-thumb{width:46px;height:46px;border-radius:50%;background:#fff;position:absolute;left:2px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:grab;box-shadow:0 2px 8px rgba(0,0,0,.4);user-select:none;z-index:2;}
-
-/* ===== SCREEN 3 ===== */
-#s3{background:#111;display:flex;flex-direction:column;}
-.s3-card{background:#fff;margin:10px 14px;border-radius:12px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.4);}
-.s3-valid{padding:14px;text-align:center;border-bottom:1px solid #eee;}
-.s3-valid h3{font-size:14px;font-weight:bold;color:#333;margin-bottom:7px;}
-.s3-stars{display:flex;justify-content:center;gap:12px;}
-.s3-star{font-size:22px;color:#4CAF50;}
-.s3-ev{padding:9px 14px;border-bottom:1px solid #f5f5f5;}
-.s3-ev-name{font-size:13px;font-weight:bold;color:#333;}
-.s3-ev-sub{font-size:11px;color:#888;}
-.s3-nm{background:#FCE4EC;padding:9px 14px;}
-.s3-nm span{font-size:14px;font-weight:bold;color:#C2185B;}
-.s3-row{padding:12px 14px;display:flex;align-items:center;gap:10px;position:relative;}
-.s3-ico{flex-shrink:0;opacity:.4;filter:grayscale(1);}
-.s3-info{}
-.s3-badge{display:inline-block;font-size:10px;color:#888;border:1.5px solid #888;border-radius:3px;padding:1px 5px;margin-bottom:4px;}
-.s3-type{font-size:14px;color:#333;}
-.s3-stamp{position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(15deg);color:#D32F2F;border:2.5px solid #D32F2F;border-radius:4px;padding:3px 8px;font-size:18px;font-weight:bold;opacity:.88;background:rgba(255,255,255,.6);}
-.s3-date{padding:4px 14px 14px;font-size:11px;color:#888;}
+  body { margin: 0; background: #f3f4f6; }
+  * { -webkit-tap-highlight-color: transparent; }
+  .select-none { user-select: none; -webkit-user-select: none; }
 </style>
 </head>
 <body>
-<div id="app">
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
 
-<!-- SCREEN 1 -->
-<div class="screen" id="s1">
-  <div class="hdr">
-    <button class="btn-back">＜</button>
-    <button class="btn-enter" id="btnEnter">入場画面に進む</button>
-  </div>
-
-  <div class="ev-card">
-    <div class="ev-year" id="evYear"></div>
-    <div class="ev-date-row">
-      <div class="ev-date" id="evDate"></div>
-      <div class="ev-date-right">
-        <div class="ev-day" id="evDay"></div>
-        <div class="ev-times" id="evTimes"></div>
-      </div>
-    </div>
-    <div class="ev-name" id="evName"></div>
-    <div class="ev-venue" id="evVenue"></div>
-    <span class="ev-menu">…</span>
-  </div>
-
-  <div class="name-bar">
-    <span class="nm" id="s1Name"></span>
-    <span class="num">1枚目</span>
-  </div>
-
-  <div class="tkt-body">
-    <div class="tkt-icon-wrap">
-      <!-- ピンクのチケットアイコン（横長半券型） -->
-      <!-- 丸い背景+白チケット型アイコン -->
-      <svg class="tkt-icon" id="s1Ico" width="64" height="64" viewBox="0 0 64 64">
-        <!-- 円形背景 -->
-        <circle cx="32" cy="32" r="30" fill="#E91E8C"/>
-        <!-- 白いチケット型（横長・左右に半円切り欠き） -->
-        <rect x="10" y="22" width="44" height="20" rx="2" fill="white"/>
-        <circle cx="10" cy="32" r="4" fill="#E91E8C"/>
-        <circle cx="54" cy="32" r="4" fill="#E91E8C"/>
-        <!-- ミシン目 -->
-        <line x1="20" y1="22" x2="20" y2="42" stroke="#E91E8C" stroke-width="1" stroke-dasharray="2,2"/>
-        <!-- 暗い帯 -->
-        <rect x="11" y="23" width="7" height="18" rx="1" fill="rgba(0,0,0,.2)"/>
-      </svg>
-      <span class="badge-unused" id="s1Badge">未使用</span>
-    </div>
-    <div class="tkt-info" id="tktInfo">
-      <div class="tkt-type" id="s1Type"></div>
-      <div class="tkt-seat" id="s1Seat"></div>
-      <div class="tkt-price" id="s1Price"></div>
-      <div class="stamp" id="s1Stamp" style="display:none">使用済</div>
-    </div>
-  </div>
-
-  <button class="btn-dist" id="btnDist">
-    <svg width="20" height="16" viewBox="0 0 20 16"><path d="M2 2h10v3l5-5-5-5v3H2v4zm16 4H8v-3l-5 5 5 5v-3h10V6z" fill="#00A5A8"/></svg>
-    同行者へ分配する
-  </button>
-
-  <hr class="detail-sep">
-
-  <div class="detail" id="detailText"></div>
-
-  <div class="tkt-num" id="s1TktNum"></div>
-  <div class="tkt-used-dt" id="s1UsedDt" style="display:none"></div>
-  <a href="#" class="link-back">チケット裏面情報 ›</a>
-
-  <button class="btn-top" onclick="document.getElementById('s1').scrollTop=0">↑</button>
-</div>
-
-<!-- SCREEN 2 -->
-<div class="screen hidden" id="s2">
-  <div class="s2-hdr">
-    <span class="cnt">1/1枚 選択中</span>
-    <button class="btn-x" id="btnX2">×</button>
-  </div>
-  <div class="warn">
-    <p>⚠ スライドすると使用済になります。</p>
-    <p>使用済チケットは、入場・再発行不可</p>
-  </div>
-  <div class="ts-bar">
-    <span class="ts-txt" id="ts1">----/--/-- (-) --:--:--.---</span>
-    <span class="ts-valid">期間中有効</span>
-  </div>
-  <div class="stars">
-    <span class="star" id="st1">★</span>
-    <span class="star" id="st2">★</span>
-    <span class="star" id="st3">★</span>
-  </div>
-  <div class="gate-card">
-    <div class="gate-top"><span class="gate-lbl">GATE</span></div>
-    <div class="gate-nm"><span id="s2Name"></span></div>
-    <div class="gate-bot">
-      <div class="chk">✓</div>
-      <span class="gate-type" id="s2Type"></span>
-    </div>
-  </div>
-  <div class="slide-area">
-    <div class="slide-track" id="slTrack">
-      <div class="slide-fill" id="slFill"></div>
-      <span class="slide-lbl">← スライドして入場 →</span>
-      <div class="slide-thumb" id="slThumb">›</div>
-    </div>
-  </div>
-</div>
-
-<!-- SCREEN 3 -->
-<div class="screen hidden" id="s3">
-  <div class="s2-hdr">
-    <span class="cnt">0/1枚 選択中</span>
-    <button class="btn-x" id="btnX3">×</button>
-  </div>
-  <div class="ts-bar">
-    <span class="ts-txt" id="ts2">----/--/-- (-) --:--:--.---</span>
-    <span class="ts-valid">期間中有効</span>
-  </div>
-  <div class="s3-card">
-    <div class="s3-valid">
-      <h3>期間中有効</h3>
-      <div class="s3-stars"><span class="s3-star">★</span><span class="s3-star">★</span></div>
-    </div>
-    <div class="s3-ev">
-      <div class="s3-ev-name" id="s3Name"></div>
-      <div class="s3-ev-sub" id="s3Sub"></div>
-    </div>
-    <div class="s3-nm"><span id="s3NmSpan"></span></div>
-    <div class="s3-row">
-      <div class="s3-ico">
-        <svg width="50" height="50" viewBox="0 0 64 64">
-          <circle cx="32" cy="32" r="30" fill="#ccc"/>
-          <rect x="10" y="22" width="44" height="20" rx="2" fill="white" opacity=".7"/>
-          <circle cx="10" cy="32" r="4" fill="#ccc"/>
-          <circle cx="54" cy="32" r="4" fill="#ccc"/>
-          <line x1="20" y1="22" x2="20" y2="42" stroke="#ccc" stroke-width="1" stroke-dasharray="2,2"/>
-          <rect x="11" y="23" width="7" height="18" rx="1" fill="rgba(0,0,0,.15)"/>
-        </svg>
-      </div>
-      <div class="s3-info">
-        <span class="s3-badge">入場済</span>
-        <div class="s3-type" id="s3Type"></div>
-      </div>
-      <div class="s3-stamp">使用済</div>
-    </div>
-    <div class="s3-date" id="s3Date"></div>
-  </div>
-</div>
-
-</div><!-- /app -->
-
-<script>
+// URLパラメーター
 const P = new URLSearchParams(location.search);
 const D = {
-  name:  P.get('name')  || '薮下 柊',
-  event: P.get('event') || '第6回 AKB48グループ歌唱力No.1決定戦 ファイナリストLIVE',
-  venue: P.get('venue') || 'TACHIKAWA STAGE GARDEN',
-  date:  P.get('date')  || '2025/2/18',
-  day:   P.get('day')   || '火',
-  open:  P.get('open')  || '18:00',
-  start: P.get('start') || '19:00',
-  type:  P.get('type')  || '指定席',
-  floor: P.get('floor') || '1階',
-  row:   P.get('row')   || '18列',
-  num:   P.get('num')   || '5番',
-  price: P.get('price') || '8800',
-  tnum:  P.get('ticket_num') || '1160027394397',
+  name:   P.get('name')   || '薮下 柊',
+  event:  P.get('event')  || '第6回 AKB48グループ歌唱力No.1決定戦 ファイナリストLIVE',
+  venue:  P.get('venue')  || 'TACHIKAWA STAGE GARDEN',
+  year:   P.get('year')   || '2025年',
+  date:   P.get('date')   || '2/18',
+  day:    P.get('day')    || '火',
+  open:   P.get('open')   || '18:00 開場',
+  start:  P.get('start')  || '19:00 開演',
+  type:   P.get('type')   || '指定席',
+  floor:  P.get('floor')  || '1階',
+  seat:   P.get('seat')   || '18列 5番',
+  price:  P.get('price')  || '¥8,800(税込)',
+  tnum:   P.get('ticket_num') || '1160027394397',
+  detail: P.get('detail') || `${P.get('event') || '第6回 AKB48グループ歌唱力No.1決定戦 ファイナリストLIVE'}\nSupported by ひかりTV\n主催/制作：TBSテレビ\n公演問合せ：AKB48グループ 歌唱力No.1決定戦 運営本部 akb48g-singer@gr.tbs.co.jp\n※お一人様1枚ずつチケット必要※未就学児入場不可※小学生以下の方要保護者同伴\n※入場時、持ち物検査と金属探知機による身体検査等を実施する場合有\n※譲渡および転売禁止\nイープラス 050-3185-6483`,
 };
 
-const dp = D.date.split('/');
 const WD = ['日','月','火','水','木','金','土'];
-
-// Fill screen 1
-document.getElementById('evYear').textContent = dp[0] + '年';
-document.getElementById('evDate').textContent = dp[1] + '/' + dp[2];
-document.getElementById('evDay').textContent = '（' + D.day + '）';
-document.getElementById('evTimes').innerHTML = D.open + ' 開場<br>' + D.start + ' 開演';
-document.getElementById('evName').textContent = D.event;
-document.getElementById('evVenue').textContent = D.venue;
-document.getElementById('s1Name').textContent = D.name + ' 様';
-document.getElementById('s1Type').textContent = D.type;
-document.getElementById('s1Seat').innerHTML = D.floor + '<br>' + D.row + ' ' + D.num;
-document.getElementById('s1Price').textContent = '¥' + Number(D.price).toLocaleString() + '（税込）';
-document.getElementById('detailText').innerHTML =
-  D.event + '<br>Supported by ひかりTV<br>主催/制作：TBSテレビ<br>公演問合せ：AKB48グループ 歌唱力No.1決定戦 運営本部<br>※お一人様1枚ずつチケット必要※未就学児入場不可※小学生以下の方要保護者同伴※入場時、持ち物検査と金属探知機による身体検査等を実施する場合有※譲渡および転売禁止※お客様氏名が記載のチケット、主催者指定の「本人確認書類」を使用して本人確認実施。同伴者の方も全員チケットと主催者指定の本人確認書類要持参。<br>イープラス 050-3185-6483';
-document.getElementById('s1TktNum').textContent = 'チケット番号: ' + D.tnum;
-
-// Screen 2 & 3
-document.getElementById('s2Name').textContent = D.name + ' 様';
-document.getElementById('s2Type').textContent = D.type;
-document.getElementById('s3Name').textContent = D.event;
-document.getElementById('s3Sub').textContent = D.venue;
-document.getElementById('s3NmSpan').textContent = D.name + ' 様';
-document.getElementById('s3Type').textContent = D.type;
-
-// Used state
-let used = sessionStorage.getItem('used') === '1';
-let usedAt = sessionStorage.getItem('usedAt') || '';
-
-function applyUsed() {
-  if (!used) return;
-  // Icon gray
-  const ico = document.getElementById('s1Ico');
-  ico.style.filter = 'grayscale(1)';
-  ico.style.opacity = '.5';
-  // Badge
-  const b = document.getElementById('s1Badge');
-  b.textContent = '入場済'; b.className = 'badge-used';
-  // Stamp
-  document.getElementById('s1Stamp').style.display = 'block';
-  // Used date
-  const udt = document.getElementById('s1UsedDt');
-  udt.textContent = '使用日時: ' + usedAt;
-  udt.style.display = 'block';
-  // Hide distribute
-  document.getElementById('btnDist').style.display = 'none';
-}
-applyUsed();
-
-// Timestamp
-function fmtTs() {
+function getNow() {
   const n = new Date();
   const pad = (v,l=2) => String(v).padStart(l,'0');
-  return n.getFullYear()+'/'+pad(n.getMonth()+1)+'/'+pad(n.getDate())+
-    ' ('+WD[n.getDay()]+') '+pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds())+'.'+pad(n.getMilliseconds(),3);
+  return `${n.getFullYear()}/${pad(n.getMonth()+1)}/${pad(n.getDate())} (${WD[n.getDay()]}) ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}.${String(n.getMilliseconds()).padStart(3,'0')}`;
 }
-setInterval(() => {
-  const t = fmtTs();
-  document.getElementById('ts1').textContent = t;
-  document.getElementById('ts2').textContent = t;
-}, 80);
 
-// Stars blink
-[['st1',500],['st2',730],['st3',970]].forEach(([id,ms]) => {
-  setInterval(() => document.getElementById(id).classList.toggle('off'), ms);
-});
+const ChevronLeft = () => <span style={{fontSize:'22px',color:'#E91E8C',fontWeight:'300'}}>＜</span>;
+const MoreHorizontal = () => <span style={{fontSize:'20px',color:'#aaa'}}>…</span>;
 
-// Screen transitions
-const S1 = document.getElementById('s1');
-const S2 = document.getElementById('s2');
-const S3 = document.getElementById('s3');
+const SmartTicketApp = () => {
+  const [view, setView] = useState('detail');
+  const [used, setUsed] = useState(false);
+  const [usedAt, setUsedAt] = useState('');
+  const [ts, setTs] = useState(getNow());
+  const [starDrag, setStarDrag] = useState({isDragging:false,startX:0,currentX:0});
+  const rightStarRef = useRef(null);
+  const [rightStarX, setRightStarX] = useState(0);
+  const sliderRef = useRef(null);
+  const [sliderX, setSliderX] = useState(0);
+  const [sliding, setSliding] = useState(false);
 
-document.getElementById('btnEnter').onclick = () => { S1.classList.add('out'); S2.classList.remove('hidden'); };
-document.getElementById('btnX2').onclick = () => { S2.classList.add('hidden'); S2.classList.remove('out'); S1.classList.remove('out'); };
-document.getElementById('btnX3').onclick = () => {
-  S3.classList.add('hidden'); S3.classList.remove('out');
-  S2.classList.add('hidden'); S2.classList.remove('out');
-  S1.classList.remove('out');
-  applyUsed();
+  useEffect(() => {
+    const timer = setInterval(() => setTs(getNow()), 80);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (rightStarRef.current) {
+      const r = rightStarRef.current.getBoundingClientRect();
+      setRightStarX(r.left + r.width / 2);
+    }
+  }, [view]);
+
+  // 星ドラッグ完了チェック
+  useEffect(() => {
+    if (!starDrag.isDragging && starDrag.currentX !== starDrag.startX) {
+      const dist = Math.abs(starDrag.currentX - rightStarX);
+      if (dist < 40) {
+        const now = new Date();
+        const pad = v => String(v).padStart(2,'0');
+        const at = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())}(${WD[now.getDay()]}) ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        setUsedAt(at);
+        setUsed(true);
+        setView('used');
+      }
+    }
+  }, [starDrag.isDragging]);
+
+  const getX = e => e.touches ? e.touches[0].clientX : e.clientX;
+
+  // スライダー操作
+  const sliderStart = e => { setSliding(true); e.preventDefault(); };
+  const sliderMove = e => {
+    if (!sliding || !sliderRef.current) return;
+    const r = sliderRef.current.getBoundingClientRect();
+    const max = r.width - 50;
+    const x = Math.min(Math.max(0, getX(e) - r.left - 25), max);
+    setSliderX(x);
+    if (x >= max - 2) {
+      setSliding(false);
+      const now = new Date();
+      const pad = v => String(v).padStart(2,'0');
+      const at = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())}(${WD[now.getDay()]}) ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      setUsedAt(at);
+      setUsed(true);
+      setTimeout(() => setView('used'), 200);
+    }
+  };
+  const sliderEnd = () => {
+    if (sliding) { setSliding(false); setSliderX(0); }
+  };
+
+  useEffect(() => {
+    if (sliding) {
+      document.addEventListener('mousemove', sliderMove);
+      document.addEventListener('mouseup', sliderEnd);
+      document.addEventListener('touchmove', sliderMove, {passive:false});
+      document.addEventListener('touchend', sliderEnd);
+    }
+    return () => {
+      document.removeEventListener('mousemove', sliderMove);
+      document.removeEventListener('mouseup', sliderEnd);
+      document.removeEventListener('touchmove', sliderMove);
+      document.removeEventListener('touchend', sliderEnd);
+    };
+  }, [sliding, sliderX]);
+
+  // 星ドラッグ
+  const starStart = e => {
+    const x = getX(e);
+    setStarDrag({isDragging:true, startX:x, currentX:x});
+    e.preventDefault();
+  };
+  const starMove = e => {
+    if (!starDrag.isDragging) return;
+    setStarDrag(p => ({...p, currentX:getX(e)}));
+  };
+  const starEnd = () => setStarDrag(p => ({...p, isDragging:false}));
+
+  useEffect(() => {
+    if (starDrag.isDragging) {
+      document.addEventListener('mousemove', starMove);
+      document.addEventListener('mouseup', starEnd);
+    }
+    return () => {
+      document.removeEventListener('mousemove', starMove);
+      document.removeEventListener('mouseup', starEnd);
+    };
+  }, [starDrag.isDragging]);
+
+  const starTranslateX = starDrag.isDragging
+    ? Math.min(Math.max(0, starDrag.currentX - starDrag.startX), 150)
+    : 0;
+
+  // ---- GATE画面 ----
+  const GateView = () => (
+    <div className="min-h-screen select-none" style={{background:'#111',display:'flex',flexDirection:'column'}}>
+      {/* ヘッダー */}
+      <div style={{background:'#fff',padding:'12px 16px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:'14px',fontWeight:'bold',color:'#111'}}>1/1枚 選択中</span>
+        <button onClick={() => setView('detail')}
+          style={{width:'30px',height:'30px',borderRadius:'50%',background:'#E91E8C',color:'#fff',border:'none',fontSize:'18px',fontWeight:'bold',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>×</button>
+      </div>
+      {/* 警告 */}
+      <div style={{background:'#FFEB3B',padding:'9px 14px'}}>
+        <div style={{fontSize:'11.5px',color:'#C62828',fontWeight:'bold',lineHeight:'1.6'}}>
+          ⚠ スライドすると使用済になります。<br/>使用済チケットは、入場・再発行不可
+        </div>
+      </div>
+      {/* タイムスタンプ */}
+      <div style={{background:'#4DB6AC',padding:'7px 14px',display:'flex',justifyContent:'center',alignItems:'center',gap:'12px'}}>
+        <span style={{fontSize:'13px',color:'#fff',fontWeight:'bold',fontVariantNumeric:'tabular-nums'}}>{ts}</span>
+        <span style={{fontSize:'10px',color:'rgba(255,255,255,.85)'}}>期間中有効</span>
+      </div>
+      {/* 星 */}
+      <div style={{display:'flex',justifyContent:'center',gap:'60px',padding:'12px 0 4px',position:'relative'}}>
+        <div
+          onMouseDown={starStart} onTouchStart={starStart}
+          style={{width:'48px',height:'48px',borderRadius:'50%',background:'#4CAF50',display:'flex',alignItems:'center',justifyContent:'center',cursor:'grab',fontSize:'22px',transform:`translateX(${starTranslateX}px)`,transition:starDrag.isDragging?'none':'transform .3s',zIndex:2}}>⭐</div>
+        <div ref={rightStarRef}
+          style={{width:'48px',height:'48px',borderRadius:'50%',background:'#4CAF50',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'22px'}}>⭐</div>
+      </div>
+      {/* GATEカード */}
+      <div style={{background:'#fff',margin:'10px 16px',borderRadius:'14px',overflow:'hidden',boxShadow:'0 4px 18px rgba(0,0,0,.4)'}}>
+        <div style={{background:'linear-gradient(170deg,#5C9CE6 0%,#7B6FC4 45%,#D63AAF 100%)',height:'175px',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <span style={{fontSize:'50px',fontWeight:'900',color:'#0D47A1',textDecoration:'underline',letterSpacing:'6px'}}>GATE</span>
+        </div>
+        <div style={{background:'#4DB6AC',padding:'9px 14px'}}>
+          <span style={{fontSize:'15px',fontWeight:'bold',color:'#fff'}}>{D.name} 様</span>
+        </div>
+        <div style={{background:'#fff',padding:'12px 14px',display:'flex',alignItems:'center',gap:'10px'}}>
+          <div style={{width:'40px',height:'40px',borderRadius:'50%',background:'#E91E8C',color:'#fff',fontSize:'20px',display:'flex',alignItems:'center',justifyContent:'center'}}>✓</div>
+          <span style={{fontSize:'14px',color:'#333'}}>{D.type}</span>
+        </div>
+      </div>
+      {/* スライダー */}
+      <div style={{margin:'12px 16px'}}>
+        <div ref={sliderRef}
+          style={{background:'#2a2a2a',borderRadius:'28px',height:'50px',position:'relative',overflow:'hidden',border:'1.5px solid #444'}}
+          onMouseDown={sliderStart} onTouchStart={sliderStart}>
+          <div style={{position:'absolute',left:0,top:0,height:'100%',width:`${sliderX}px`,background:'linear-gradient(90deg,#E91E8C,#ff79b8)',borderRadius:'28px'}}/>
+          <span style={{position:'absolute',width:'100%',textAlign:'center',color:'rgba(255,255,255,.6)',fontSize:'13px',fontWeight:'bold',lineHeight:'50px',pointerEvents:'none'}}>← スライドして入場 →</span>
+          <div style={{width:'46px',height:'46px',borderRadius:'50%',background:'#fff',position:'absolute',left:`${sliderX + 2}px`,top:'2px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',cursor:'grab',boxShadow:'0 2px 8px rgba(0,0,0,.4)',zIndex:2,transition:sliding?'none':'left .2s'}}>›</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ---- 使用済み確認画面 ----
+  const UsedView = () => (
+    <div className="min-h-screen" style={{background:'#111',display:'flex',flexDirection:'column'}}>
+      <div style={{background:'#fff',padding:'12px 16px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:'14px',fontWeight:'bold',color:'#111'}}>0/1枚 選択中</span>
+        <button onClick={() => setView('detail')}
+          style={{width:'30px',height:'30px',borderRadius:'50%',background:'#E91E8C',color:'#fff',border:'none',fontSize:'18px',fontWeight:'bold',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>×</button>
+      </div>
+      <div style={{background:'#4DB6AC',padding:'7px 14px',display:'flex',justifyContent:'center',alignItems:'center',gap:'12px'}}>
+        <span style={{fontSize:'13px',color:'#fff',fontWeight:'bold',fontVariantNumeric:'tabular-nums'}}>{ts}</span>
+        <span style={{fontSize:'10px',color:'rgba(255,255,255,.85)'}}>期間中有効</span>
+      </div>
+      <div style={{background:'#fff',margin:'10px 14px',borderRadius:'12px',overflow:'hidden',boxShadow:'0 4px 16px rgba(0,0,0,.3)'}}>
+        <div style={{padding:'14px',textAlign:'center',borderBottom:'1px solid #eee'}}>
+          <div style={{fontSize:'14px',fontWeight:'bold',color:'#333',marginBottom:'8px'}}>期間中有効</div>
+          <div style={{display:'flex',justifyContent:'center',gap:'12px'}}>
+            <span style={{fontSize:'22px',color:'#4CAF50'}}>★</span>
+            <span style={{fontSize:'22px',color:'#4CAF50'}}>★</span>
+          </div>
+        </div>
+        <div style={{padding:'9px 14px',borderBottom:'1px solid #f5f5f5'}}>
+          <div style={{fontSize:'13px',fontWeight:'bold',color:'#333'}}>{D.event}</div>
+          <div style={{fontSize:'11px',color:'#888'}}>{D.venue}</div>
+        </div>
+        <div style={{background:'#FCE4EC',padding:'9px 14px'}}>
+          <span style={{fontSize:'14px',fontWeight:'bold',color:'#C2185B'}}>{D.name} 様</span>
+        </div>
+        <div style={{padding:'12px 14px',display:'flex',alignItems:'center',gap:'10px',position:'relative'}}>
+          <div style={{opacity:.4,filter:'grayscale(1)',fontSize:'32px'}}>🎫</div>
+          <div>
+            <span style={{fontSize:'10px',color:'#888',border:'1.5px solid #888',borderRadius:'3px',padding:'1px 5px',display:'inline-block',marginBottom:'4px'}}>入場済</span>
+            <div style={{fontSize:'14px',color:'#333'}}>{D.type}</div>
+          </div>
+          <div style={{position:'absolute',right:'14px',top:'50%',transform:'translateY(-50%) rotate(15deg)',color:'#D32F2F',border:'2.5px solid #D32F2F',borderRadius:'4px',padding:'3px 8px',fontSize:'18px',fontWeight:'bold',opacity:.88,background:'rgba(255,255,255,.6)'}}>使用済</div>
+        </div>
+        <div style={{padding:'4px 14px 14px',fontSize:'11px',color:'#888'}}>使用日時: {usedAt}</div>
+      </div>
+    </div>
+  );
+
+  // ---- チケット詳細画面 ----
+  const DetailView = () => (
+    <div className="min-h-screen" style={{background:'#f5f5f5',overflowY:'auto'}}>
+      {/* ヘッダー */}
+      <div style={{background:'#fff',padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center',borderBottom:'1px solid #eee',position:'sticky',top:0,zIndex:10}}>
+        <button style={{background:'none',border:'none',cursor:'pointer',padding:'2px 6px'}}><ChevronLeft/></button>
+        <button onClick={() => setView('gate')}
+          style={{background:'#E91E8C',color:'#fff',border:'none',borderRadius:'20px',padding:'8px 18px',fontSize:'13px',fontWeight:'bold',cursor:'pointer'}}>入場画面に進む</button>
+      </div>
+      {/* イベントカード */}
+      <div style={{background:'#fff',margin:'8px 10px 0',borderRadius:'8px 8px 0 0',padding:'14px',position:'relative'}}>
+        <div style={{fontSize:'12px',color:'#888',marginBottom:'2px'}}>{D.year}</div>
+        <div style={{display:'flex',alignItems:'flex-start',gap:'8px',marginBottom:'6px'}}>
+          <div style={{fontSize:'38px',fontWeight:'bold',color:'#111',lineHeight:'1.05'}}>{D.date}</div>
+          <div style={{paddingTop:'6px'}}>
+            <div style={{fontSize:'14px',fontWeight:'bold',color:'#111'}}>（{D.day}）</div>
+            <div style={{fontSize:'12px',color:'#444',lineHeight:'1.9'}}>{D.open}<br/>{D.start}</div>
+          </div>
+        </div>
+        <div style={{fontSize:'15px',fontWeight:'bold',color:'#111',lineHeight:'1.4',marginBottom:'3px'}}>{D.event}</div>
+        <div style={{fontSize:'12px',color:'#888'}}>{D.venue}</div>
+        <span style={{position:'absolute',top:'12px',right:'12px',fontSize:'20px',color:'#aaa',cursor:'pointer'}}>…</span>
+      </div>
+      {/* 名前バー */}
+      <div style={{background:'#E91E8C',margin:'0 10px',padding:'9px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{color:'#fff',fontSize:'17px',fontWeight:'bold'}}>{D.name} 様</span>
+        <span style={{color:'rgba(255,255,255,.75)',fontSize:'12px'}}>1枚目</span>
+      </div>
+      {/* チケット本体 */}
+      <div style={{background:'#fff',margin:'0 10px',padding:'14px',display:'flex',alignItems:'flex-start',gap:'12px',borderBottom:'1.5px dashed #F48FB1'}}>
+        <div style={{flexShrink:0,textAlign:'center'}}>
+          {/* 丸いアイコン */}
+          <div style={{width:'64px',height:'64px',borderRadius:'50%',background: used ? '#ddd' : '#FCE4EC',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 5px',filter: used ? 'grayscale(1)' : 'none'}}>
+            <svg width="40" height="26" viewBox="0 0 40 26">
+              <rect x="1" y="2" width="38" height="22" rx="2" fill={used ? '#aaa' : '#E91E8C'}/>
+              <circle cx="1" cy="13" r="3.5" fill={used ? '#ddd' : '#FCE4EC'}/>
+              <circle cx="39" cy="13" r="3.5" fill={used ? '#ddd' : '#FCE4EC'}/>
+              <line x1="12" y1="2" x2="12" y2="24" stroke={used ? '#ddd' : '#FCE4EC'} strokeWidth="1" strokeDasharray="2.5,2"/>
+              <rect x="2" y="3" width="8" height="20" rx="1" fill="rgba(0,0,0,.2)"/>
+              <rect x="15" y="7" width="22" height="7" rx="1" fill="rgba(255,255,255,.3)"/>
+              <rect x="15" y="17" width="15" height="4" rx="1" fill="rgba(255,255,255,.2)"/>
+            </svg>
+          </div>
+          {used
+            ? <span style={{fontSize:'10px',fontWeight:'bold',color:'#888',border:'1.5px solid #888',borderRadius:'3px',padding:'1px 5px',display:'inline-block'}}>入場済</span>
+            : <span style={{fontSize:'10px',fontWeight:'bold',color:'#E53935',border:'1.5px solid #E53935',borderRadius:'3px',padding:'1px 5px',display:'inline-block'}}>未使用</span>
+          }
+        </div>
+        <div style={{flex:1,position:'relative'}}>
+          <div style={{fontSize:'17px',fontWeight:'bold',color:'#111',marginBottom:'3px'}}>{D.type}</div>
+          <div style={{fontSize:'13px',color:'#444',marginBottom:'3px',lineHeight:'1.6'}}>{D.floor}<br/>{D.seat}</div>
+          <div style={{fontSize:'17px',fontWeight:'bold',color:'#111'}}>{D.price}</div>
+          {used && <div style={{position:'absolute',right:0,top:'10px',color:'#D32F2F',border:'2.5px solid #D32F2F',borderRadius:'4px',padding:'3px 8px',fontSize:'16px',fontWeight:'bold',transform:'rotate(15deg)',opacity:.88,background:'rgba(255,255,255,.6)'}}>使用済</div>}
+        </div>
+      </div>
+      {/* 同行者へ分配する */}
+      {!used && (
+        <button style={{display:'flex',alignItems:'center',gap:'8px',background:'#fff',border:'1.5px dashed #00A5A8',borderRadius:'6px',margin:'8px 10px',padding:'10px 14px',color:'#00A5A8',fontSize:'13px',fontWeight:'bold',cursor:'pointer',width:'calc(100% - 20px)'}}>
+          <span style={{fontSize:'16px'}}>📤</span>同行者へ分配する
+        </button>
+      )}
+      {/* 区切り */}
+      <hr style={{border:'none',borderTop:'1px dashed #F48FB1',margin:'0 10px'}}/>
+      {/* 詳細テキスト */}
+      <div style={{background:'#fff',margin:'0 10px',padding:'12px 14px',fontSize:'11px',color:'#333',lineHeight:'1.8',whiteSpace:'pre-line'}}>
+        {D.detail}
+      </div>
+      {/* チケット番号 */}
+      <div style={{margin:'6px 10px 2px',fontSize:'12px',color:'#E91E8C',fontWeight:'bold'}}>チケット番号: {D.tnum}</div>
+      {used && <div style={{margin:'0 10px 4px',fontSize:'11px',color:'#555'}}>使用日時: {usedAt}</div>}
+      <a href="#" style={{display:'block',margin:'2px 10px 30px',fontSize:'12px',color:'#E91E8C',textDecoration:'none'}}>チケット裏面情報 ›</a>
+      {/* ↑ボタン */}
+      <button onClick={() => document.querySelector('#s1scroll').scrollTop = 0}
+        style={{position:'fixed',bottom:'22px',right:'calc(50% - 195px + 10px)',width:'38px',height:'38px',borderRadius:'50%',background:'#00A5A8',color:'#fff',border:'none',fontSize:'16px',cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,.2)',zIndex:20,display:'flex',alignItems:'center',justifyContent:'center'}}>↑</button>
+    </div>
+  );
+
+  return (
+    <div style={{maxWidth:'390px',margin:'0 auto',minHeight:'100vh',background:'#f5f5f5',position:'relative',overflow:'hidden'}} id="s1scroll">
+      {view === 'detail' && <DetailView/>}
+      {view === 'gate'   && <GateView/>}
+      {view === 'used'   && <UsedView/>}
+    </div>
+  );
 };
 
-// Slider
-const track = document.getElementById('slTrack');
-const fill  = document.getElementById('slFill');
-const thumb = document.getElementById('slThumb');
-let drag = false;
-
-function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
-function startDrag(e) { drag = true; e.preventDefault(); }
-function moveDrag(e) {
-  if (!drag) return;
-  const r = track.getBoundingClientRect();
-  const max = r.width - 50;
-  const x = Math.min(Math.max(0, getX(e) - r.left - 25), max);
-  thumb.style.left = x + 'px';
-  fill.style.width = (x / max * 100) + '%';
-  if (x >= max - 2) endDrag(true);
-}
-function endDrag(done) {
-  if (!drag) return; drag = false;
-  if (!done) {
-    thumb.style.transition = 'left .2s'; fill.style.transition = 'width .2s';
-    thumb.style.left = '2px'; fill.style.width = '0%';
-    setTimeout(() => { thumb.style.transition = ''; fill.style.transition = ''; }, 220);
-  } else {
-    setTimeout(() => {
-      // Mark used
-      used = true;
-      const n = new Date();
-      const pad = v => String(v).padStart(2,'0');
-      usedAt = n.getFullYear()+'/'+pad(n.getMonth()+1)+'/'+pad(n.getDate())+'('+WD[n.getDay()]+') '+pad(n.getHours())+':'+pad(n.getMinutes());
-      sessionStorage.setItem('used','1');
-      sessionStorage.setItem('usedAt', usedAt);
-      document.getElementById('s3Date').textContent = '使用日時: ' + usedAt;
-      S2.classList.add('out'); S3.classList.remove('hidden');
-    }, 150);
-  }
-}
-
-thumb.addEventListener('mousedown', startDrag);
-document.addEventListener('mousemove', moveDrag);
-document.addEventListener('mouseup', () => endDrag(false));
-thumb.addEventListener('touchstart', startDrag, {passive:false});
-document.addEventListener('touchmove', moveDrag, {passive:true});
-document.addEventListener('touchend', () => endDrag(false));
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<SmartTicketApp/>);
 </script>
 </body>
 </html>
