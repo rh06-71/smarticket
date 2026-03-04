@@ -5,545 +5,622 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>スマートチケット</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
-    background: #f0f0f0;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-  }
-
-  #app {
-    width: 100%;
-    max-width: 390px;
-    min-height: 100vh;
-    background: #f0f0f0;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* ===== SCREEN BASE ===== */
-  .screen {
-    width: 100%;
-    min-height: 100vh;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #f0f0f0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-  }
-
-  .screen.hidden {
-    transform: translateX(100%);
-    pointer-events: none;
-  }
-
-  .screen.slide-out {
-    transform: translateX(-30%);
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
-  /* ===== SCREEN 1: チケット詳細 ===== */
-  #screen1 {
-    overflow-y: auto;
-  }
-
-  /* Header */
-  .header {
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e8e8e8;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .btn-back {
-    font-size: 22px;
-    color: #999;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 8px;
-    line-height: 1;
-  }
-
-  .btn-enter {
-    background: #E91E8C;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 18px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  /* Event info */
-  .event-info {
-    background: #fff;
-    padding: 16px;
-    margin-bottom: 10px;
-    position: relative;
-  }
-
-  .event-year {
-    font-size: 12px;
-    color: #999;
-    margin-bottom: 2px;
-  }
-
-  .event-date-big {
-    font-size: 30px;
-    font-weight: bold;
-    color: #111;
-    margin-bottom: 4px;
-  }
-
-  .event-time {
-    font-size: 13px;
-    color: #555;
-    margin-bottom: 10px;
-  }
-
-  .event-name {
-    font-size: 15px;
-    font-weight: bold;
-    color: #111;
-    line-height: 1.4;
-    margin-bottom: 4px;
-  }
-
-  .event-venue {
-    font-size: 13px;
-    color: #888;
-  }
-
-  .btn-more {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #888;
-    cursor: pointer;
-  }
-
-  /* Ticket card */
-  .ticket-card {
-    background: #E91E8C;
-    margin: 0 10px 10px;
-    border-radius: 12px;
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .ticket-card.used {
-    background: #999;
-  }
-
-  .ticket-card-top {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .ticket-icon {
-    font-size: 24px;
-    margin-right: 8px;
-    filter: brightness(0) invert(1);
-  }
-
-  .ticket-icon.used-icon {
-    filter: brightness(0) invert(0.7);
-  }
-
-  .badge-unused {
-    border: 1.5px solid #4caf50;
-    color: #4caf50;
-    background: rgba(255,255,255,0.15);
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 2px 8px;
-  }
-
-  .badge-used {
-    border: 1.5px solid #f44336;
-    color: #f44336;
-    background: rgba(255,255,255,0.15);
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 2px 8px;
-  }
-
-  .ticket-name-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 6px;
-  }
-
-  .ticket-name {
-    color: #fff;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .ticket-num-label {
-    color: rgba(255,255,255,0.8);
-    font-size: 13px;
-  }
-
-  .ticket-seat {
-    color: rgba(255,255,255,0.9);
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-
-  .ticket-price {
-    color: #fff;
-    font-size: 13px;
-  }
-
-  /* Used stamp */
-  .used-stamp {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-30deg);
-    border: 4px solid rgba(220, 30, 30, 0.85);
-    color: rgba(220, 30, 30, 0.85);
-    font-size: 42px;
-    font-weight: 900;
-    padding: 6px 16px;
-    border-radius: 8px;
-    white-space: nowrap;
-    pointer-events: none;
-    letter-spacing: 4px;
-  }
-
-  .used-datetime {
-    color: rgba(255,255,255,0.9);
-    font-size: 12px;
-    margin-top: 8px;
-  }
-
-  /* Distribute button */
-  .btn-distribute {
-    display: block;
-    width: calc(100% - 20px);
-    margin: 0 10px 10px;
-    background: #fff;
-    border: 2px solid #E91E8C;
-    color: #E91E8C;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 15px;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  /* Details text */
-  .details-box {
-    background: #f7f7f7;
-    margin: 0 10px 10px;
-    border-radius: 8px;
-    padding: 12px;
-  }
-
-  .details-box p {
-    font-size: 12px;
-    color: #555;
-    line-height: 1.6;
-  }
-
-  .back-info-link {
-    text-align: center;
-    padding: 10px;
-    font-size: 13px;
-    color: #E91E8C;
-    text-decoration: underline;
-    cursor: pointer;
-    display: block;
-    margin-bottom: 20px;
-  }
-
-  /* ===== SCREEN 2 & 3: GATE画面 ===== */
-  #screen2, #screen3 {
-    overflow-y: auto;
-    background: #1a1a2e;
-  }
-
-  .gate-header {
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .gate-select-label {
-    font-size: 15px;
-    font-weight: bold;
-    color: #111;
-  }
-
-  .btn-close {
-    background: #E91E8C;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-  }
-
-  /* Warning banner */
-  .warning-banner {
-    background: #fffde7;
-    border-left: 4px solid #f9a825;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: #555;
-    line-height: 1.5;
-  }
-
-  /* Timestamp area */
-  .timestamp-area {
-    background: #1a1a2e;
-    padding: 14px 16px 10px;
-    text-align: center;
-  }
-
-  .timestamp-bar {
-    background: #2ecc71;
-    border-radius: 6px;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-  }
-
-  .timestamp-text {
-    font-family: "Courier New", monospace;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    letter-spacing: 1px;
-  }
-
-  .valid-label {
-    color: rgba(255,255,255,0.7);
-    font-size: 11px;
-    margin-bottom: 8px;
-  }
-
-  .stars-row {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 6px;
-  }
-
-  .star {
-    font-size: 22px;
-    color: #2ecc71;
-    animation: starBlink 1.5s infinite;
-  }
-
-  .star:nth-child(2) { animation-delay: 0.5s; }
-  .star:nth-child(3) { animation-delay: 1.0s; }
-
-  @keyframes starBlink {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.2; transform: scale(0.7); }
-  }
-
-  /* GATE card */
-  .gate-card {
-    margin: 12px 10px;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .gate-card-top {
-    background: #00bcd4;
-    padding: 18px 16px 14px;
-    text-align: center;
-  }
-
-  .gate-card-top.used-top {
-    background: #888;
-  }
-
-  .gate-word {
-    font-size: 52px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 8px;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-
-  .gate-name {
-    color: rgba(255,255,255,0.95);
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 2px;
-  }
-
-  .gate-type {
-    color: rgba(255,255,255,0.8);
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
-
-  .gate-check {
-    font-size: 36px;
-    color: #2ecc71;
-  }
-
-  .gate-check.used-check {
-    color: rgba(255,255,255,0.5);
-  }
-
-  .gate-card-bottom {
-    background: #E91E8C;
-    padding: 12px 16px;
-    text-align: center;
-  }
-
-  .gate-card-bottom.used-bottom {
-    background: #aaa;
-  }
-
-  .gate-ticket-num {
-    color: rgba(255,255,255,0.8);
-    font-size: 12px;
-    font-family: monospace;
-  }
-
-  .gate-used-label {
-    color: #ff5252;
-    background: rgba(255,255,255,0.95);
-    border: 2px solid #ff5252;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 2px 10px;
-    display: inline-block;
-    margin-bottom: 6px;
-  }
-
-  .gate-stamp {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-30deg);
-    border: 5px solid rgba(220, 30, 30, 0.9);
-    color: rgba(220, 30, 30, 0.9);
-    font-size: 44px;
-    font-weight: 900;
-    padding: 8px 16px;
-    border-radius: 8px;
-    white-space: nowrap;
-    pointer-events: none;
-    letter-spacing: 4px;
-    background: rgba(255,255,255,0.08);
-  }
-
-  .gate-used-datetime {
-    color: rgba(255,255,255,0.85);
-    font-size: 12px;
-    margin-top: 6px;
-  }
-
-  /* Slide area */
-  .slide-area {
-    margin: 12px 10px 24px;
-    background: #fff;
-    border-radius: 30px;
-    padding: 5px;
-    position: relative;
-    height: 56px;
-    overflow: hidden;
-    user-select: none;
-  }
-
-  .slide-track {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .slide-text {
-    font-size: 14px;
-    color: #999;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-
-  .slide-handle {
-    position: absolute;
-    left: 5px;
-    top: 5px;
-    width: 46px;
-    height: 46px;
-    background: #E91E8C;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: grab;
-    touch-action: none;
-    z-index: 2;
-    transition: left 0.1s;
-  }
-
-  .slide-handle:active {
-    cursor: grabbing;
-  }
-
-  .slide-handle-arrow {
-    color: #fff;
-    font-size: 22px;
-    font-weight: bold;
-    line-height: 1;
-  }
-
-  .slide-fill {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    background: rgba(233,30,140,0.15);
-    border-radius: 30px;
-    transition: width 0.1s;
-    pointer-events: none;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  background: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+#app {
+  width: 100%;
+  max-width: 390px;
+  min-height: 100vh;
+  background: #f5f5f5;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== SCREEN BASE ===== */
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.screen.hidden {
+  transform: translateX(100%);
+  pointer-events: none;
+}
+
+.screen.slide-out {
+  transform: translateX(-30%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ===== SCREEN 1 ===== */
+#screen1 {
+  background: #f5f5f5;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.s1-header {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eeeeee;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.btn-back {
+  font-size: 20px;
+  color: #E91E8C;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.btn-enter {
+  background: #E91E8C;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+.btn-enter.disabled {
+  background: #ccc;
+  pointer-events: none;
+}
+
+/* Event info card */
+.event-card {
+  background: #fff;
+  padding: 18px 16px 14px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.event-year {
+  font-size: 11px;
+  color: #888888;
+  margin-bottom: 2px;
+}
+
+.event-date-big {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333333;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.event-time {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.event-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333333;
+  line-height: 1.5;
+  margin-bottom: 4px;
+  padding-right: 32px;
+}
+
+.event-venue {
+  font-size: 12px;
+  color: #888888;
+}
+
+.btn-more-event {
+  position: absolute;
+  top: 18px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Name bar */
+.name-bar {
+  background: #FCE4EC;
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.name-bar-text {
+  font-size: 16px;
+  font-weight: bold;
+  color: #E91E8C;
+}
+
+.name-bar-num {
+  font-size: 13px;
+  color: #888888;
+}
+
+/* Ticket face */
+.ticket-face {
+  background: #fff;
+  margin-bottom: 8px;
+  padding: 14px 16px 16px;
+}
+
+.ticket-face-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ticket-face-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.badge-unused {
+  background: #E91E8C;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 10px;
+  letter-spacing: 0.05em;
+}
+
+.badge-used-s1 {
+  background: #888;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 10px;
+  letter-spacing: 0.05em;
+}
+
+.ticket-face-type {
+  font-size: 14px;
+  color: #333333;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.ticket-face-price {
+  font-size: 13px;
+  color: #888888;
+}
+
+.s1-stamp-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.s1-used-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  border: 3px solid #D32F2F;
+  color: #D32F2F;
+  font-size: 28px;
+  font-weight: 900;
+  padding: 4px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: 3px;
+  opacity: 0.85;
+}
+
+.s1-used-datetime {
+  font-size: 11px;
+  color: #888;
+  margin-top: 8px;
+}
+
+/* Distribute button */
+.btn-distribute {
+  display: block;
+  width: calc(100% - 16px);
+  margin: 0 8px 8px;
+  background: #fff;
+  border: 1.5px dashed #E91E8C;
+  color: #E91E8C;
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+}
+
+/* Details box */
+.details-box {
+  background: #fff;
+  margin: 0 0 8px;
+  padding: 14px 16px;
+}
+
+.details-box p {
+  font-size: 11px;
+  color: #888888;
+  line-height: 1.7;
+}
+
+/* Scroll-to-top button */
+.btn-totop {
+  position: fixed;
+  bottom: 24px;
+  right: calc(50% - 390px/2 + 16px);
+  width: 44px;
+  height: 44px;
+  background: #E91E8C;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(233,30,140,0.35);
+  z-index: 100;
+  line-height: 1;
+}
+
+/* ===== SCREEN 2 & 3: GATE ===== */
+#screen2, #screen3 {
+  background: #1A1A1A;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gate-header {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.gate-select-label {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.btn-close {
+  background: #E91E8C;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Warning banner */
+.warning-banner {
+  background: #FFEB3B;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #D32F2F;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Timestamp area */
+.timestamp-area {
+  padding: 14px 16px 10px;
+}
+
+.timestamp-bar {
+  background: #4DB6AC;
+  border-radius: 6px;
+  padding: 9px 14px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.timestamp-text {
+  font-family: "Courier New", "SF Mono", monospace;
+  font-size: 15px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.valid-label {
+  color: rgba(255,255,255,0.65);
+  font-size: 11px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.stars-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.star {
+  font-size: 22px;
+  color: #4CAF50;
+}
+
+.star-1 { animation: starBlink 1.3s 0.0s infinite; }
+.star-2 { animation: starBlink 1.7s 0.4s infinite; }
+.star-3 { animation: starBlink 1.1s 0.9s infinite; }
+
+@keyframes starBlink {
+  0%, 100% { opacity: 1; transform: scale(1.05); }
+  40% { opacity: 0.15; transform: scale(0.75); }
+}
+
+/* GATE card */
+.gate-card {
+  margin: 12px 12px 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+/* Gradient top for screen2 */
+.gate-card-gradient {
+  background: linear-gradient(180deg, #42A5F5 0%, #5C6BC0 50%, #E91E8C 100%);
+  padding: 22px 16px 18px;
+  text-align: center;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gate-word {
+  font-size: 56px;
+  font-weight: 900;
+  color: #1A237E;
+  letter-spacing: 10px;
+  line-height: 1;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 3px;
+  margin-bottom: 0;
+}
+
+/* Name strip (teal) inside gate card */
+.gate-name-strip {
+  background: #4DB6AC;
+  padding: 10px 16px;
+  text-align: center;
+}
+
+.gate-name-strip-text {
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+}
+
+/* Bottom white area */
+.gate-card-white {
+  background: #fff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.gate-check-circle {
+  width: 34px;
+  height: 34px;
+  background: #E91E8C;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.gate-type-text {
+  font-size: 14px;
+  color: #333333;
+  font-weight: 500;
+}
+
+/* Slider */
+.slide-area {
+  margin: 14px 12px 28px;
+  background: #fff;
+  border-radius: 30px;
+  padding: 5px;
+  position: relative;
+  height: 58px;
+  overflow: hidden;
+  user-select: none;
+}
+
+.slide-track {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.slide-text {
+  font-size: 13px;
+  color: #aaa;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.slide-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: rgba(233,30,140,0.12);
+  border-radius: 30px;
+  pointer-events: none;
+}
+
+.slide-handle {
+  position: absolute;
+  left: 5px; top: 5px;
+  width: 48px; height: 48px;
+  background: #E91E8C;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(233,30,140,0.4);
+}
+
+.slide-handle:active { cursor: grabbing; }
+
+.slide-handle-arrow {
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+/* ===== SCREEN 3: Used card ===== */
+.used-card {
+  margin: 12px 12px 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  position: relative;
+  padding: 18px 16px 20px;
+}
+
+.used-card-valid {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.used-card-stars {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.used-card-venue {
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.used-name-strip {
+  background: #FCE4EC;
+  padding: 9px 14px;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.used-name-strip-text {
+  font-size: 15px;
+  font-weight: bold;
+  color: #E91E8C;
+}
+
+.used-icon-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  filter: grayscale(1) opacity(0.4);
+  margin-bottom: 10px;
+}
+
+.used-entered-label {
+  display: inline-block;
+  background: #e0e0e0;
+  color: #888;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 12px;
+  margin-bottom: 14px;
+}
+
+.used-stamp-overlay {
+  transform: rotate(-15deg);
+  border: 3px solid #D32F2F;
+  color: #D32F2F;
+  font-size: 32px;
+  font-weight: 900;
+  padding: 5px 14px;
+  border-radius: 6px;
+  white-space: nowrap;
+  letter-spacing: 3px;
+  opacity: 0.85;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+.used-datetime-text {
+  font-size: 12px;
+  color: #888;
+}
+
+.used-card-center {
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -551,33 +628,36 @@
 
   <!-- ===== SCREEN 1: チケット詳細 ===== -->
   <div id="screen1" class="screen">
-    <div class="header">
+    <div class="s1-header">
       <button class="btn-back" onclick="goBack()">＜</button>
       <button class="btn-enter" id="btnEnter" onclick="goToGate()">入場画面に進む</button>
     </div>
 
-    <div class="event-info">
+    <div class="event-card">
       <div class="event-year" id="s1Year"></div>
       <div class="event-date-big" id="s1DateBig"></div>
       <div class="event-time" id="s1Time"></div>
       <div class="event-name" id="s1EventName"></div>
       <div class="event-venue" id="s1Venue"></div>
-      <button class="btn-more">…</button>
+      <button class="btn-more-event">…</button>
     </div>
 
-    <div class="ticket-card" id="ticketCard">
-      <div class="ticket-card-top">
-        <span class="ticket-icon" id="ticketIcon">🎫</span>
+    <div class="name-bar">
+      <span class="name-bar-text" id="s1NameBar"></span>
+      <span class="name-bar-num">1枚目</span>
+    </div>
+
+    <div class="ticket-face" id="ticketFace">
+      <div class="ticket-face-top">
+        <span class="ticket-face-icon">🎫</span>
         <span id="badgeStatus" class="badge-unused">未使用</span>
       </div>
-      <div class="ticket-name-row">
-        <span class="ticket-name" id="s1Name"></span>
-        <span class="ticket-num-label">1枚目</span>
+      <div class="ticket-face-type" id="s1Seat"></div>
+      <div class="ticket-face-price" id="s1Price"></div>
+      <div id="s1UsedBlock" style="display:none;">
+        <div class="s1-used-stamp">使用済</div>
+        <div class="s1-used-datetime" id="s1UsedDatetime"></div>
       </div>
-      <div class="ticket-seat" id="s1Seat"></div>
-      <div class="ticket-price" id="s1Price"></div>
-      <div class="used-stamp" id="s1Stamp" style="display:none;">使用済</div>
-      <div class="used-datetime" id="s1UsedDatetime" style="display:none;"></div>
     </div>
 
     <button class="btn-distribute" id="btnDistribute">同行者へ分配する</button>
@@ -586,10 +666,10 @@
       <p id="s1Details"></p>
     </div>
 
-    <a class="back-info-link">チケット裏面情報を見る</a>
+    <button class="btn-totop" id="btnToTop" onclick="scrollToTop()" title="トップへ">↑</button>
   </div>
 
-  <!-- ===== SCREEN 2: GATE画面 ===== -->
+  <!-- ===== SCREEN 2: GATE入場 ===== -->
   <div id="screen2" class="screen hidden">
     <div class="gate-header">
       <span class="gate-select-label">1/1枚 選択中</span>
@@ -606,28 +686,29 @@
       </div>
       <div class="valid-label">期間中有効</div>
       <div class="stars-row">
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
+        <span class="star star-1">★</span>
+        <span class="star star-2">★</span>
+        <span class="star star-3">★</span>
       </div>
     </div>
 
-    <div class="gate-card" id="gateCard2">
-      <div class="gate-card-top" id="gateCardTop2">
+    <div class="gate-card">
+      <div class="gate-card-gradient">
         <div class="gate-word">GATE</div>
-        <div class="gate-name" id="s2Name"></div>
-        <div class="gate-type" id="s2Type"></div>
-        <div class="gate-check">✓</div>
       </div>
-      <div class="gate-card-bottom">
-        <div class="gate-ticket-num" id="s2TicketNum"></div>
+      <div class="gate-name-strip">
+        <div class="gate-name-strip-text" id="s2Name"></div>
+      </div>
+      <div class="gate-card-white">
+        <div class="gate-check-circle">✓</div>
+        <div class="gate-type-text" id="s2Type"></div>
       </div>
     </div>
 
     <div class="slide-area" id="slideArea">
       <div class="slide-fill" id="slideFill"></div>
       <div class="slide-track">
-        <span class="slide-text">← 左にスライドして入場 →</span>
+        <span class="slide-text">スライドして入場 ›››</span>
       </div>
       <div class="slide-handle" id="slideHandle">
         <span class="slide-handle-arrow">›</span>
@@ -635,15 +716,11 @@
     </div>
   </div>
 
-  <!-- ===== SCREEN 3: 使用済み確認 ===== -->
+  <!-- ===== SCREEN 3: 使用済み ===== -->
   <div id="screen3" class="screen hidden">
     <div class="gate-header">
       <span class="gate-select-label">0/1枚 選択中</span>
       <button class="btn-close" onclick="closeUsed()">×</button>
-    </div>
-
-    <div class="warning-banner">
-      ⚠ スライドすると使用済になります。使用済チケットは、入場・再発行不可
     </div>
 
     <div class="timestamp-area">
@@ -652,32 +729,30 @@
       </div>
       <div class="valid-label">期間中有効</div>
       <div class="stars-row">
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
+        <span class="star star-1">★</span>
+        <span class="star star-2">★</span>
       </div>
     </div>
 
-    <div class="gate-card" id="gateCard3">
-      <div class="gate-card-top used-top" id="gateCardTop3">
-        <div class="gate-word">GATE</div>
-        <div class="gate-name" id="s3Name"></div>
-        <div class="gate-type" id="s3Type"></div>
-        <div class="gate-check used-check">✓</div>
-        <div class="gate-used-label">入場済</div>
-        <div class="gate-used-datetime" id="s3UsedDatetime"></div>
+    <div class="used-card">
+      <div class="used-card-center">
+        <div class="used-card-valid">期間中有効</div>
+        <div class="used-card-venue" id="s3Venue"></div>
+        <div class="used-name-strip">
+          <div class="used-name-strip-text" id="s3Name"></div>
+        </div>
+        <div class="used-icon-area">🎫</div>
+        <div><span class="used-entered-label">入場済</span></div>
+        <div><span class="used-stamp-overlay">使用済</span></div>
+        <div class="used-datetime-text" id="s3UsedDatetime"></div>
       </div>
-      <div class="gate-card-bottom used-bottom">
-        <div class="gate-ticket-num" id="s3TicketNum"></div>
-      </div>
-      <div class="gate-stamp">使用済</div>
     </div>
   </div>
 
 </div>
 
 <script>
-// ===== URLパラメーター取得 =====
+// ===== URLパラメーター =====
 const params = new URLSearchParams(location.search);
 const p = (key, def) => params.get(key) || def;
 
@@ -697,50 +772,43 @@ const ticket = {
   ticket_num: p('ticket_num', '1160027394397'),
 };
 
-// ===== sessionStorage: 使用済み状態 =====
+// ===== sessionStorage =====
 const USED_KEY = 'ticket_used';
 const USED_DT_KEY = 'ticket_used_datetime';
 
-function isUsed() {
-  return sessionStorage.getItem(USED_KEY) === '1';
-}
-
+function isUsed() { return sessionStorage.getItem(USED_KEY) === '1'; }
 function setUsed(dtStr) {
   sessionStorage.setItem(USED_KEY, '1');
   sessionStorage.setItem(USED_DT_KEY, dtStr);
 }
-
-function getUsedDatetime() {
-  return sessionStorage.getItem(USED_DT_KEY) || '';
-}
+function getUsedDatetime() { return sessionStorage.getItem(USED_DT_KEY) || ''; }
 
 // ===== 日付フォーマット =====
+const DAY_NAMES = ['日','月','火','水','木','金','土'];
+
 function parseDateParts() {
-  // "2025/2/18" → { year: '2025', m: '2', d: '18' }
   const parts = ticket.date.split('/');
   return { year: parts[0] || '', m: parts[1] || '', d: parts[2] || '' };
 }
 
-const DAY_NAMES = ['日','月','火','水','木','金','土'];
-
 function formatTimestamp(dt) {
   const y = dt.getFullYear();
   const mo = String(dt.getMonth() + 1).padStart(2, '0');
-  const d = String(dt.getDate()).padStart(2, '0');
-  const w = DAY_NAMES[dt.getDay()];
-  const h = String(dt.getHours()).padStart(2, '0');
+  const d  = String(dt.getDate()).padStart(2, '0');
+  const w  = DAY_NAMES[dt.getDay()];
+  const h  = String(dt.getHours()).padStart(2, '0');
   const mi = String(dt.getMinutes()).padStart(2, '0');
-  const s = String(dt.getSeconds()).padStart(2, '0');
+  const s  = String(dt.getSeconds()).padStart(2, '0');
   const ms = String(dt.getMilliseconds()).padStart(3, '0');
   return `${y}/${mo}/${d}(${w}) ${h}:${mi}:${s}.${ms}`;
 }
 
 function formatUsedDatetime(dt) {
-  const y = dt.getFullYear();
+  const y  = dt.getFullYear();
   const mo = String(dt.getMonth() + 1).padStart(2, '0');
-  const d = String(dt.getDate()).padStart(2, '0');
-  const w = DAY_NAMES[dt.getDay()];
-  const h = String(dt.getHours()).padStart(2, '0');
+  const d  = String(dt.getDate()).padStart(2, '0');
+  const w  = DAY_NAMES[dt.getDay()];
+  const h  = String(dt.getHours()).padStart(2, '0');
   const mi = String(dt.getMinutes()).padStart(2, '0');
   return `${y}/${mo}/${d}(${w}) ${h}:${mi}`;
 }
@@ -753,11 +821,17 @@ function initScreen1() {
   document.getElementById('s1Time').textContent = `${ticket.open} 開場 / ${ticket.start} 開演`;
   document.getElementById('s1EventName').textContent = ticket.event;
   document.getElementById('s1Venue').textContent = ticket.venue;
-  document.getElementById('s1Name').textContent = ticket.name + ' 様';
-  document.getElementById('s1Seat').textContent = `${ticket.type} / ${ticket.floor} ${ticket.row} ${ticket.num}`;
-  document.getElementById('s1Price').textContent = `¥${Number(ticket.price).toLocaleString()}（税込）`;
+  document.getElementById('s1NameBar').textContent = ticket.name + ' 様';
+  document.getElementById('s1Seat').textContent =
+    `${ticket.type} / ${ticket.floor} ${ticket.row} ${ticket.num}`;
+  document.getElementById('s1Price').textContent =
+    `¥${Number(ticket.price).toLocaleString()}（税込）`;
 
-  const details = `【公演詳細】\nイベント名: ${ticket.event}\n会場: ${ticket.venue}\n日時: ${ticket.date}（${ticket.day}） ${ticket.open}開場 / ${ticket.start}開演\n座席: ${ticket.type} ${ticket.floor} ${ticket.row} ${ticket.num}\nチケット番号: ${ticket.ticket_num}`;
+  const details =
+    `【公演詳細】\nイベント名: ${ticket.event}\n会場: ${ticket.venue}\n` +
+    `日時: ${ticket.date}（${ticket.day}） ${ticket.open}開場 / ${ticket.start}開演\n` +
+    `座席: ${ticket.type} ${ticket.floor} ${ticket.row} ${ticket.num}\n` +
+    `チケット番号: ${ticket.ticket_num}`;
   document.getElementById('s1Details').textContent = details;
 
   applyUsedStateToScreen1();
@@ -765,27 +839,27 @@ function initScreen1() {
 
 function applyUsedStateToScreen1() {
   const used = isUsed();
-  const card = document.getElementById('ticketCard');
   const badge = document.getElementById('badgeStatus');
-  const stamp = document.getElementById('s1Stamp');
+  const usedBlock = document.getElementById('s1UsedBlock');
   const usedDt = document.getElementById('s1UsedDatetime');
   const distribute = document.getElementById('btnDistribute');
+  const btnEnter = document.getElementById('btnEnter');
 
   if (used) {
-    card.classList.add('used');
-    badge.className = 'badge-used';
+    badge.className = 'badge-used-s1';
     badge.textContent = '入場済';
-    stamp.style.display = 'block';
-    usedDt.style.display = 'block';
+    usedBlock.style.display = 'block';
     usedDt.textContent = '使用日時: ' + getUsedDatetime();
     distribute.style.display = 'none';
+    btnEnter.classList.add('disabled');
+    btnEnter.textContent = '入場済み';
   } else {
-    card.classList.remove('used');
     badge.className = 'badge-unused';
     badge.textContent = '未使用';
-    stamp.style.display = 'none';
-    usedDt.style.display = 'none';
+    usedBlock.style.display = 'none';
     distribute.style.display = 'block';
+    btnEnter.classList.remove('disabled');
+    btnEnter.textContent = '入場画面に進む';
   }
 }
 
@@ -793,20 +867,17 @@ function applyUsedStateToScreen1() {
 function initGateScreens() {
   document.getElementById('s2Name').textContent = ticket.name + ' 様';
   document.getElementById('s2Type').textContent = ticket.type;
-  document.getElementById('s2TicketNum').textContent = ticket.ticket_num;
   document.getElementById('s3Name').textContent = ticket.name + ' 様';
-  document.getElementById('s3Type').textContent = ticket.type;
-  document.getElementById('s3TicketNum').textContent = ticket.ticket_num;
+  document.getElementById('s3Venue').textContent = ticket.venue;
 }
 
-// ===== タイムスタンプ更新 =====
+// ===== タイムスタンプ =====
 let tsInterval = null;
 
 function startTimestamp() {
   if (tsInterval) return;
   tsInterval = setInterval(() => {
-    const now = new Date();
-    const str = formatTimestamp(now);
+    const str = formatTimestamp(new Date());
     const el2 = document.getElementById('s2Timestamp');
     const el3 = document.getElementById('s3Timestamp');
     if (el2) el2.textContent = str;
@@ -815,10 +886,7 @@ function startTimestamp() {
 }
 
 function stopTimestamp() {
-  if (tsInterval) {
-    clearInterval(tsInterval);
-    tsInterval = null;
-  }
+  if (tsInterval) { clearInterval(tsInterval); tsInterval = null; }
 }
 
 // ===== 画面遷移 =====
@@ -826,39 +894,34 @@ let currentScreen = 'screen1';
 
 function showScreen(to, from, direction) {
   const fromEl = document.getElementById(from);
-  const toEl = document.getElementById(to);
+  const toEl   = document.getElementById(to);
 
   if (direction === 'forward') {
     toEl.classList.remove('hidden');
     toEl.style.transform = 'translateX(100%)';
     toEl.style.opacity = '1';
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        fromEl.classList.add('slide-out');
-        toEl.style.transform = 'translateX(0)';
-        toEl.style.transition = 'transform 0.3s ease';
-      });
-    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fromEl.classList.add('slide-out');
+      toEl.style.transform = 'translateX(0)';
+      toEl.style.transition = 'transform 0.3s ease';
+    }));
     setTimeout(() => {
       fromEl.classList.add('hidden');
       fromEl.classList.remove('slide-out');
-    }, 300);
+    }, 310);
   } else {
-    // backward
     toEl.classList.remove('hidden');
     toEl.style.transform = 'translateX(-30%)';
     toEl.style.opacity = '0.5';
     toEl.style.transition = 'none';
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        fromEl.style.transition = 'transform 0.3s ease';
-        fromEl.style.transform = 'translateX(100%)';
-        fromEl.style.opacity = '1';
-        toEl.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-        toEl.style.transform = 'translateX(0)';
-        toEl.style.opacity = '1';
-      });
-    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fromEl.style.transition = 'transform 0.3s ease';
+      fromEl.style.transform = 'translateX(100%)';
+      fromEl.style.opacity = '1';
+      toEl.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      toEl.style.transform = 'translateX(0)';
+      toEl.style.opacity = '1';
+    }));
     setTimeout(() => {
       fromEl.classList.add('hidden');
       fromEl.style.transform = '';
@@ -867,13 +930,13 @@ function showScreen(to, from, direction) {
       toEl.style.transform = '';
       toEl.style.transition = '';
       toEl.style.opacity = '';
-    }, 300);
+    }, 310);
   }
-
   currentScreen = to;
 }
 
 function goToGate() {
+  if (isUsed()) return;
   startTimestamp();
   showScreen('screen2', 'screen1', 'forward');
   resetSlider();
@@ -890,31 +953,31 @@ function closeUsed() {
   stopTimestamp();
 }
 
-function goBack() {
-  // placeholder
+function goBack() { /* placeholder */ }
+
+function scrollToTop() {
+  document.getElementById('screen1').scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ===== スライダー =====
-let sliding = false;
-let startX = 0;
-let currentX = 0;
-let slideMax = 0;
+let sliding = false, startX = 0, slideMax = 0;
 
 function resetSlider() {
   const handle = document.getElementById('slideHandle');
-  const fill = document.getElementById('slideFill');
+  const fill   = document.getElementById('slideFill');
+  handle.style.transition = 'left 0.3s ease';
+  fill.style.transition   = 'width 0.3s ease';
   handle.style.left = '5px';
-  fill.style.width = '0px';
+  fill.style.width  = '0px';
 }
 
 function initSlider() {
   const handle = document.getElementById('slideHandle');
-  const area = document.getElementById('slideArea');
+  const area   = document.getElementById('slideArea');
 
   function onStart(clientX) {
     sliding = true;
-    startX = clientX;
-    currentX = 5;
+    startX  = clientX;
     slideMax = area.offsetWidth - handle.offsetWidth - 10;
     handle.style.transition = 'none';
     document.getElementById('slideFill').style.transition = 'none';
@@ -923,12 +986,10 @@ function initSlider() {
   function onMove(clientX) {
     if (!sliding) return;
     const dx = clientX - startX;
-    let newLeft = Math.min(Math.max(5, 5 + dx), slideMax + 5);
+    const newLeft = Math.min(Math.max(5, 5 + dx), slideMax + 5);
     handle.style.left = newLeft + 'px';
-    document.getElementById('slideFill').style.width = (newLeft) + 'px';
-
-    // completed
-    if (newLeft >= slideMax) {
+    document.getElementById('slideFill').style.width = newLeft + 'px';
+    if (newLeft >= slideMax + 5) {
       sliding = false;
       completeSlide();
     }
@@ -937,51 +998,25 @@ function initSlider() {
   function onEnd() {
     if (!sliding) return;
     sliding = false;
-    const handle = document.getElementById('slideHandle');
-    const fill = document.getElementById('slideFill');
-    handle.style.transition = 'left 0.3s ease';
-    fill.style.transition = 'width 0.3s ease';
-    handle.style.left = '5px';
-    fill.style.width = '0px';
+    resetSlider();
   }
 
   // Touch
-  handle.addEventListener('touchstart', e => {
-    e.preventDefault();
-    onStart(e.touches[0].clientX);
-  }, { passive: false });
-
-  document.addEventListener('touchmove', e => {
-    if (sliding) {
-      e.preventDefault();
-      onMove(e.touches[0].clientX);
-    }
-  }, { passive: false });
-
+  handle.addEventListener('touchstart', e => { e.preventDefault(); onStart(e.touches[0].clientX); }, { passive: false });
+  document.addEventListener('touchmove', e => { if (sliding) { e.preventDefault(); onMove(e.touches[0].clientX); } }, { passive: false });
   document.addEventListener('touchend', onEnd);
 
   // Mouse
-  handle.addEventListener('mousedown', e => {
-    e.preventDefault();
-    onStart(e.clientX);
-  });
-
-  document.addEventListener('mousemove', e => {
-    onMove(e.clientX);
-  });
-
+  handle.addEventListener('mousedown', e => { e.preventDefault(); onStart(e.clientX); });
+  document.addEventListener('mousemove', e => { onMove(e.clientX); });
   document.addEventListener('mouseup', onEnd);
 }
 
 function completeSlide() {
-  const now = new Date();
+  const now   = new Date();
   const dtStr = formatUsedDatetime(now);
   setUsed(dtStr);
-
-  // Update screen3 datetime
   document.getElementById('s3UsedDatetime').textContent = '使用日時: ' + dtStr;
-
-  // Transition to screen3
   showScreen('screen3', 'screen2', 'forward');
 }
 
