@@ -2,652 +2,416 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>スマートチケット</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
-  background:#f0f0f0;
-  display:flex;justify-content:center;
-  min-height:100vh;
-}
-#app{
-  width:100%;max-width:390px;min-height:100vh;
-  background:#f5f5f5;position:relative;overflow:hidden;
-}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;background:#f0f0f0;display:flex;justify-content:center;min-height:100vh;}
+#app{width:100%;max-width:390px;min-height:100vh;background:#f5f5f5;position:relative;overflow:hidden;}
 
 /* ===== SCREENS ===== */
-.screen{
-  width:100%;min-height:100vh;
-  position:absolute;top:0;left:0;
-  transition:transform .3s ease,opacity .3s ease;
-  background:#f5f5f5;
-}
+.screen{width:100%;min-height:100vh;position:absolute;top:0;left:0;background:#f5f5f5;transition:transform .3s ease,opacity .3s ease;}
 .screen.hidden{transform:translateX(100%);pointer-events:none;}
-.screen.slide-out{transform:translateX(-25%);opacity:.6;pointer-events:none;}
+.screen.out{transform:translateX(-25%);opacity:.5;pointer-events:none;}
+#s1{overflow-y:auto;}
 
 /* ===== SCREEN 1 ===== */
-#s1{background:#f5f5f5;overflow-y:auto;}
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10;}
+.btn-back{background:none;border:none;color:#E91E8C;font-size:24px;font-weight:300;cursor:pointer;padding:2px 6px;line-height:1;}
+.btn-enter{background:#E91E8C;color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;letter-spacing:.3px;}
 
-.s1-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;background:#fff;
-  border-bottom:1px solid #eee;
-  position:sticky;top:0;z-index:10;
-}
-.btn-back{
-  color:#3BAFDA;font-size:22px;font-weight:bold;
-  background:none;border:none;cursor:pointer;padding:4px 8px;
-}
-.btn-enter{
-  background:#E91E8C;color:#fff;
-  border:none;border-radius:20px;
-  padding:8px 16px;font-size:13px;font-weight:bold;
-  cursor:pointer;white-space:nowrap;
-}
+/* Event card */
+.ev-card{background:#fff;margin:8px 10px 0;border-radius:8px 8px 0 0;padding:14px 14px 10px;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.06);}
+.ev-year{font-size:12px;color:#888;margin-bottom:2px;}
+.ev-date-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.ev-date{font-size:38px;font-weight:bold;color:#111;line-height:1.05;}
+.ev-date-right{display:flex;flex-direction:column;padding-top:6px;}
+.ev-day{font-size:14px;font-weight:bold;color:#111;}
+.ev-times{font-size:12px;color:#444;line-height:1.9;white-space:nowrap;}
+.ev-name{font-size:15px;font-weight:bold;color:#111;line-height:1.4;margin-bottom:3px;}
+.ev-venue{font-size:12px;color:#888;}
+.ev-menu{position:absolute;top:12px;right:12px;color:#E91E8C;font-size:20px;cursor:pointer;line-height:1;}
 
-.event-card{
-  background:#fff;margin:8px 12px 0;border-radius:10px 10px 0 0;
-  padding:16px;position:relative;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);
-}
-.event-year{font-size:12px;color:#888;margin-bottom:2px;}
-.event-date-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;}
-.event-date-big{font-size:36px;font-weight:bold;color:#222;line-height:1;}
-.event-date-day{font-size:14px;color:#222;font-weight:bold;margin-top:6px;}
-.event-times{font-size:12px;color:#555;line-height:1.8;}
-.event-name{font-size:15px;font-weight:bold;color:#222;margin-bottom:4px;}
-.event-venue{font-size:12px;color:#888;}
-.event-menu{position:absolute;top:14px;right:14px;color:#aaa;font-size:18px;cursor:pointer;}
+/* Name bar */
+.name-bar{background:#FCE4EC;margin:0 10px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;}
+.name-bar .nm{color:#C2185B;font-size:17px;font-weight:bold;}
+.name-bar .num{color:#E88CA5;font-size:12px;}
 
-.ticket-name-bar{
-  background:#E91E8C;margin:0 12px;
-  padding:10px 14px;
-  display:flex;justify-content:space-between;align-items:center;
-  border-radius:0;
-}
-.ticket-name-bar .name{color:#fff;font-size:16px;font-weight:bold;}
-.ticket-name-bar .num{color:rgba(255,255,255,.8);font-size:12px;}
+/* Ticket body */
+.tkt-body{background:#fff;margin:0 10px;padding:14px;display:flex;align-items:flex-start;gap:12px;border-bottom:1.5px dashed #F48FB1;}
+.tkt-icon-wrap{flex-shrink:0;text-align:center;}
+.tkt-icon{display:block;margin:0 auto 5px;}
+.badge-unused{display:inline-block;font-size:10px;font-weight:bold;color:#E53935;border:1.5px solid #E53935;border-radius:3px;padding:1px 5px;}
+.badge-used{display:inline-block;font-size:10px;font-weight:bold;color:#888;border:1.5px solid #888;border-radius:3px;padding:1px 5px;}
+.tkt-info{flex:1;position:relative;}
+.tkt-type{font-size:17px;font-weight:bold;color:#111;margin-bottom:3px;}
+.tkt-seat{font-size:13px;color:#444;margin-bottom:3px;line-height:1.6;}
+.tkt-price{font-size:17px;font-weight:bold;color:#111;}
+.stamp{position:absolute;right:0;top:50%;transform:translateY(-60%) rotate(15deg);color:#D32F2F;border:2.5px solid #D32F2F;border-radius:4px;padding:3px 7px;font-size:16px;font-weight:bold;opacity:.88;background:rgba(255,255,255,.55);white-space:nowrap;}
 
-.ticket-body{
-  background:#fff;margin:0 12px;
-  padding:16px 14px;
-  border-bottom:1.5px dashed #E91E8C;
-  display:flex;align-items:flex-start;gap:12px;
-}
-.ticket-icon-wrap{flex-shrink:0;text-align:center;width:68px;}
-.ticket-icon-circle{
-  width:64px;height:64px;border-radius:50%;
-  background:#E91E8C;display:flex;align-items:center;justify-content:center;
-  margin:0 auto 4px;
-}
-.ticket-icon-circle svg{width:36px;height:26px;}
-.ticket-icon-circle.used-icon{filter:grayscale(100%) opacity(40%);}
-.status-badge{
-  font-size:10px;font-weight:bold;
-  padding:2px 6px;border-radius:3px;
-  display:inline-block;
-}
-.status-unused{background:#E91E8C;color:#fff;}
-.status-used{background:#9E9E9E;color:#fff;}
-.ticket-info{flex:1;}
-.ticket-type{font-size:16px;font-weight:bold;color:#333;margin-bottom:4px;
-  display:flex;align-items:center;gap:8px;}
-.ticket-type .arrow{color:#aaa;font-size:14px;}
-.ticket-seat{font-size:13px;color:#555;margin-bottom:4px;}
-.ticket-price{font-size:18px;font-weight:bold;color:#333;}
-.used-stamp-wrap{position:relative;}
-.used-stamp{
-  position:absolute;right:-8px;top:-12px;
-  color:#D32F2F;border:3px solid #D32F2F;
-  border-radius:5px;padding:3px 7px;
-  font-size:18px;font-weight:bold;
-  transform:rotate(-15deg);opacity:.85;
-  white-space:nowrap;background:rgba(255,255,255,.6);
-  z-index:5;
-}
-.used-date{font-size:12px;color:#888;margin-top:8px;}
+/* Distribute button */
+.btn-dist{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px dashed #00A5A8;border-radius:6px;margin:8px 10px;padding:10px 14px;color:#00A5A8;font-size:13px;font-weight:bold;cursor:pointer;width:calc(100%-20px);}
 
-.btn-distribute{
-  display:flex;align-items:center;gap:8px;
-  background:#fff;border:1.5px dashed #E91E8C;
-  border-radius:8px;margin:8px 12px;padding:10px 16px;
-  color:#E91E8C;font-size:13px;cursor:pointer;width:calc(100% - 24px);
-}
-.btn-distribute .icon{font-size:16px;}
+/* Detail section */
+.detail{background:#FFF5F7;margin:0 10px;padding:12px 14px;font-size:11px;color:#333;line-height:1.75;}
+.detail-sep{border:none;border-top:1px dashed #F48FB1;margin:0 10px;}
 
-.detail-section{
-  background:#FCE4EC;margin:0 12px;border-radius:0 0 8px 8px;
-  padding:14px;font-size:11px;color:#555;line-height:1.8;
-}
-.detail-title{font-size:13px;font-weight:bold;color:#333;margin-bottom:8px;}
+/* Ticket number */
+.tkt-num{margin:6px 10px 2px;font-size:12px;color:#E91E8C;font-weight:bold;}
+.tkt-used-dt{margin:0 10px 6px;font-size:11px;color:#555;}
+.link-back{display:block;margin:2px 10px 30px;font-size:12px;color:#E91E8C;text-decoration:none;}
 
-.ticket-number{
-  margin:4px 12px 4px;
-  font-size:13px;color:#3BAFDA;font-weight:bold;
-}
-.ticket-used-date-bottom{
-  margin:0 12px 8px;
-  font-size:12px;color:#555;
-}
-.link-back-info{
-  display:block;
-  color:#3BAFDA;font-size:13px;margin:4px 12px 24px;
-  text-decoration:none;
-}
-.btn-scroll-top{
-  position:fixed;bottom:20px;right:calc(50% - 195px + 12px);
-  width:40px;height:40px;border-radius:50%;
-  background:#E91E8C;color:#fff;border:none;
-  font-size:18px;cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
-  z-index:20;
-  display:flex;align-items:center;justify-content:center;
-}
+/* Scroll top btn */
+.btn-top{position:fixed;bottom:22px;right:calc(50% - 195px + 10px);width:38px;height:38px;border-radius:50%;background:#00A5A8;color:#fff;border:none;font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:20;display:flex;align-items:center;justify-content:center;}
 
-/* ===== SCREEN 2 (GATE) ===== */
-#s2{background:#1A1A1A;display:flex;flex-direction:column;}
+/* ===== SCREEN 2 ===== */
+#s2{background:#111;display:flex;flex-direction:column;}
+.s2-hdr{background:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.s2-hdr .cnt{font-size:14px;font-weight:bold;color:#111;}
+.btn-x{width:30px;height:30px;border-radius:50%;background:#E91E8C;color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:bold;}
 
-.s2-header{
-  background:#fff;padding:14px 16px;
-  display:flex;justify-content:space-between;align-items:center;
-  flex-shrink:0;
-}
-.s2-header .count{font-size:14px;color:#333;font-weight:bold;}
-.btn-close{
-  width:32px;height:32px;border-radius:50%;
-  background:#E91E8C;color:#fff;border:none;
-  font-size:18px;cursor:pointer;font-weight:bold;
-  display:flex;align-items:center;justify-content:center;
-}
+.warn{background:#FFEB3B;padding:9px 14px;flex-shrink:0;}
+.warn p{font-size:11.5px;color:#C62828;font-weight:bold;line-height:1.55;}
 
-.warn-banner{
-  background:#FFEB3B;padding:10px 14px;flex-shrink:0;
-}
-.warn-banner p{font-size:12px;color:#D32F2F;font-weight:bold;line-height:1.6;}
+.ts-bar{background:#4DB6AC;padding:7px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:14px;}
+.ts-txt{font-size:13px;color:#fff;font-weight:bold;letter-spacing:.5px;font-variant-numeric:tabular-nums;}
+.ts-valid{font-size:10px;color:rgba(255,255,255,.85);}
 
-.timestamp-bar{
-  background:#4DB6AC;padding:8px 14px;flex-shrink:0;
-  display:flex;justify-content:center;align-items:center;gap:16px;
-}
-.timestamp-text{font-size:14px;color:#fff;font-weight:bold;font-variant-numeric:tabular-nums;}
-.valid-text{font-size:11px;color:rgba(255,255,255,.9);}
+.stars{display:flex;justify-content:center;gap:22px;padding:10px 0 2px;flex-shrink:0;}
+.star{font-size:26px;color:#4CAF50;}
+.star.off{opacity:.1;}
 
-.stars-row{
-  display:flex;justify-content:center;gap:24px;
-  padding:12px 0 4px;flex-shrink:0;
-}
-.star{font-size:28px;color:#4CAF50;transition:opacity .2s;}
-.star.dim{opacity:.15;}
+.gate-card{background:#fff;margin:10px 16px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 18px rgba(0,0,0,.4);}
+.gate-top{background:linear-gradient(170deg,#5C9CE6 0%,#7B6FC4 45%,#D63AAF 100%);height:175px;display:flex;align-items:center;justify-content:center;}
+.gate-lbl{font-size:50px;font-weight:900;color:#0D47A1;text-decoration:underline;letter-spacing:6px;}
+.gate-nm{background:#4DB6AC;padding:9px 14px;}
+.gate-nm span{font-size:15px;font-weight:bold;color:#fff;}
+.gate-bot{background:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.chk{width:40px;height:40px;border-radius:50%;background:#E91E8C;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gate-type{font-size:14px;color:#333;}
 
-.gate-card{
-  background:#fff;margin:12px 20px;border-radius:16px;
-  overflow:hidden;flex-shrink:0;
-  box-shadow:0 4px 16px rgba(0,0,0,.3);
-}
-.gate-top{
-  background:linear-gradient(180deg,#42A5F5 0%,#5C6BC0 50%,#E91E8C 100%);
-  height:180px;
-  display:flex;align-items:center;justify-content:center;
-}
-.gate-text{
-  font-size:48px;font-weight:bold;color:#0D47A1;
-  text-decoration:underline;letter-spacing:4px;
-}
-.gate-name-bar{
-  background:#4DB6AC;padding:10px 16px;
-}
-.gate-name-bar .gname{font-size:16px;font-weight:bold;color:#fff;}
-.gate-bottom{
-  background:#fff;padding:14px 16px;
-  display:flex;align-items:center;gap:12px;
-}
-.check-circle{
-  width:44px;height:44px;border-radius:50%;
-  background:#E91E8C;color:#fff;font-size:22px;font-weight:bold;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.gate-type{font-size:15px;color:#333;}
+/* Slider */
+.slide-area{margin:12px 16px;flex-shrink:0;}
+.slide-track{background:#2a2a2a;border-radius:28px;height:50px;position:relative;overflow:hidden;display:flex;align-items:center;border:1.5px solid #444;}
+.slide-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#E91E8C,#ff79b8);border-radius:28px;width:0%;}
+.slide-lbl{position:absolute;width:100%;text-align:center;color:rgba(255,255,255,.6);font-size:13px;font-weight:bold;pointer-events:none;z-index:1;}
+.slide-thumb{width:46px;height:46px;border-radius:50%;background:#fff;position:absolute;left:2px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:grab;box-shadow:0 2px 8px rgba(0,0,0,.4);user-select:none;z-index:2;}
 
-/* スライダー */
-.slider-area{
-  margin:16px 20px;flex-shrink:0;
-}
-.slider-track{
-  background:#333;border-radius:30px;height:52px;
-  position:relative;overflow:hidden;
-  display:flex;align-items:center;
-}
-.slider-fill{
-  position:absolute;left:0;top:0;height:100%;
-  background:linear-gradient(90deg,#E91E8C,#ff6bab);
-  border-radius:30px;width:0%;transition:none;
-}
-.slider-thumb{
-  width:48px;height:48px;border-radius:50%;
-  background:#fff;position:absolute;left:2px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;cursor:grab;
-  box-shadow:0 2px 8px rgba(0,0,0,.3);
-  user-select:none;z-index:2;
-}
-.slider-label{
-  position:absolute;width:100%;text-align:center;
-  color:rgba(255,255,255,.7);font-size:13px;font-weight:bold;
-  pointer-events:none;z-index:1;
-}
-
-/* ===== SCREEN 3 (使用済み確認) ===== */
-#s3{background:#1A1A1A;display:flex;flex-direction:column;}
-
-.s3-card{
-  background:#fff;margin:12px 16px;border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 4px 16px rgba(0,0,0,.3);
-}
-.s3-valid-row{
-  padding:16px;text-align:center;border-bottom:1px solid #f0f0f0;
-}
-.s3-valid-title{font-size:15px;font-weight:bold;color:#333;margin-bottom:8px;}
+/* ===== SCREEN 3 ===== */
+#s3{background:#111;display:flex;flex-direction:column;}
+.s3-card{background:#fff;margin:10px 14px;border-radius:12px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.4);}
+.s3-valid{padding:14px;text-align:center;border-bottom:1px solid #eee;}
+.s3-valid h3{font-size:14px;font-weight:bold;color:#333;margin-bottom:7px;}
 .s3-stars{display:flex;justify-content:center;gap:12px;}
-.s3-star{font-size:24px;color:#4CAF50;}
-.s3-event-row{padding:10px 16px;border-bottom:1px solid #f5f5f5;}
-.s3-event-name{font-size:14px;font-weight:bold;color:#333;}
-.s3-event-sub{font-size:12px;color:#888;}
-.s3-name-bar{
-  background:#FCE4EC;padding:10px 16px;
-  border-bottom:1px solid #f0f0f0;
-}
-.s3-name{font-size:15px;font-weight:bold;color:#E91E8C;}
-.s3-ticket-row{
-  padding:14px 16px;display:flex;align-items:center;gap:12px;
-  position:relative;
-}
-.s3-icon{font-size:28px;filter:grayscale(100%);opacity:.5;flex-shrink:0;}
-.s3-ticket-info{}
-.s3-used-label{
-  font-size:10px;background:#9E9E9E;color:#fff;
-  border-radius:3px;padding:2px 5px;display:inline-block;margin-bottom:4px;
-}
-.s3-type{font-size:15px;color:#333;}
-.s3-stamp{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(-15deg);
-  color:#D32F2F;border:3px solid #D32F2F;border-radius:5px;
-  padding:4px 8px;font-size:20px;font-weight:bold;
-  opacity:.85;background:rgba(255,255,255,.7);
-}
-.s3-date{
-  padding:4px 16px 16px;
-  font-size:12px;color:#888;
-}
+.s3-star{font-size:22px;color:#4CAF50;}
+.s3-ev{padding:9px 14px;border-bottom:1px solid #f5f5f5;}
+.s3-ev-name{font-size:13px;font-weight:bold;color:#333;}
+.s3-ev-sub{font-size:11px;color:#888;}
+.s3-nm{background:#FCE4EC;padding:9px 14px;}
+.s3-nm span{font-size:14px;font-weight:bold;color:#C2185B;}
+.s3-row{padding:12px 14px;display:flex;align-items:center;gap:10px;position:relative;}
+.s3-ico{flex-shrink:0;opacity:.4;filter:grayscale(1);}
+.s3-info{}
+.s3-badge{display:inline-block;font-size:10px;color:#888;border:1.5px solid #888;border-radius:3px;padding:1px 5px;margin-bottom:4px;}
+.s3-type{font-size:14px;color:#333;}
+.s3-stamp{position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(15deg);color:#D32F2F;border:2.5px solid #D32F2F;border-radius:4px;padding:3px 8px;font-size:18px;font-weight:bold;opacity:.88;background:rgba(255,255,255,.6);}
+.s3-date{padding:4px 14px 14px;font-size:11px;color:#888;}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- ===== SCREEN 1 ===== -->
+<!-- SCREEN 1 -->
 <div class="screen" id="s1">
-  <div class="s1-header">
+  <div class="hdr">
     <button class="btn-back">＜</button>
     <button class="btn-enter" id="btnEnter">入場画面に進む</button>
   </div>
 
-  <div class="event-card">
-    <div class="event-year" id="evYear"></div>
-    <div class="event-date-row">
-      <div>
-        <div class="event-date-big" id="evDateBig"></div>
-      </div>
-      <div>
-        <div class="event-date-day" id="evDateDay"></div>
-        <div class="event-times" id="evTimes"></div>
+  <div class="ev-card">
+    <div class="ev-year" id="evYear"></div>
+    <div class="ev-date-row">
+      <div class="ev-date" id="evDate"></div>
+      <div class="ev-date-right">
+        <div class="ev-day" id="evDay"></div>
+        <div class="ev-times" id="evTimes"></div>
       </div>
     </div>
-    <div class="event-name" id="evName"></div>
-    <div class="event-venue" id="evVenue"></div>
-    <span class="event-menu">…</span>
+    <div class="ev-name" id="evName"></div>
+    <div class="ev-venue" id="evVenue"></div>
+    <span class="ev-menu">…</span>
   </div>
 
-  <div class="ticket-name-bar">
-    <span class="name" id="s1Name"></span>
+  <div class="name-bar">
+    <span class="nm" id="s1Name"></span>
     <span class="num">1枚目</span>
   </div>
 
-  <div class="ticket-body" id="ticketBody">
-    <div class="ticket-icon-wrap">
-      <div class="ticket-icon-circle" id="s1IconCircle">
-        <svg viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1" y="2" width="38" height="22" rx="3" fill="white" opacity="0.9"/>
-          <circle cx="1" cy="13" r="4" fill="#E91E8C"/>
-          <circle cx="39" cy="13" r="4" fill="#E91E8C"/>
-          <line x1="11" y1="2" x2="11" y2="24" stroke="#E91E8C" stroke-width="1.2" stroke-dasharray="2.5,2"/>
-          <rect x="15" y="8" width="18" height="10" rx="1.5" fill="#E91E8C" opacity="0.15"/>
-          <line x1="17" y1="11" x2="31" y2="11" stroke="#E91E8C" stroke-width="1" opacity="0.5"/>
-          <line x1="17" y1="14" x2="27" y2="14" stroke="#E91E8C" stroke-width="1" opacity="0.5"/>
-        </svg>
-      </div>
-      <span class="status-badge status-unused" id="s1Badge">未使用</span>
+  <div class="tkt-body">
+    <div class="tkt-icon-wrap">
+      <!-- ピンクのチケットアイコン（横長半券型） -->
+      <svg class="tkt-icon" id="s1Ico" width="62" height="40" viewBox="0 0 62 40">
+        <rect x="1" y="4" width="60" height="32" rx="3" fill="#E91E8C"/>
+        <!-- 左右の切り欠き -->
+        <circle cx="1" cy="20" r="5" fill="#f5f5f5"/>
+        <circle cx="61" cy="20" r="5" fill="#f5f5f5"/>
+        <!-- ミシン目 -->
+        <line x1="14" y1="4" x2="14" y2="36" stroke="#FCE4EC" stroke-width="1.2" stroke-dasharray="3,2.5"/>
+        <!-- 白い帯（バーコード部分） -->
+        <rect x="3" y="6" width="8" height="28" rx="1" fill="rgba(0,0,0,.25)"/>
+        <!-- メインエリア -->
+        <rect x="18" y="10" width="38" height="8" rx="1.5" fill="rgba(255,255,255,.25)"/>
+        <rect x="18" y="22" width="24" height="5" rx="1" fill="rgba(255,255,255,.2)"/>
+      </svg>
+      <span class="badge-unused" id="s1Badge">未使用</span>
     </div>
-    <div class="ticket-info used-stamp-wrap" id="ticketInfoWrap">
-      <div class="ticket-type">
-        <span id="s1Type"></span>
-        <span class="arrow">›</span>
-      </div>
-      <div class="ticket-seat" id="s1Seat"></div>
-      <div class="ticket-price" id="s1Price"></div>
-      <div class="used-stamp" id="s1Stamp" style="display:none">使用済</div>
-      <div class="used-date" id="s1UsedDate" style="display:none"></div>
+    <div class="tkt-info" id="tktInfo">
+      <div class="tkt-type" id="s1Type"></div>
+      <div class="tkt-seat" id="s1Seat"></div>
+      <div class="tkt-price" id="s1Price"></div>
+      <div class="stamp" id="s1Stamp" style="display:none">使用済</div>
     </div>
   </div>
 
-  <button class="btn-distribute" id="btnDistribute">
-    <span class="icon">🔗</span>同行者へ分配する
+  <button class="btn-dist" id="btnDist">
+    <svg width="20" height="16" viewBox="0 0 20 16"><path d="M2 2h10v3l5-5-5-5v3H2v4zm16 4H8v-3l-5 5 5 5v-3h10V6z" fill="#00A5A8"/></svg>
+    同行者へ分配する
   </button>
 
-  <div class="detail-section">
-    <div class="detail-title" id="detailTitle"></div>
-    <div id="detailText"></div>
-  </div>
+  <hr class="detail-sep">
 
-  <div class="ticket-number" id="s1TicketNum"></div>
-  <div class="ticket-used-date-bottom" id="s1UsedDateBottom" style="display:none"></div>
-  <a href="#" class="link-back-info">チケット裏面情報 ›</a>
+  <div class="detail" id="detailText"></div>
 
-  <button class="btn-scroll-top" onclick="document.getElementById('s1').scrollTop=0">↑</button>
+  <div class="tkt-num" id="s1TktNum"></div>
+  <div class="tkt-used-dt" id="s1UsedDt" style="display:none"></div>
+  <a href="#" class="link-back">チケット裏面情報 ›</a>
+
+  <button class="btn-top" onclick="document.getElementById('s1').scrollTop=0">↑</button>
 </div>
 
-<!-- ===== SCREEN 2 (GATE) ===== -->
+<!-- SCREEN 2 -->
 <div class="screen hidden" id="s2">
-  <div class="s2-header">
-    <span class="count">1/1枚 選択中</span>
-    <button class="btn-close" id="btnClose2">×</button>
+  <div class="s2-hdr">
+    <span class="cnt">1/1枚 選択中</span>
+    <button class="btn-x" id="btnX2">×</button>
   </div>
-
-  <div class="warn-banner">
+  <div class="warn">
     <p>⚠ スライドすると使用済になります。</p>
     <p>使用済チケットは、入場・再発行不可</p>
   </div>
-
-  <div class="timestamp-bar">
-    <span class="timestamp-text" id="tsText">----/--/-- (-)  --:--:--.---</span>
-    <span class="valid-text">期間中有効</span>
+  <div class="ts-bar">
+    <span class="ts-txt" id="ts1">----/--/-- (-) --:--:--.---</span>
+    <span class="ts-valid">期間中有効</span>
   </div>
-
-  <div class="stars-row">
-    <span class="star" id="star1">★</span>
-    <span class="star" id="star2">★</span>
-    <span class="star" id="star3">★</span>
+  <div class="stars">
+    <span class="star" id="st1">★</span>
+    <span class="star" id="st2">★</span>
+    <span class="star" id="st3">★</span>
   </div>
-
   <div class="gate-card">
-    <div class="gate-top">
-      <span class="gate-text">GATE</span>
-    </div>
-    <div class="gate-name-bar">
-      <span class="gname" id="s2Name"></span>
-    </div>
-    <div class="gate-bottom">
-      <div class="check-circle">✓</div>
+    <div class="gate-top"><span class="gate-lbl">GATE</span></div>
+    <div class="gate-nm"><span id="s2Name"></span></div>
+    <div class="gate-bot">
+      <div class="chk">✓</div>
       <span class="gate-type" id="s2Type"></span>
     </div>
   </div>
-
-  <div class="slider-area">
-    <div class="slider-track" id="sliderTrack">
-      <div class="slider-fill" id="sliderFill"></div>
-      <span class="slider-label">← スライドして入場 →</span>
-      <div class="slider-thumb" id="sliderThumb">→</div>
+  <div class="slide-area">
+    <div class="slide-track" id="slTrack">
+      <div class="slide-fill" id="slFill"></div>
+      <span class="slide-lbl">← スライドして入場 →</span>
+      <div class="slide-thumb" id="slThumb">›</div>
     </div>
   </div>
 </div>
 
-<!-- ===== SCREEN 3 (使用済み確認) ===== -->
+<!-- SCREEN 3 -->
 <div class="screen hidden" id="s3">
-  <div class="s2-header">
-    <span class="count">0/1枚 選択中</span>
-    <button class="btn-close" id="btnClose3">×</button>
+  <div class="s2-hdr">
+    <span class="cnt">0/1枚 選択中</span>
+    <button class="btn-x" id="btnX3">×</button>
   </div>
-
-  <div class="timestamp-bar">
-    <span class="timestamp-text" id="tsText3">----/--/-- (-)  --:--:--.---</span>
-    <span class="valid-text">期間中有効</span>
+  <div class="ts-bar">
+    <span class="ts-txt" id="ts2">----/--/-- (-) --:--:--.---</span>
+    <span class="ts-valid">期間中有効</span>
   </div>
-
   <div class="s3-card">
-    <div class="s3-valid-row">
-      <div class="s3-valid-title">期間中有効</div>
-      <div class="s3-stars">
-        <span class="s3-star">★</span>
-        <span class="s3-star">★</span>
+    <div class="s3-valid">
+      <h3>期間中有効</h3>
+      <div class="s3-stars"><span class="s3-star">★</span><span class="s3-star">★</span></div>
+    </div>
+    <div class="s3-ev">
+      <div class="s3-ev-name" id="s3Name"></div>
+      <div class="s3-ev-sub" id="s3Sub"></div>
+    </div>
+    <div class="s3-nm"><span id="s3NmSpan"></span></div>
+    <div class="s3-row">
+      <div class="s3-ico">
+        <svg width="48" height="32" viewBox="0 0 62 40">
+          <rect x="1" y="4" width="60" height="32" rx="3" fill="#999"/>
+          <circle cx="1" cy="20" r="5" fill="#f5f5f5"/>
+          <circle cx="61" cy="20" r="5" fill="#f5f5f5"/>
+          <line x1="14" y1="4" x2="14" y2="36" stroke="#bbb" stroke-width="1.2" stroke-dasharray="3,2.5"/>
+          <rect x="3" y="6" width="8" height="28" rx="1" fill="rgba(0,0,0,.2)"/>
+        </svg>
       </div>
-    </div>
-    <div class="s3-event-row">
-      <div class="s3-event-name" id="s3EvName"></div>
-      <div class="s3-event-sub" id="s3EvSub"></div>
-    </div>
-    <div class="s3-name-bar">
-      <span class="s3-name" id="s3Name"></span>
-    </div>
-    <div class="s3-ticket-row">
-      <span class="s3-icon">🎫</span>
-      <div class="s3-ticket-info">
-        <span class="s3-used-label">入場済</span>
+      <div class="s3-info">
+        <span class="s3-badge">入場済</span>
         <div class="s3-type" id="s3Type"></div>
       </div>
       <div class="s3-stamp">使用済</div>
     </div>
-    <div class="s3-date" id="s3UsedDate"></div>
+    <div class="s3-date" id="s3Date"></div>
   </div>
 </div>
 
-</div>
+</div><!-- /app -->
 
 <script>
-// ===== URLパラメーター =====
-const p = new URLSearchParams(location.search);
+const P = new URLSearchParams(location.search);
 const D = {
-  name:   p.get('name')   || '薮下 柊',
-  event:  p.get('event')  || '第6回 AKB48グループ歌唱力No.1決定戦 ファイナリストLIVE',
-  venue:  p.get('venue')  || 'TACHIKAWA STAGE GARDEN',
-  date:   p.get('date')   || '2025/2/18',
-  day:    p.get('day')    || '火',
-  open:   p.get('open')   || '18:00',
-  start:  p.get('start')  || '19:00',
-  type:   p.get('type')   || '指定席',
-  floor:  p.get('floor')  || '1階',
-  row:    p.get('row')    || '18列',
-  num:    p.get('num')    || '5番',
-  price:  p.get('price')  || '8800',
-  ticketNum: p.get('ticket_num') || '1160027394397',
+  name:  P.get('name')  || '薮下 柊',
+  event: P.get('event') || '第6回 AKB48グループ歌唱力No.1決定戦 ファイナリストLIVE',
+  venue: P.get('venue') || 'TACHIKAWA STAGE GARDEN',
+  date:  P.get('date')  || '2025/2/18',
+  day:   P.get('day')   || '火',
+  open:  P.get('open')  || '18:00',
+  start: P.get('start') || '19:00',
+  type:  P.get('type')  || '指定席',
+  floor: P.get('floor') || '1階',
+  row:   P.get('row')   || '18列',
+  num:   P.get('num')   || '5番',
+  price: P.get('price') || '8800',
+  tnum:  P.get('ticket_num') || '1160027394397',
 };
 
-const dateParts = D.date.split('/');
-const dateYear = dateParts[0] + '年';
-const dateMD   = dateParts[1] + '/' + dateParts[2];
+const dp = D.date.split('/');
+const WD = ['日','月','火','水','木','金','土'];
 
-// 使用済み状態
-let isUsed = sessionStorage.getItem('used') === '1';
-let usedTime = sessionStorage.getItem('usedTime') || '';
-
-function applyUsedState(){
-  if(isUsed){
-    // アイコングレーアウト
-    const circle = document.getElementById('s1IconCircle');
-    circle.style.background = '#ccc';
-    circle.style.filter = 'grayscale(1) opacity(0.6)';
-    // バッジ変更
-    const badge = document.getElementById('s1Badge');
-    badge.textContent = '入場済';
-    badge.className = 'status-badge status-used';
-    // 使用済スタンプ表示
-    document.getElementById('s1Stamp').style.display = 'block';
-    document.getElementById('s1UsedDate').style.display = 'none'; // 下部に移動
-    // チケット番号下の使用日時
-    const btm = document.getElementById('s1UsedDateBottom');
-    btm.textContent = '使用日時: ' + usedTime;
-    btm.style.display = 'block';
-    // 分配ボタン非表示
-    document.getElementById('btnDistribute').style.display = 'none';
-  }
-}
-
-// ===== 画面1セット =====
-document.getElementById('evYear').textContent = dateYear;
-document.getElementById('evDateBig').textContent = dateMD;
-document.getElementById('evDateDay').textContent = '（' + D.day + '）';
-document.getElementById('evTimes').textContent = D.open + ' 開場\n' + D.start + ' 開演';
+// Fill screen 1
+document.getElementById('evYear').textContent = dp[0] + '年';
+document.getElementById('evDate').textContent = dp[1] + '/' + dp[2];
+document.getElementById('evDay').textContent = '（' + D.day + '）';
+document.getElementById('evTimes').innerHTML = D.open + ' 開場<br>' + D.start + ' 開演';
 document.getElementById('evName').textContent = D.event;
 document.getElementById('evVenue').textContent = D.venue;
 document.getElementById('s1Name').textContent = D.name + ' 様';
 document.getElementById('s1Type').textContent = D.type;
-document.getElementById('s1Seat').textContent = D.floor + '　' + D.row + ' ' + D.num;
+document.getElementById('s1Seat').innerHTML = D.floor + '<br>' + D.row + ' ' + D.num;
 document.getElementById('s1Price').textContent = '¥' + Number(D.price).toLocaleString() + '（税込）';
-document.getElementById('detailTitle').textContent = D.event;
 document.getElementById('detailText').innerHTML =
-  D.event + '<br>主催: TBSテレビ<br>※お一人様1枚ずつチケット必要<br>※未就学児入場不可<br>※小学生以下の方要保護者同伴<br>※入場時、持ち物検査と金属探知機による身体検査等を実施する場合有<br>※譲渡および転売禁止<br>※お客様氏名が記載のチケット、主催者指定の「本人確認書類を使用して本人確認実施。同伴者の方も全員チケットと主催者指定の本人確認書類要持参。<br>イープラス 050-3185-6483';
-document.getElementById('s1TicketNum').textContent = 'チケット番号: ' + D.ticketNum;
+  D.event + '<br>Supported by ひかりTV<br>主催/制作：TBSテレビ<br>公演問合せ：AKB48グループ 歌唱力No.1決定戦 運営本部<br>※お一人様1枚ずつチケット必要※未就学児入場不可※小学生以下の方要保護者同伴※入場時、持ち物検査と金属探知機による身体検査等を実施する場合有※譲渡および転売禁止※お客様氏名が記載のチケット、主催者指定の「本人確認書類」を使用して本人確認実施。同伴者の方も全員チケットと主催者指定の本人確認書類要持参。<br>イープラス 050-3185-6483';
+document.getElementById('s1TktNum').textContent = 'チケット番号: ' + D.tnum;
+
+// Screen 2 & 3
 document.getElementById('s2Name').textContent = D.name + ' 様';
 document.getElementById('s2Type').textContent = D.type;
-document.getElementById('s3Name').textContent = D.name + ' 様';
-document.getElementById('s3EvName').textContent = D.event;
-document.getElementById('s3EvSub').textContent = D.venue;
+document.getElementById('s3Name').textContent = D.event;
+document.getElementById('s3Sub').textContent = D.venue;
+document.getElementById('s3NmSpan').textContent = D.name + ' 様';
 document.getElementById('s3Type').textContent = D.type;
-applyUsedState();
 
-// ===== タイムスタンプ =====
-const DAYS = ['日','月','火','水','木','金','土'];
-function updateTS(){
-  const now = new Date();
-  const y = now.getFullYear();
-  const mo = String(now.getMonth()+1).padStart(2,'0');
-  const d = String(now.getDate()).padStart(2,'0');
-  const dw = DAYS[now.getDay()];
-  const h = String(now.getHours()).padStart(2,'0');
-  const mi = String(now.getMinutes()).padStart(2,'0');
-  const s = String(now.getSeconds()).padStart(2,'0');
-  const ms = String(now.getMilliseconds()).padStart(3,'0');
-  const str = y+'/'+mo+'/'+d+' ('+dw+')  '+h+':'+mi+':'+s+'.'+ms;
-  document.getElementById('tsText').textContent = str;
-  document.getElementById('tsText3').textContent = str;
-}
-setInterval(updateTS, 80);
-updateTS();
+// Used state
+let used = sessionStorage.getItem('used') === '1';
+let usedAt = sessionStorage.getItem('usedAt') || '';
 
-// ===== 星アニメーション =====
-function blinkStars(){
-  const stars = [
-    document.getElementById('star1'),
-    document.getElementById('star2'),
-    document.getElementById('star3'),
-  ];
-  stars.forEach((s,i)=>{
-    setInterval(()=>{
-      s.classList.toggle('dim');
-    }, 600 + i * 237);
-  });
+function applyUsed() {
+  if (!used) return;
+  // Icon gray
+  const ico = document.getElementById('s1Ico');
+  ico.querySelectorAll('rect,circle,line').forEach(el => { el.style.filter = 'grayscale(1)'; });
+  ico.style.opacity = '.45';
+  // Badge
+  const b = document.getElementById('s1Badge');
+  b.textContent = '入場済'; b.className = 'badge-used';
+  // Stamp
+  document.getElementById('s1Stamp').style.display = 'block';
+  // Used date
+  const udt = document.getElementById('s1UsedDt');
+  udt.textContent = '使用日時: ' + usedAt;
+  udt.style.display = 'block';
+  // Hide distribute
+  document.getElementById('btnDist').style.display = 'none';
 }
-blinkStars();
+applyUsed();
 
-// ===== 画面遷移 =====
-const s1 = document.getElementById('s1');
-const s2 = document.getElementById('s2');
-const s3 = document.getElementById('s3');
+// Timestamp
+function fmtTs() {
+  const n = new Date();
+  const pad = (v,l=2) => String(v).padStart(l,'0');
+  return n.getFullYear()+'/'+pad(n.getMonth()+1)+'/'+pad(n.getDate())+
+    ' ('+WD[n.getDay()]+') '+pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds())+'.'+pad(n.getMilliseconds(),3);
+}
+setInterval(() => {
+  const t = fmtTs();
+  document.getElementById('ts1').textContent = t;
+  document.getElementById('ts2').textContent = t;
+}, 80);
 
-function goTo2(){
-  s1.classList.add('slide-out');
-  s2.classList.remove('hidden');
-}
-function goTo3(){
-  s2.classList.add('slide-out');
-  s3.classList.remove('hidden');
-  // 使用済み処理
-  isUsed = true;
-  const now = new Date();
-  const y = now.getFullYear();
-  const mo = String(now.getMonth()+1).padStart(2,'0');
-  const d = String(now.getDate()).padStart(2,'0');
-  const dw = DAYS[now.getDay()];
-  const h = String(now.getHours()).padStart(2,'0');
-  const mi = String(now.getMinutes()).padStart(2,'0');
-  usedTime = y+'/'+mo+'/'+d+'('+dw+') '+h+':'+mi;
-  sessionStorage.setItem('used','1');
-  sessionStorage.setItem('usedTime', usedTime);
-  document.getElementById('s3UsedDate').textContent = '使用日時: ' + usedTime;
-}
-function closeS2(){
-  s2.classList.add('hidden');
-  s2.classList.remove('slide-out');
-  s1.classList.remove('slide-out');
-}
-function closeS3(){
-  s3.classList.add('hidden');
-  s3.classList.remove('slide-out');
-  s2.classList.add('hidden');
-  s2.classList.remove('slide-out');
-  s1.classList.remove('slide-out');
-  applyUsedState();
-}
+// Stars blink
+[['st1',500],['st2',730],['st3',970]].forEach(([id,ms]) => {
+  setInterval(() => document.getElementById(id).classList.toggle('off'), ms);
+});
 
-document.getElementById('btnEnter').addEventListener('click', goTo2);
-document.getElementById('btnClose2').addEventListener('click', closeS2);
-document.getElementById('btnClose3').addEventListener('click', closeS3);
+// Screen transitions
+const S1 = document.getElementById('s1');
+const S2 = document.getElementById('s2');
+const S3 = document.getElementById('s3');
 
-// ===== スライダー =====
-const track = document.getElementById('sliderTrack');
-const thumb = document.getElementById('sliderThumb');
-const fill  = document.getElementById('sliderFill');
-let dragging = false;
-let startX = 0;
-let trackW = 0;
-const thumbW = 52;
+document.getElementById('btnEnter').onclick = () => { S1.classList.add('out'); S2.classList.remove('hidden'); };
+document.getElementById('btnX2').onclick = () => { S2.classList.add('hidden'); S2.classList.remove('out'); S1.classList.remove('out'); };
+document.getElementById('btnX3').onclick = () => {
+  S3.classList.add('hidden'); S3.classList.remove('out');
+  S2.classList.add('hidden'); S2.classList.remove('out');
+  S1.classList.remove('out');
+  applyUsed();
+};
 
-function startDrag(x){
-  dragging = true;
-  startX = x;
-  trackW = track.offsetWidth;
-  thumb.style.cursor = 'grabbing';
+// Slider
+const track = document.getElementById('slTrack');
+const fill  = document.getElementById('slFill');
+const thumb = document.getElementById('slThumb');
+let drag = false;
+
+function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+function startDrag(e) { drag = true; e.preventDefault(); }
+function moveDrag(e) {
+  if (!drag) return;
+  const r = track.getBoundingClientRect();
+  const max = r.width - 50;
+  const x = Math.min(Math.max(0, getX(e) - r.left - 25), max);
+  thumb.style.left = x + 'px';
+  fill.style.width = (x / max * 100) + '%';
+  if (x >= max - 2) endDrag(true);
 }
-function moveDrag(x){
-  if(!dragging) return;
-  const maxLeft = trackW - thumbW - 4;
-  let left = Math.min(Math.max(0, x - startX + 2), maxLeft);
-  // 実際の位置は最初のclickX基準にする
-  const rawLeft = Math.min(Math.max(2, x - track.getBoundingClientRect().left - thumbW/2), maxLeft);
-  thumb.style.left = rawLeft + 'px';
-  fill.style.width = (rawLeft / maxLeft * 100) + '%';
-  if(rawLeft >= maxLeft - 4){
-    endDrag(true);
-  }
-}
-function endDrag(completed){
-  if(!dragging) return;
-  dragging = false;
-  thumb.style.cursor = 'grab';
-  if(!completed){
-    // 戻す
-    thumb.style.transition = 'left .2s ease';
-    thumb.style.left = '2px';
-    fill.style.transition = 'width .2s ease';
-    fill.style.width = '0%';
-    setTimeout(()=>{
-      thumb.style.transition = '';
-      fill.style.transition = '';
-    }, 220);
+function endDrag(done) {
+  if (!drag) return; drag = false;
+  if (!done) {
+    thumb.style.transition = 'left .2s'; fill.style.transition = 'width .2s';
+    thumb.style.left = '2px'; fill.style.width = '0%';
+    setTimeout(() => { thumb.style.transition = ''; fill.style.transition = ''; }, 220);
   } else {
-    setTimeout(goTo3, 200);
+    setTimeout(() => {
+      // Mark used
+      used = true;
+      const n = new Date();
+      const pad = v => String(v).padStart(2,'0');
+      usedAt = n.getFullYear()+'/'+pad(n.getMonth()+1)+'/'+pad(n.getDate())+'('+WD[n.getDay()]+') '+pad(n.getHours())+':'+pad(n.getMinutes());
+      sessionStorage.setItem('used','1');
+      sessionStorage.setItem('usedAt', usedAt);
+      document.getElementById('s3Date').textContent = '使用日時: ' + usedAt;
+      S2.classList.add('out'); S3.classList.remove('hidden');
+    }, 150);
   }
 }
 
-// Mouse
-thumb.addEventListener('mousedown', e=>{startDrag(e.clientX);e.preventDefault();});
-document.addEventListener('mousemove', e=>{ if(dragging) moveDrag(e.clientX); });
-document.addEventListener('mouseup', e=>{ if(dragging) endDrag(false); });
-
-// Touch
-thumb.addEventListener('touchstart', e=>{startDrag(e.touches[0].clientX);e.preventDefault();},{passive:false});
-document.addEventListener('touchmove', e=>{ if(dragging) moveDrag(e.touches[0].clientX); },{passive:true});
-document.addEventListener('touchend', e=>{ if(dragging) endDrag(false); });
+thumb.addEventListener('mousedown', startDrag);
+document.addEventListener('mousemove', moveDrag);
+document.addEventListener('mouseup', () => endDrag(false));
+thumb.addEventListener('touchstart', startDrag, {passive:false});
+document.addEventListener('touchmove', moveDrag, {passive:true});
+document.addEventListener('touchend', () => endDrag(false));
 </script>
 </body>
 </html>
