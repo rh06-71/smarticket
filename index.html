@@ -34,9 +34,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","N
 .ev-menu{position:absolute;top:12px;right:12px;color:#E91E8C;font-size:20px;cursor:pointer;line-height:1;}
 
 /* Name bar */
-.name-bar{background:#FCE4EC;margin:0 10px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;}
-.name-bar .nm{color:#C2185B;font-size:17px;font-weight:bold;}
-.name-bar .num{color:#E88CA5;font-size:12px;}
+.name-bar{background:#E91E8C;margin:0 10px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;}
+.name-bar .nm{color:#fff;font-size:17px;font-weight:bold;}
+.name-bar .num{color:rgba(255,255,255,.75);font-size:12px;}
 
 /* Ticket body */
 .tkt-body{background:#fff;margin:0 10px;padding:14px;display:flex;align-items:flex-start;gap:12px;border-bottom:1.5px dashed #F48FB1;}
@@ -151,18 +151,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","N
   <div class="tkt-body">
     <div class="tkt-icon-wrap">
       <!-- ピンクのチケットアイコン（横長半券型） -->
-      <svg class="tkt-icon" id="s1Ico" width="62" height="40" viewBox="0 0 62 40">
-        <rect x="1" y="4" width="60" height="32" rx="3" fill="#E91E8C"/>
-        <!-- 左右の切り欠き -->
-        <circle cx="1" cy="20" r="5" fill="#f5f5f5"/>
-        <circle cx="61" cy="20" r="5" fill="#f5f5f5"/>
+      <!-- 丸い背景+白チケット型アイコン -->
+      <svg class="tkt-icon" id="s1Ico" width="64" height="64" viewBox="0 0 64 64">
+        <!-- 円形背景 -->
+        <circle cx="32" cy="32" r="30" fill="#E91E8C"/>
+        <!-- 白いチケット型（横長・左右に半円切り欠き） -->
+        <rect x="10" y="22" width="44" height="20" rx="2" fill="white"/>
+        <circle cx="10" cy="32" r="4" fill="#E91E8C"/>
+        <circle cx="54" cy="32" r="4" fill="#E91E8C"/>
         <!-- ミシン目 -->
-        <line x1="14" y1="4" x2="14" y2="36" stroke="#FCE4EC" stroke-width="1.2" stroke-dasharray="3,2.5"/>
-        <!-- 白い帯（バーコード部分） -->
-        <rect x="3" y="6" width="8" height="28" rx="1" fill="rgba(0,0,0,.25)"/>
-        <!-- メインエリア -->
-        <rect x="18" y="10" width="38" height="8" rx="1.5" fill="rgba(255,255,255,.25)"/>
-        <rect x="18" y="22" width="24" height="5" rx="1" fill="rgba(255,255,255,.2)"/>
+        <line x1="20" y1="22" x2="20" y2="42" stroke="#E91E8C" stroke-width="1" stroke-dasharray="2,2"/>
+        <!-- 暗い帯 -->
+        <rect x="11" y="23" width="7" height="18" rx="1" fill="rgba(0,0,0,.2)"/>
       </svg>
       <span class="badge-unused" id="s1Badge">未使用</span>
     </div>
@@ -248,12 +248,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","N
     <div class="s3-nm"><span id="s3NmSpan"></span></div>
     <div class="s3-row">
       <div class="s3-ico">
-        <svg width="48" height="32" viewBox="0 0 62 40">
-          <rect x="1" y="4" width="60" height="32" rx="3" fill="#999"/>
-          <circle cx="1" cy="20" r="5" fill="#f5f5f5"/>
-          <circle cx="61" cy="20" r="5" fill="#f5f5f5"/>
-          <line x1="14" y1="4" x2="14" y2="36" stroke="#bbb" stroke-width="1.2" stroke-dasharray="3,2.5"/>
-          <rect x="3" y="6" width="8" height="28" rx="1" fill="rgba(0,0,0,.2)"/>
+        <svg width="50" height="50" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="30" fill="#ccc"/>
+          <rect x="10" y="22" width="44" height="20" rx="2" fill="white" opacity=".7"/>
+          <circle cx="10" cy="32" r="4" fill="#ccc"/>
+          <circle cx="54" cy="32" r="4" fill="#ccc"/>
+          <line x1="20" y1="22" x2="20" y2="42" stroke="#ccc" stroke-width="1" stroke-dasharray="2,2"/>
+          <rect x="11" y="23" width="7" height="18" rx="1" fill="rgba(0,0,0,.15)"/>
         </svg>
       </div>
       <div class="s3-info">
@@ -320,8 +321,8 @@ function applyUsed() {
   if (!used) return;
   // Icon gray
   const ico = document.getElementById('s1Ico');
-  ico.querySelectorAll('rect,circle,line').forEach(el => { el.style.filter = 'grayscale(1)'; });
-  ico.style.opacity = '.45';
+  ico.style.filter = 'grayscale(1)';
+  ico.style.opacity = '.5';
   // Badge
   const b = document.getElementById('s1Badge');
   b.textContent = '入場済'; b.className = 'badge-used';
