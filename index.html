@@ -13,293 +13,115 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useRef, useEffect } = React;
+const { useState } = React;
 
 const SmartTicketApp = () => {
   const [currentView, setCurrentView] = useState('detail');
-  const [animationPhase, setAnimationPhase] = useState(0);
-  const [tickets, setTickets] = useState([
-    { id: 1, name: '東久保 慶樹', type: '入場券幼児', status: 'unused' }
-  ]);
-  const [selectedTicketId, setSelectedTicketId] = useState(null);
-  const [starDrag, setStarDrag] = useState({ isDragging: false, startX: 0, currentX: 0 });
-  const [rightStarPosition, setRightStarPosition] = useState({ x: 0 });
-  const leftStarRef = useRef(null);
-  const rightStarRef = useRef(null);
 
-  useEffect(() => {
-    if (leftStarRef.current && rightStarRef.current && currentView === 'selection') {
-      const leftRect = leftStarRef.current.getBoundingClientRect();
-      const rightRect = rightStarRef.current.getBoundingClientRect();
-      setRightStarPosition({
-        x: rightRect.left + rightRect.width / 2,
-        leftX: leftRect.left + leftRect.width / 2
-      });
-    }
-  }, [currentView]);
-
-  useEffect(() => {
-    if (starDrag.isDragging) return;
-    const deltaX = starDrag.currentX - starDrag.startX;
-    if (deltaX > 60 && starDrag.currentX !== starDrag.startX) {
-      setCurrentView('gateAnimation');
-      setAnimationPhase(0);
-      setStarDrag({ isDragging: false, startX: 0, currentX: 0 });
-      setTimeout(() => setAnimationPhase(1), 1500);
-      setTimeout(() => setAnimationPhase(2), 3000);
-      setTimeout(() => {
-        setTickets(prev => prev.map(t => ({ ...t, status: 'used' })));
-        setCurrentView('used');
-      }, 4500);
-    }
-  }, [starDrag.isDragging, starDrag.currentX, starDrag.startX]);
-
-  const handleStarTouchStart = (e) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    setStarDrag({ isDragging: true, startX: touch.clientX, currentX: touch.clientX });
-  };
-  const handleStarTouchMove = (e) => {
-    if (!starDrag.isDragging) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    setStarDrag(prev => ({ ...prev, currentX: touch.clientX }));
-  };
-  const handleStarTouchEnd = (e) => {
-    e.preventDefault();
-    setStarDrag(prev => ({ ...prev, isDragging: false }));
-  };
-  const handleStarMouseDown = (e) => {
-    e.preventDefault();
-    setStarDrag({ isDragging: true, startX: e.clientX, currentX: e.clientX });
-  };
-  const handleStarMouseMove = (e) => {
-    if (!starDrag.isDragging) return;
-    e.preventDefault();
-    setStarDrag(prev => ({ ...prev, currentX: e.clientX }));
-  };
-  const handleStarMouseUp = (e) => {
-    e.preventDefault();
-    setStarDrag(prev => ({ ...prev, isDragging: false }));
-  };
-
-  useEffect(() => {
-    if (starDrag.isDragging) {
-      document.addEventListener('mousemove', handleStarMouseMove);
-      document.addEventListener('mouseup', handleStarMouseUp);
-      document.addEventListener('touchmove', handleStarTouchMove, { passive: false });
-      document.addEventListener('touchend', handleStarTouchEnd, { passive: false });
-    }
-    return () => {
-      document.removeEventListener('mousemove', handleStarMouseMove);
-      document.removeEventListener('mouseup', handleStarMouseUp);
-      document.removeEventListener('touchmove', handleStarTouchMove);
-      document.removeEventListener('touchend', handleStarTouchEnd);
-    };
-  }, [starDrag.isDragging]);
-
-  // ======== 選択画面 ========
-  const SelectionView = () => (
-    <div className="min-h-screen bg-gray-100 select-none">
-      <div className="bg-white px-4 py-3 flex items-center justify-between">
-        <span className="text-blue-600 font-medium text-sm">1/1枚 選択中</span>
-        <button onClick={() => setCurrentView('detail')} className="text-gray-400 text-2xl">×</button>
+  const DetailView = () => (
+    <div className="min-h-screen bg-gray-50">
+      {/* ヘッダー */}
+      <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200">
+        <button onClick={() => setCurrentView('selection')} className="text-2xl font-bold" style={{ color: '#E91E8C' }}>＜</button>
+        <button onClick={() => setCurrentView('selection')} className="text-white px-6 py-2 rounded-full font-medium text-sm" style={{ backgroundColor: '#E91E8C' }}>入場画面に進む</button>
       </div>
-      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">
-        2026/03/04 (水) 11:56:13.55
-      </div>
-      <div className="bg-pink-300 py-8 text-center">
-        <div className="text-base font-bold text-gray-800 mb-4">期間中有効</div>
-        <div className="flex justify-center items-center mb-4 relative" style={{gap: '80px'}}>
-          <div
-            ref={leftStarRef}
-            className="w-14 h-14 bg-green-400 rounded-full flex items-center justify-center cursor-move select-none relative z-10"
-            style={{
-              transform: starDrag.isDragging
-                ? `translate(${Math.min(Math.max(starDrag.currentX - starDrag.startX, 0), 150)}px, 0px)`
-                : 'translate(0, 0)',
-              transition: starDrag.isDragging ? 'none' : 'transform 0.3s ease',
-              touchAction: 'none'
-            }}
-            onTouchStart={handleStarTouchStart}
-            onMouseDown={handleStarMouseDown}
-          >
-            <span className="text-3xl pointer-events-none">🌸</span>
+
+      {/* イベントカード */}
+      <div className="bg-white rounded-lg mx-4 mt-4 p-4 shadow-sm">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <div className="text-gray-500 text-xs mb-2">2025年</div>
+            <div className="flex items-baseline mb-2">
+              <span className="text-4xl font-bold text-black">2/18</span>
+              <span className="text-sm font-bold text-black ml-2">(火)</span>
+            </div>
           </div>
-          <div ref={rightStarRef} className="w-14 h-14 bg-green-400 rounded-full flex items-center justify-center">
-            <span className="text-3xl">🌸</span>
+          <div className="text-right">
+            <div className="text-xs text-gray-700">18:00 開場</div>
+            <div className="text-xs text-gray-700">19:00 開演</div>
           </div>
+          <button className="text-gray-400 text-xl ml-2">…</button>
         </div>
-        <div className="text-xs text-gray-700 mb-1">曾村テディベア美術館</div>
-        <div className="text-xs text-gray-600">曾村テディベア美術館 入館券</div>
+        <div className="text-base font-bold text-black mb-1">イープラス劇団 第1回公演</div>
+        <div className="text-xs text-gray-500">東京武道館</div>
       </div>
-      <div className="px-4 mt-4">
-        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-          {tickets.map((ticket) => (
-            <div key={ticket.id}>
-              <div
-                className={`p-4 cursor-pointer ${selectedTicketId === ticket.id ? 'bg-pink-500 text-white' : 'bg-white'}`}
-                onClick={() => setSelectedTicketId(selectedTicketId === ticket.id ? null : ticket.id)}
-              >
-                <div className="flex items-center mb-2">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${selectedTicketId === ticket.id ? 'bg-white' : 'bg-pink-400'}`}>
-                    <span className={`text-xl ${selectedTicketId === ticket.id ? 'text-pink-500' : 'text-white'}`}>✓</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-pink-500 text-white px-3 py-1 rounded text-sm font-bold inline-block">{ticket.name}</div>
-                  </div>
-                </div>
-                <div className="ml-13 mt-2">
-                  <div className={`text-sm font-bold ${selectedTicketId === ticket.id ? 'text-white' : 'text-gray-800'}`}>{ticket.type}</div>
+
+      {/* 名前バー + チケット本体 */}
+      <div className="mx-4 mt-4">
+        <div className="text-white font-bold px-4 py-3 rounded-t-lg flex items-center justify-between" style={{ backgroundColor: '#E91E8C' }}>
+          <span className="text-base">東久保 慶樹 様</span>
+          <span className="text-xs">1枚目</span>
+        </div>
+
+        {/* チケット本体 */}
+        <div className="bg-white px-4 py-4 border-b-2 border-dashed" style={{ borderColor: '#E91E8C' }}>
+          <div className="flex items-start">
+            {/* 左側: アイコン */}
+            <div className="mr-4">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center relative" style={{ backgroundColor: '#FCE4EC' }}>
+                <div className="w-8 h-10 rounded flex items-center justify-center" style={{ backgroundColor: '#E91E8C' }}>
+                  <div className="w-4 h-4 bg-white rounded-sm"></div>
                 </div>
               </div>
+              <div className="text-white text-xs px-2 py-1 rounded text-center mt-2 font-medium" style={{ backgroundColor: '#E91E8C' }}>未使用</div>
             </div>
-          ))}
+            {/* 右側: チケット情報 */}
+            <div className="flex-1">
+              <div className="text-base font-bold text-black mb-1">指定席</div>
+              <div className="text-sm text-gray-700 mb-1">1階</div>
+              <div className="text-sm text-gray-700 mb-2">25列 10番</div>
+              <div className="text-base font-bold text-black">¥8,800(税込)</div>
+            </div>
+          </div>
         </div>
+
+        {/* 同行者へ分配するボタン */}
+        <div className="bg-white px-4 py-3 rounded-b-lg border-2 border-dashed" style={{ borderColor: '#E91E8C' }}>
+          <button className="flex items-center text-sm font-medium" style={{ color: '#00A5A8' }}>
+            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+            </svg>
+            同行者へ分配する
+          </button>
+        </div>
+      </div>
+
+      {/* 詳細テキストエリア */}
+      <div className="mx-4 mt-4 p-4 rounded-lg text-xs" style={{ backgroundColor: '#FCE4EC', lineHeight: '1.75' }}>
+        <div className="mb-2">イープラス劇団ワールドツアー</div>
+        <div className="mb-2">■主催：イープラス劇団プロダクション</div>
+        <div className="mb-2">■企画制作：恵比寿CORPORATION</div>
+        <div className="mb-3" style={{ fontSize: '10px' }}>※チケットの紛失/盗難/お忘れなどいかなる理由でも再発行不可。（本券がないと入場できません）チケットは大切に保管してください。</div>
+        <div className="mb-2" style={{ fontSize: '10px' }}>＜営利目的の転売禁止＞</div>
+        <div className="mb-3">e+（イープラス）</div>
+        <div className="font-medium mb-2" style={{ color: '#E91E8C' }}>チケット裏面情報 ›</div>
+        <div className="font-medium" style={{ color: '#E91E8C' }}>チケット番号: 1160027394397</div>
+      </div>
+
+      {/* 右下の↑ボタン */}
+      <div className="fixed bottom-6 right-6">
+        <button className="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: '#00A5A8' }}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+          </svg>
+        </button>
       </div>
     </div>
   );
 
-  // ======== ゲートアニメーション画面 ========
-  const GateAnimationView = () => (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white px-4 py-3 flex items-center justify-between">
-        <span className="text-blue-600 font-medium text-sm">1/1枚 選択中</span>
-      </div>
-      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">
-        2026/03/04 (水) 11:56:17.20
-      </div>
-      {(animationPhase === 0 || animationPhase === 1) && (
-        <div>
-          <div className="bg-yellow-300 text-center py-2 text-xs font-bold text-gray-800">
-            <div>スライドすると使用済になります。</div>
-            <div>使用済チケットは、入場・再発行不可</div>
-          </div>
-          <div className="bg-blue-600 text-teal-300 text-center py-20 text-6xl font-bold">GATE</div>
-          <div className="bg-pink-500 text-white p-4">
-            <div className="text-base font-bold">東久保 慶樹</div>
-            <div className="flex items-center mt-2">
-              <span className="text-white text-2xl mr-2">✓</span>
-              <span className="text-sm">入場券幼児</span>
-            </div>
-          </div>
-        </div>
-      )}
-      {animationPhase === 2 && (
-        <div>
-          <div className="bg-yellow-300 text-center py-2 text-xs font-bold text-gray-800">
-            <div>スライドすると使用済になります。</div>
-            <div>使用済チケットは、入場・再発行不可</div>
-          </div>
-          <div className="flex h-64">
-            <div className="flex-1 bg-blue-600 flex items-center justify-center text-yellow-400 text-5xl font-bold">▶▶</div>
-            <div className="flex-1 bg-pink-400"></div>
-          </div>
-          <div className="bg-pink-500 text-white p-4">
-            <div className="text-base font-bold">東久保 慶樹</div>
-            <div className="flex items-center mt-2">
-              <span className="text-white text-2xl mr-2">✓</span>
-              <span className="text-sm">入場券幼児</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  // ======== 使用済み画面 ========
-  const UsedView = () => (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white px-4 py-3 flex items-center justify-between">
-        <span className="text-blue-600 font-medium text-sm">0/1枚 選択中</span>
-        <button onClick={() => { setCurrentView('selection'); setTickets(prev => prev.map(t => ({ ...t, status: 'unused' }))); }} className="text-gray-400 text-2xl">×</button>
-      </div>
-      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">
-        2026/03/04 (水) 11:56:19.49
-      </div>
-      <div className="bg-pink-500 text-white text-center py-12 text-lg font-bold">1枚使用しました</div>
-      <div className="px-4 mt-4">
-        <div className="bg-pink-500 text-white p-4 rounded-t-lg">
-          <div className="text-base font-bold">東久保 慶樹</div>
-        </div>
-        <div className="bg-gray-300 p-4 rounded-b-lg relative">
-          <div className="flex items-start">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 relative">
-              <div className="text-3xl">🎫</div>
-              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 text-xs px-2 py-1 rounded border border-gray-400 whitespace-nowrap">入場済</div>
-            </div>
-            <div className="flex-1 mt-2">
-              <div className="text-black font-bold text-sm">入場券幼児</div>
-            </div>
-            <div className="absolute top-4 right-4">
-              <div className="border-4 border-red-500 text-red-500 px-2 py-1 rounded transform rotate-12 font-bold text-sm">使用済</div>
-            </div>
-          </div>
-          <div className="mt-8 text-black text-xs">使用日時: 2026/03/04(水) 11:56</div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // ======== 詳細画面 ========
-  const DetailView = () => (
-    <div className="min-h-screen bg-white">
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200">
-        <button onClick={() => setCurrentView('selection')} className="text-gray-600 text-2xl">←</button>
-        <button onClick={() => setCurrentView('selection')} className="bg-pink-500 text-white px-6 py-2 rounded-full font-medium text-sm">入場画面に進む</button>
-      </div>
-      <div className="px-4 py-4">
-        <div className="text-sm text-gray-600 mb-2">期間中有効</div>
-        <div className="text-sm text-gray-700 mb-1">曾村テディベア美術館 入館券</div>
-        <div className="text-xs text-gray-500 mb-4">曾村テディベア美術館</div>
-      </div>
-      <div className="px-4">
-        <div className="bg-pink-500 rounded-lg p-4 relative">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-white px-3 py-1 rounded text-sm font-bold">東久保 慶樹</div>
-            <div className="text-white text-xs">1枚目</div>
-          </div>
-          <div className="flex items-start">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-3 relative">
-              <div className="text-2xl">🎫</div>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white text-pink-500 text-xs px-2 py-0.5 rounded border border-pink-300 whitespace-nowrap">未使用</div>
-            </div>
-            <div>
-              <div className="text-white font-bold text-sm">入場券幼児</div>
-              <div className="text-white text-xs mt-1">¥400(税込)</div>
-            </div>
-          </div>
-          <button className="flex items-center text-blue-200 text-xs mt-4">📤 同行者へ分配する</button>
-        </div>
-        <div className="bg-pink-50 p-4 rounded-lg mt-4 text-xs text-gray-700 leading-relaxed">
-          <div className="mb-2">曾村テディベア美術館 入館券</div>
-          <div className="mb-2">2025年4月19日(土)〜2026年3月31日(火)</div>
-          <div className="mb-2">開館時間:4月19日(土)〜11月16日(日) 9:00〜17:00</div>
-          <div className="mb-2">4月18日(金)と11月17日(月)〜4月17日(金) 9:30〜16:30</div>
-          <div className="mb-2">※入場は閉館30分前までにお願いします</div>
-          <div className="mb-2">※大人(中学生以上)小人(小学生)幼児(3歳〜小学生未満)</div>
-          <div className="mb-2">お問合せ:池の平ホテル&amp;リゾーツ 総合予約センター</div>
-          <div className="mb-2">TEL0266−68−2100 9:00〜18:30 年中無休</div>
-          <div className="mb-2">曾村テディベア美術館</div>
-          <div className="mb-2">入館券</div>
-          <div className="mb-2">※切離し無効</div>
-          <div className="mb-2">※一回限り有効</div>
-          <div className="mb-2">※払い戻し不可</div>
-          <div className="mb-2">＜営利目的の転売禁止＞</div>
-          <div className="mb-2">イープラス 050-3185-6483</div>
-          <div className="text-blue-500 mb-2">チケット裏面情報＞</div>
-          <div className="text-blue-500">チケット番号: 1160027394397</div>
-        </div>
+  const SelectionView = () => (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-xl font-bold mb-4">選択画面</div>
+        <button onClick={() => setCurrentView('detail')} className="bg-pink-500 text-white px-6 py-2 rounded">詳細画面へ戻る</button>
       </div>
     </div>
   );
 
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
-      {currentView === 'selection'     && <SelectionView />}
-      {currentView === 'gateAnimation' && <GateAnimationView />}
-      {currentView === 'used'          && <UsedView />}
-      {currentView === 'detail'        && <DetailView />}
+      {currentView === 'detail'    && <DetailView />}
+      {currentView === 'selection' && <SelectionView />}
     </div>
   );
 };
