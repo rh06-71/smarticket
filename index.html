@@ -8,74 +8,42 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-<style>
-  body{margin:0;background:#f3f4f6;}
-  *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;}
-  .select-none{user-select:none;-webkit-user-select:none;}
-</style>
+<style>body{margin:0;}*{-webkit-tap-highlight-color:transparent;}</style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useRef, useEffect } = React;
 
-// URLパラメーター
-const P = new URLSearchParams(location.search);
-const CONFIG = {
-  name:    P.get('name')    || '東久保 慶樹',
-  type:    P.get('type')    || '入場券幼児',
-  venue:   P.get('venue')   || '蓼科テディベア美術館',
-  event:   P.get('event')   || '蓼科テディベア美術館 入館券',
-  price:   P.get('price')   || '¥400(税込)',
-  tnum:    P.get('ticket_num') || '1160027394397',
-};
-
-// リアルタイム時刻
-const WD = ['日','月','火','水','木','金','土'];
-function getNow() {
-  const n = new Date();
-  const p = (v,l=2) => String(v).padStart(l,'0');
-  return `${n.getFullYear()}/${p(n.getMonth()+1)}/${p(n.getDate())} (${WD[n.getDay()]}) ${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}.${p(n.getMilliseconds(),3).slice(0,2)}`;
-}
-function getUsedTime() {
-  const n = new Date();
-  const p = v => String(v).padStart(2,'0');
-  return `${n.getFullYear()}/${p(n.getMonth()+1)}/${p(n.getDate())}(${WD[n.getDay()]}) ${p(n.getHours())}:${p(n.getMinutes())}`;
-}
-
 const SmartTicketApp = () => {
-  const [currentView, setCurrentView] = useState('selection');
+  const [currentView, setCurrentView] = useState('detail');
   const [animationPhase, setAnimationPhase] = useState(0);
   const [tickets, setTickets] = useState([
-    { id: 1, name: CONFIG.name, type: CONFIG.type, status: 'unused' }
+    { id: 1, name: '東久保 慶樹', type: '入場券幼児', status: 'unused' }
   ]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
-  const [slideStates, setSlideStates] = useState({});
   const [starDrag, setStarDrag] = useState({ isDragging: false, startX: 0, currentX: 0 });
   const [rightStarPosition, setRightStarPosition] = useState({ x: 0 });
-  const [ts, setTs] = useState(getNow());
-  const [usedAt, setUsedAt] = useState('');
+  const leftStarRef = useRef(null);
   const rightStarRef = useRef(null);
 
   useEffect(() => {
-    const timer = setInterval(() => setTs(getNow()), 80);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (rightStarRef.current && currentView === 'selection') {
-      const rect = rightStarRef.current.getBoundingClientRect();
-      setRightStarPosition({ x: rect.left + rect.width / 2 });
+    if (leftStarRef.current && rightStarRef.current && currentView === 'selection') {
+      const leftRect = leftStarRef.current.getBoundingClientRect();
+      const rightRect = rightStarRef.current.getBoundingClientRect();
+      setRightStarPosition({
+        x: rightRect.left + rightRect.width / 2,
+        leftX: leftRect.left + leftRect.width / 2
+      });
     }
   }, [currentView]);
 
   useEffect(() => {
     if (starDrag.isDragging) return;
-    const distance = Math.abs(starDrag.currentX - rightStarPosition.x);
-    if (distance < 30 && starDrag.currentX !== starDrag.startX) {
+    const deltaX = starDrag.currentX - starDrag.startX;
+    if (deltaX > 60 && starDrag.currentX !== starDrag.startX) {
       setCurrentView('gateAnimation');
       setAnimationPhase(0);
-      setUsedAt(getUsedTime());
       setStarDrag({ isDragging: false, startX: 0, currentX: 0 });
       setTimeout(() => setAnimationPhase(1), 1500);
       setTimeout(() => setAnimationPhase(2), 3000);
@@ -84,9 +52,10 @@ const SmartTicketApp = () => {
         setCurrentView('used');
       }, 4500);
     }
-  }, [starDrag.isDragging, rightStarPosition, starDrag.currentX, starDrag.startX]);
+  }, [starDrag.isDragging, starDrag.currentX, starDrag.startX]);
 
   const handleStarTouchStart = (e) => {
+    e.preventDefault();
     const touch = e.touches[0];
     setStarDrag({ isDragging: true, startX: touch.clientX, currentX: touch.clientX });
   };
@@ -96,40 +65,38 @@ const SmartTicketApp = () => {
     const touch = e.touches[0];
     setStarDrag(prev => ({ ...prev, currentX: touch.clientX }));
   };
-  const handleStarTouchEnd = () => setStarDrag(prev => ({ ...prev, isDragging: false }));
-  const handleStarMouseDown = (e) => setStarDrag({ isDragging: true, startX: e.clientX, currentX: e.clientX });
+  const handleStarTouchEnd = (e) => {
+    e.preventDefault();
+    setStarDrag(prev => ({ ...prev, isDragging: false }));
+  };
+  const handleStarMouseDown = (e) => {
+    e.preventDefault();
+    setStarDrag({ isDragging: true, startX: e.clientX, currentX: e.clientX });
+  };
   const handleStarMouseMove = (e) => {
     if (!starDrag.isDragging) return;
     e.preventDefault();
     setStarDrag(prev => ({ ...prev, currentX: e.clientX }));
   };
-  const handleStarMouseUp = () => setStarDrag(prev => ({ ...prev, isDragging: false }));
+  const handleStarMouseUp = (e) => {
+    e.preventDefault();
+    setStarDrag(prev => ({ ...prev, isDragging: false }));
+  };
 
   useEffect(() => {
     if (starDrag.isDragging) {
       document.addEventListener('mousemove', handleStarMouseMove);
       document.addEventListener('mouseup', handleStarMouseUp);
+      document.addEventListener('touchmove', handleStarTouchMove, { passive: false });
+      document.addEventListener('touchend', handleStarTouchEnd, { passive: false });
     }
     return () => {
       document.removeEventListener('mousemove', handleStarMouseMove);
       document.removeEventListener('mouseup', handleStarMouseUp);
+      document.removeEventListener('touchmove', handleStarTouchMove);
+      document.removeEventListener('touchend', handleStarTouchEnd);
     };
   }, [starDrag.isDragging]);
-
-  const handleTicketTouchStart = (e, ticketId) => {
-    const touch = e.touches[0];
-    setSlideStates(prev => ({ ...prev, [ticketId]: { startX: touch.clientX, currentX: touch.clientX, isDragging: true } }));
-  };
-  const handleTicketTouchMove = (e, ticketId) => {
-    if (!slideStates[ticketId]?.isDragging) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - slideStates[ticketId].startX;
-    const clampedDelta = Math.max(-100, Math.min(0, deltaX));
-    setSlideStates(prev => ({ ...prev, [ticketId]: { ...prev[ticketId], currentX: touch.clientX, translateX: clampedDelta } }));
-  };
-  const handleTicketTouchEnd = (ticketId) => {
-    setSlideStates(prev => ({ ...prev, [ticketId]: { ...prev[ticketId], isDragging: false, translateX: 0 } }));
-  };
 
   // ======== 選択画面 ========
   const SelectionView = () => (
@@ -138,62 +105,52 @@ const SmartTicketApp = () => {
         <span className="text-blue-600 font-medium text-sm">1/1枚 選択中</span>
         <button onClick={() => setCurrentView('detail')} className="text-gray-400 text-2xl">×</button>
       </div>
-      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">{ts}</div>
+      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">
+        2026/03/04 (水) 11:56:13.55
+      </div>
       <div className="bg-pink-300 py-8 text-center">
         <div className="text-base font-bold text-gray-800 mb-4">期間中有効</div>
-        <div className="flex justify-center items-center mb-4 relative" style={{gap:'80px'}}>
+        <div className="flex justify-center items-center mb-4 relative" style={{gap: '80px'}}>
           <div
+            ref={leftStarRef}
             className="w-14 h-14 bg-green-400 rounded-full flex items-center justify-center cursor-move select-none relative z-10"
             style={{
               transform: starDrag.isDragging
-                ? `translate(${Math.min(Math.max(0, starDrag.currentX - starDrag.startX), 128)}px, 0px)`
+                ? `translate(${Math.min(Math.max(starDrag.currentX - starDrag.startX, 0), 150)}px, 0px)`
                 : 'translate(0, 0)',
               transition: starDrag.isDragging ? 'none' : 'transform 0.3s ease',
               touchAction: 'none'
             }}
             onTouchStart={handleStarTouchStart}
-            onTouchMove={handleStarTouchMove}
-            onTouchEnd={handleStarTouchEnd}
             onMouseDown={handleStarMouseDown}
           >
-            <span className="text-3xl">🌸</span>
+            <span className="text-3xl pointer-events-none">🌸</span>
           </div>
           <div ref={rightStarRef} className="w-14 h-14 bg-green-400 rounded-full flex items-center justify-center">
             <span className="text-3xl">🌸</span>
           </div>
         </div>
-        <div className="text-xs text-gray-700 mb-1">{CONFIG.venue}</div>
-        <div className="text-xs text-gray-600">{CONFIG.event}</div>
+        <div className="text-xs text-gray-700 mb-1">曾村テディベア美術館</div>
+        <div className="text-xs text-gray-600">曾村テディベア美術館 入館券</div>
       </div>
       <div className="px-4 mt-4">
         <div className="bg-white rounded-lg overflow-hidden shadow-sm">
           {tickets.map((ticket) => (
             <div key={ticket.id}>
-              <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-green-500 flex items-center justify-end pr-4">
-                  <span className="text-white font-medium text-sm">入場済み</span>
-                </div>
-                <div
-                  className={`relative transition-transform duration-200 cursor-pointer ${selectedTicketId === ticket.id ? 'bg-pink-500 text-white' : 'bg-white'}`}
-                  style={{ transform: `translateX(${slideStates[ticket.id]?.translateX || 0}px)` }}
-                  onTouchStart={(e) => handleTicketTouchStart(e, ticket.id)}
-                  onTouchMove={(e) => handleTicketTouchMove(e, ticket.id)}
-                  onTouchEnd={() => handleTicketTouchEnd(ticket.id)}
-                  onClick={() => setSelectedTicketId(selectedTicketId === ticket.id ? null : ticket.id)}
-                >
-                  <div className="p-4">
-                    <div className="flex items-center mb-2">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${selectedTicketId === ticket.id ? 'bg-white' : 'bg-pink-400'}`}>
-                        <span className={`text-xl ${selectedTicketId === ticket.id ? 'text-pink-500' : 'text-white'}`}>✓</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-pink-500 text-white px-3 py-1 rounded text-sm font-bold inline-block">{ticket.name}</div>
-                      </div>
-                    </div>
-                    <div className="ml-13 mt-2">
-                      <div className={`text-sm font-bold ${selectedTicketId === ticket.id ? 'text-white' : 'text-gray-800'}`}>{ticket.type}</div>
-                    </div>
+              <div
+                className={`p-4 cursor-pointer ${selectedTicketId === ticket.id ? 'bg-pink-500 text-white' : 'bg-white'}`}
+                onClick={() => setSelectedTicketId(selectedTicketId === ticket.id ? null : ticket.id)}
+              >
+                <div className="flex items-center mb-2">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 ${selectedTicketId === ticket.id ? 'bg-white' : 'bg-pink-400'}`}>
+                    <span className={`text-xl ${selectedTicketId === ticket.id ? 'text-pink-500' : 'text-white'}`}>✓</span>
                   </div>
+                  <div className="flex-1">
+                    <div className="bg-pink-500 text-white px-3 py-1 rounded text-sm font-bold inline-block">{ticket.name}</div>
+                  </div>
+                </div>
+                <div className="ml-13 mt-2">
+                  <div className={`text-sm font-bold ${selectedTicketId === ticket.id ? 'text-white' : 'text-gray-800'}`}>{ticket.type}</div>
                 </div>
               </div>
             </div>
@@ -208,27 +165,28 @@ const SmartTicketApp = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white px-4 py-3 flex items-center justify-between">
         <span className="text-blue-600 font-medium text-sm">1/1枚 選択中</span>
-        <button className="text-gray-400 text-2xl">×</button>
       </div>
-      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">{ts}</div>
+      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">
+        2026/03/04 (水) 11:56:17.20
+      </div>
       {(animationPhase === 0 || animationPhase === 1) && (
-        <div className="relative">
+        <div>
           <div className="bg-yellow-300 text-center py-2 text-xs font-bold text-gray-800">
             <div>スライドすると使用済になります。</div>
             <div>使用済チケットは、入場・再発行不可</div>
           </div>
           <div className="bg-blue-600 text-teal-300 text-center py-20 text-6xl font-bold">GATE</div>
           <div className="bg-pink-500 text-white p-4">
-            <div className="text-base font-bold">{CONFIG.name}</div>
+            <div className="text-base font-bold">東久保 慶樹</div>
             <div className="flex items-center mt-2">
               <span className="text-white text-2xl mr-2">✓</span>
-              <span className="text-sm">{CONFIG.type}</span>
+              <span className="text-sm">入場券幼児</span>
             </div>
           </div>
         </div>
       )}
       {animationPhase === 2 && (
-        <div className="relative">
+        <div>
           <div className="bg-yellow-300 text-center py-2 text-xs font-bold text-gray-800">
             <div>スライドすると使用済になります。</div>
             <div>使用済チケットは、入場・再発行不可</div>
@@ -238,10 +196,10 @@ const SmartTicketApp = () => {
             <div className="flex-1 bg-pink-400"></div>
           </div>
           <div className="bg-pink-500 text-white p-4">
-            <div className="text-base font-bold">{CONFIG.name}</div>
+            <div className="text-base font-bold">東久保 慶樹</div>
             <div className="flex items-center mt-2">
               <span className="text-white text-2xl mr-2">✓</span>
-              <span className="text-sm">{CONFIG.type}</span>
+              <span className="text-sm">入場券幼児</span>
             </div>
           </div>
         </div>
@@ -256,11 +214,13 @@ const SmartTicketApp = () => {
         <span className="text-blue-600 font-medium text-sm">0/1枚 選択中</span>
         <button onClick={() => { setCurrentView('selection'); setTickets(prev => prev.map(t => ({ ...t, status: 'unused' }))); }} className="text-gray-400 text-2xl">×</button>
       </div>
-      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">{ts}</div>
+      <div className="bg-teal-500 text-white text-center py-2 text-xs font-medium">
+        2026/03/04 (水) 11:56:19.49
+      </div>
       <div className="bg-pink-500 text-white text-center py-12 text-lg font-bold">1枚使用しました</div>
       <div className="px-4 mt-4">
         <div className="bg-pink-500 text-white p-4 rounded-t-lg">
-          <div className="text-base font-bold">{CONFIG.name}</div>
+          <div className="text-base font-bold">東久保 慶樹</div>
         </div>
         <div className="bg-gray-300 p-4 rounded-b-lg relative">
           <div className="flex items-start">
@@ -269,13 +229,13 @@ const SmartTicketApp = () => {
               <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 text-xs px-2 py-1 rounded border border-gray-400 whitespace-nowrap">入場済</div>
             </div>
             <div className="flex-1 mt-2">
-              <div className="text-black font-bold text-sm">{CONFIG.type}</div>
+              <div className="text-black font-bold text-sm">入場券幼児</div>
             </div>
             <div className="absolute top-4 right-4">
               <div className="border-4 border-red-500 text-red-500 px-2 py-1 rounded transform rotate-12 font-bold text-sm">使用済</div>
             </div>
           </div>
-          <div className="mt-8 text-black text-xs">使用日時: {usedAt}</div>
+          <div className="mt-8 text-black text-xs">使用日時: 2026/03/04(水) 11:56</div>
         </div>
       </div>
     </div>
@@ -290,36 +250,45 @@ const SmartTicketApp = () => {
       </div>
       <div className="px-4 py-4">
         <div className="text-sm text-gray-600 mb-2">期間中有効</div>
-        <div className="text-sm text-gray-700 mb-1">{CONFIG.event}</div>
-        <div className="text-xs text-gray-500">{CONFIG.venue}</div>
+        <div className="text-sm text-gray-700 mb-1">曾村テディベア美術館 入館券</div>
+        <div className="text-xs text-gray-500 mb-4">曾村テディベア美術館</div>
       </div>
-      <div className="px-4 mt-2">
-        <div className="bg-gray-400 rounded-lg p-4 relative">
+      <div className="px-4">
+        <div className="bg-pink-500 rounded-lg p-4 relative">
           <div className="flex items-center justify-between mb-3">
-            <div className="bg-gray-500 text-white px-3 py-1 rounded text-sm font-bold inline-block">{CONFIG.name}</div>
+            <div className="text-white px-3 py-1 rounded text-sm font-bold">東久保 慶樹</div>
             <div className="text-white text-xs">1枚目</div>
           </div>
           <div className="flex items-start">
-            <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mr-3 relative">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-3 relative">
               <div className="text-2xl">🎫</div>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white text-gray-600 text-xs px-2 py-0.5 rounded border border-gray-400 whitespace-nowrap">入場済</div>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white text-pink-500 text-xs px-2 py-0.5 rounded border border-pink-300 whitespace-nowrap">未使用</div>
             </div>
             <div>
-              <div className="text-white font-bold text-sm">{CONFIG.type}</div>
-              <div className="text-white text-xs mt-1">{CONFIG.price}</div>
-            </div>
-            <div className="absolute top-4 right-4">
-              <div className="border-4 border-red-500 text-red-500 px-2 py-1 rounded transform rotate-12 font-bold text-sm">使用済</div>
+              <div className="text-white font-bold text-sm">入場券幼児</div>
+              <div className="text-white text-xs mt-1">¥400(税込)</div>
             </div>
           </div>
+          <button className="flex items-center text-blue-200 text-xs mt-4">📤 同行者へ分配する</button>
         </div>
-        <div className="bg-gray-100 p-4 rounded-lg mt-4 text-xs text-gray-700 leading-relaxed">
-          <div className="mb-1">{CONFIG.event}</div>
-          <div className="mb-1">＜営利目的の転売禁止＞</div>
-          <div className="mb-1">イープラス 050-3185-6483</div>
-          <div className="text-blue-500 mb-1">チケット裏面情報 ›</div>
-          <div className="text-blue-500 mb-1">チケット番号: {CONFIG.tnum}</div>
-          <div className="text-gray-600">使用日時: {usedAt || '未使用'}</div>
+        <div className="bg-pink-50 p-4 rounded-lg mt-4 text-xs text-gray-700 leading-relaxed">
+          <div className="mb-2">曾村テディベア美術館 入館券</div>
+          <div className="mb-2">2025年4月19日(土)〜2026年3月31日(火)</div>
+          <div className="mb-2">開館時間:4月19日(土)〜11月16日(日) 9:00〜17:00</div>
+          <div className="mb-2">4月18日(金)と11月17日(月)〜4月17日(金) 9:30〜16:30</div>
+          <div className="mb-2">※入場は閉館30分前までにお願いします</div>
+          <div className="mb-2">※大人(中学生以上)小人(小学生)幼児(3歳〜小学生未満)</div>
+          <div className="mb-2">お問合せ:池の平ホテル&amp;リゾーツ 総合予約センター</div>
+          <div className="mb-2">TEL0266−68−2100 9:00〜18:30 年中無休</div>
+          <div className="mb-2">曾村テディベア美術館</div>
+          <div className="mb-2">入館券</div>
+          <div className="mb-2">※切離し無効</div>
+          <div className="mb-2">※一回限り有効</div>
+          <div className="mb-2">※払い戻し不可</div>
+          <div className="mb-2">＜営利目的の転売禁止＞</div>
+          <div className="mb-2">イープラス 050-3185-6483</div>
+          <div className="text-blue-500 mb-2">チケット裏面情報＞</div>
+          <div className="text-blue-500">チケット番号: 1160027394397</div>
         </div>
       </div>
     </div>
@@ -335,8 +304,7 @@ const SmartTicketApp = () => {
   );
 };
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<SmartTicketApp />);
+ReactDOM.createRoot(document.getElementById('root')).render(<SmartTicketApp />);
 </script>
 </body>
 </html>
