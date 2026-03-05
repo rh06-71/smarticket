@@ -54,15 +54,22 @@ function useClock() {
 }
 
 /* ─── チケットアイコン SVG ─── */
-const TicketIcon = ({ color = PINK, size = 56 }) => (
-  <svg width={size} height={size} viewBox="0 0 56 56" fill="none">
-    <circle cx="28" cy="28" r="28" fill={color === PINK ? '#FCE4EC' : '#eee'} />
-    <rect x="10" y="18" width="36" height="20" rx="4" fill={color} />
-    <circle cx="10" cy="28" r="4" fill="white" />
-    <circle cx="46" cy="28" r="4" fill="white" />
-    <line x1="22" y1="18" x2="22" y2="38" stroke="white" strokeWidth="1.5" strokeDasharray="3,2" />
-  </svg>
-);
+const TicketIcon = ({ color = PINK, size = 68 }) => {
+  const bg = color === PINK ? '#FCE4EC' : '#e0e0e0';
+  return (
+    <svg width={size} height={size} viewBox="0 0 68 68" fill="none">
+      <circle cx="34" cy="34" r="34" fill={bg} />
+      {/* チケット本体 */}
+      <rect x="10" y="26" width="48" height="16" rx="3" fill={color} />
+      {/* 左ノッチ（半円切り欠き） */}
+      <circle cx="10" cy="34" r="5.5" fill={bg} />
+      {/* 右ノッチ */}
+      <circle cx="58" cy="34" r="5.5" fill={bg} />
+      {/* ミシン目 */}
+      <line x1="28" y1="26" x2="28" y2="42" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeDasharray="2,2" />
+    </svg>
+  );
+};
 
 /* ─── Detail 画面 ─── */
 const DetailView = ({ isUsed, usedTime, onGate }) => (
@@ -107,7 +114,7 @@ const DetailView = ({ isUsed, usedTime, onGate }) => (
       </div>
 
       {/* チケット本体 */}
-      <div style={{ background:'#fff', padding:'16px', position:'relative', borderLeft:`1px solid ${isUsed?'#ccc':PINK}`, borderRight:`1px solid ${isUsed?'#ccc':PINK}` }}>
+      <div style={{ background:'#fff', padding:'16px', position:'relative' }}>
         <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
           {/* アイコン */}
           <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
@@ -141,16 +148,19 @@ const DetailView = ({ isUsed, usedTime, onGate }) => (
       </div>
 
       {/* 分配ボタン */}
-      <div style={{
-        background:'#fff', padding:'12px 16px',
-        border:`1.5px dashed ${isUsed?'#ccc':PINK}`,
-        borderTop:'none', borderRadius:'0 0 8px 8px',
-        display:'flex', alignItems:'center', gap:8
-      }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill={TEAL}>
-          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-        </svg>
-        <span style={{ color:TEAL, fontSize:13, fontWeight:'bold' }}>同行者へ分配する</span>
+      <div style={{ background:'#fff', padding:'10px 16px 14px', borderRadius:'0 0 8px 8px' }}>
+        <button style={{
+          width:'100%', background: isUsed ? '#e0e0e0' : PINK,
+          color:'#fff', border:'none', borderRadius:24,
+          padding:'11px 16px', fontSize:13, fontWeight:'bold',
+          display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+          cursor:'pointer'
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+          </svg>
+          同行者へ分配する
+        </button>
       </div>
     </div>
 
