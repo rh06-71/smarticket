@@ -114,7 +114,7 @@ const DetailView = ({ isUsed, usedTime, onGate }) => (
       </div>
 
       {/* チケット本体 */}
-      <div style={{ background:'#fff', padding:'16px', position:'relative' }}>
+      <div style={{ background:'#fff', padding:'16px', position:'relative', border:`1.5px dashed ${isUsed?'#ccc':PINK}`, borderBottom:'none' }}>
         <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
           {/* アイコン */}
           <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
@@ -147,20 +147,16 @@ const DetailView = ({ isUsed, usedTime, onGate }) => (
         {usedTime && <div style={{ marginTop:8, fontSize:11, color:'#999' }}>使用日時: {usedTime}</div>}
       </div>
 
-      {/* 分配ボタン */}
-      <div style={{ background:'#fff', padding:'10px 16px 14px', borderRadius:'0 0 8px 8px' }}>
-        <button style={{
-          width:'100%', background: isUsed ? '#e0e0e0' : PINK,
-          color:'#fff', border:'none', borderRadius:24,
-          padding:'11px 16px', fontSize:13, fontWeight:'bold',
-          display:'flex', alignItems:'center', justifyContent:'center', gap:8,
-          cursor:'pointer'
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
-            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-          </svg>
-          同行者へ分配する
-        </button>
+      {/* 分配エリア（点線ボーダーカード） */}
+      <div style={{
+        border:`1.5px dashed ${isUsed?'#ccc':PINK}`, borderTop:'none',
+        borderRadius:'0 0 10px 10px', background:'#fff',
+        padding:'12px 16px', display:'flex', alignItems:'center', gap:8, cursor:'pointer'
+      }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill={isUsed?'#ccc':PINK}>
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+        <span style={{ color: isUsed?'#ccc':PINK, fontSize:14, fontWeight:'bold' }}>同行者へ分配する</span>
       </div>
     </div>
 
