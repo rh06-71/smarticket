@@ -7,382 +7,311 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { background:#f5f5f5; font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; }
-@keyframes arrowPulse { 0%,100%{opacity:1;transform:translateX(0)} 50%{opacity:0.3;transform:translateX(4px)} }
-@keyframes arrowPulseLeft { 0%,100%{opacity:1;transform:translateX(0)} 50%{opacity:0.3;transform:translateX(-4px)} }
-@keyframes stampIn { 0%{opacity:0;transform:rotate(-15deg) scale(1.4)} 100%{opacity:1;transform:rotate(-15deg) scale(1)} }
-@keyframes slideReveal { 0%{transform:scaleX(0)} 100%{transform:scaleX(1)} }
+@keyframes stampIn { 0%{opacity:0;transform:rotate(12deg) scale(1.4)} 100%{opacity:1;transform:rotate(12deg) scale(1)} }
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useRef, useEffect } = React;
 
-const PINK = '#E91E8C';
-const LIME = '#8BC34A';
-const TEAL = '#00BFA5';
+const SmartTicketApp = () => {
+  const [currentView, setCurrentView] = useState('detail');
+  const [animationPhase, setAnimationPhase] = useState(0);
+  const [starDrag, setStarDrag] = useState({ isDragging: false, startX: 0, currentX: 0 });
+  const leftStarRef = useRef(null);
 
-/* ─── URLパラメーター ─── */
-const p = new URLSearchParams(window.location.search);
-const TICKET = {
-  name:      p.get('name')   || '東久保 慶樹',
-  event:     p.get('event')  || 'イープラス劇団 第1回公演',
-  venue:     p.get('venue')  || '東京武道館',
-  date:      p.get('date')   || '2025年',
-  day:       p.get('day')    || '2/18',
-  dow:       p.get('dow')    || '火',
-  open:      p.get('open')   || '18:00',
-  start:     p.get('start')  || '19:00',
-  type:      p.get('type')   || '指定席',
-  floor:     p.get('floor')  || '1階',
-  row:       p.get('row')    || '25列 10番',
-  price:     p.get('price')  || '¥8,800(税込)',
-  ticketNum: p.get('ticket_num') || '1160027394397',
-};
+  useEffect(() => {
+    if (starDrag.isDragging) return;
+    const deltaX = starDrag.currentX - starDrag.startX;
+    if (deltaX > 80 && starDrag.currentX !== starDrag.startX) {
+      setCurrentView('gateAnimation');
+      setAnimationPhase(0);
+      setStarDrag({ isDragging: false, startX: 0, currentX: 0 });
+      setTimeout(() => setAnimationPhase(1), 1500);
+      setTimeout(() => setAnimationPhase(2), 3000);
+      setTimeout(() => setCurrentView('used'), 4500);
+    }
+  }, [starDrag.isDragging, starDrag.currentX, starDrag.startX]);
 
-/* ─── リアルタイム時刻フック ─── */
-function useClock() {
-  const [now, setNow] = useState(new Date());
-  useEffect(() => { const t = setInterval(() => setNow(new Date()), 10); return () => clearInterval(t); }, []);
-  const days = ['日','月','火','水','木','金','土'];
-  const pad = n => String(n).padStart(2,'0');
-  const ms2 = String(Math.floor(now.getMilliseconds()/10)).padStart(2,'0');
-  return `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} (${days[now.getDay()]}) ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}.${ms2}`;
-}
+  const handleStarTouchStart = (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    setStarDrag({ isDragging: true, startX: touch.clientX, currentX: touch.clientX });
+  };
+  const handleStarTouchMove = (e) => {
+    if (!starDrag.isDragging) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    setStarDrag(prev => ({ ...prev, currentX: touch.clientX }));
+  };
+  const handleStarTouchEnd = (e) => {
+    e.preventDefault();
+    setStarDrag(prev => ({ ...prev, isDragging: false }));
+  };
+  const handleStarMouseDown = (e) => {
+    e.preventDefault();
+    setStarDrag({ isDragging: true, startX: e.clientX, currentX: e.clientX });
+  };
+  const handleStarMouseMove = (e) => {
+    if (!starDrag.isDragging) return;
+    e.preventDefault();
+    setStarDrag(prev => ({ ...prev, currentX: e.clientX }));
+  };
+  const handleStarMouseUp = () => {
+    setStarDrag(prev => ({ ...prev, isDragging: false }));
+  };
+  useEffect(() => {
+    if (starDrag.isDragging) {
+      document.addEventListener('mousemove', handleStarMouseMove);
+      document.addEventListener('mouseup', handleStarMouseUp);
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleStarMouseMove);
+      document.removeEventListener('mouseup', handleStarMouseUp);
+    };
+  }, [starDrag.isDragging]);
 
-/* ─── チケットアイコン SVG ─── */
-const TicketIcon = ({ color = PINK, size = 68 }) => {
-  const bg = color === PINK ? '#FCE4EC' : '#e0e0e0';
-  return (
-    <svg width={size} height={size} viewBox="0 0 68 68" fill="none">
-      <circle cx="34" cy="34" r="34" fill={bg} />
-      {/* チケット本体 */}
-      <rect x="10" y="26" width="48" height="16" rx="3" fill={color} />
-      {/* 左ノッチ（半円切り欠き） */}
-      <circle cx="10" cy="34" r="5.5" fill={bg} />
-      {/* 右ノッチ */}
-      <circle cx="58" cy="34" r="5.5" fill={bg} />
-      {/* ミシン目 */}
-      <line x1="28" y1="26" x2="28" y2="42" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeDasharray="2,2" />
-    </svg>
-  );
-};
+  const dragOffset = Math.min(Math.max(starDrag.currentX - starDrag.startX, 0), 140);
 
-/* ─── Detail 画面 ─── */
-const DetailView = ({ isUsed, usedTime, onGate }) => (
-  <div style={{ background:'#FFF0F5', minHeight:'100vh' }}>
+  // ======== 詳細画面 ========
+  const DetailView = () => (
+    <div className="min-h-screen" style={{ backgroundColor: '#F5F5F5' }}>
+      <div className="bg-white px-4 py-3 flex items-center justify-between">
+        <button onClick={() => setCurrentView('selection')} className="text-2xl" style={{ color: '#00A7A0' }}>＜</button>
+        <button onClick={() => setCurrentView('selection')} className="text-white px-5 py-2 text-sm font-medium" style={{ backgroundColor: '#E91E8C', borderRadius: '20px' }}>入場画面に進む</button>
+      </div>
 
-    {/* ヘッダー */}
-    <div style={{ background:'#fff', padding:'12px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid #eee' }}>
-      <span style={{ fontSize:22, color:'#999', fontWeight:'bold' }}>＜</span>
-      <button onClick={onGate} style={{
-        background: isUsed ? '#fff' : PINK,
-        color: isUsed ? 'red' : '#fff',
-        border: isUsed ? '1.5px solid red' : 'none',
-        borderRadius:20, padding:'8px 20px', fontSize:13, fontWeight:'bold', cursor:'pointer'
-      }}>入場画面に進む</button>
-    </div>
-
-    {/* 公演情報カード */}
-    <div style={{ margin:'12px 16px', background:'#fff', borderRadius:10, padding:'14px', boxShadow:'0 1px 4px rgba(0,0,0,0.08)' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-        <div>
-          <div style={{ fontSize:11, color:'#999', marginBottom:4 }}>{TICKET.date}</div>
-          <div style={{ display:'flex', alignItems:'baseline', gap:4 }}>
-            <span style={{ fontSize:38, fontWeight:'bold', color:'#111', letterSpacing:-1 }}>{TICKET.day}</span>
-            <span style={{ fontSize:15, fontWeight:'bold', color:'#111' }}>({TICKET.dow})</span>
+      <div className="px-4 py-4">
+        <div className="bg-white rounded-lg p-4 mb-3 relative">
+          <div className="text-xs text-gray-600 mb-2">2024年</div>
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-baseline">
+              <span className="text-5xl font-bold mr-2">2/3</span>
+              <span className="text-sm font-medium">(土)</span>
+            </div>
+            <div className="text-right text-xs">
+              <div className="mb-1">08:00 開場</div>
+              <div>09:00 開演</div>
+            </div>
+            <button className="text-gray-400 text-xl absolute top-4 right-4">⋯</button>
           </div>
+          <div className="text-sm font-bold mb-1">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
+          <div className="text-xs text-gray-500">東京ドーム</div>
         </div>
-        <div style={{ textAlign:'right', fontSize:12, color:'#555', lineHeight:1.7 }}>
-          <div>{TICKET.open} 開場</div>
-          <div>{TICKET.start} 開演</div>
-          <div style={{ color:'#bbb', fontSize:16, cursor:'pointer' }}>•••</div>
+
+        <div style={{ backgroundColor: '#0066CC' }} className="rounded-t-lg px-4 py-3 flex items-center justify-between">
+          <span className="text-white font-bold text-base">吉村 晃 様</span>
+          <span className="text-white text-xs">1枚目</span>
         </div>
-      </div>
-      <div style={{ fontSize:15, fontWeight:'bold', color:'#111', marginTop:8 }}>{TICKET.event}</div>
-      <div style={{ fontSize:12, color:'#999', marginTop:2 }}>{TICKET.venue}</div>
-    </div>
 
-    {/* 名前バー */}
-    <div style={{ margin:'0 16px' }}>
-      <div style={{ background: isUsed ? '#aaa' : PINK, borderRadius:'8px 8px 0 0', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <span style={{ color:'#fff', fontWeight:'bold', fontSize:15 }}>{TICKET.name} 様</span>
-        <span style={{ color:'#fff', fontSize:11 }}>1枚目</span>
-      </div>
-
-      {/* チケット本体 */}
-      <div style={{ background:'#fff', padding:'16px', position:'relative', border:`1.5px dashed ${isUsed?'#ccc':PINK}`, borderBottom:'none' }}>
-        <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
-          {/* アイコン */}
-          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
-            <TicketIcon color={isUsed ? '#9e9e9e' : PINK} />
-            <span style={{
-              background: isUsed ? '#9e9e9e' : PINK,
-              color:'#fff', fontSize:11, fontWeight:'bold',
-              padding:'3px 10px', borderRadius:4
-            }}>{isUsed ? '入場済' : '未使用'}</span>
+        <div style={{ backgroundColor: '#FFE4F0' }} className="px-4 pt-4 pb-3">
+          <div className="flex items-start">
+            <div className="mr-4">
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-2">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+                  <rect x="5" y="3" width="14" height="18" rx="2" fill="#E91E8C"/>
+                  <rect x="8" y="7" width="8" height="5" rx="1" fill="white"/>
+                  <line x1="8" y1="14" x2="16" y2="14" stroke="white" strokeWidth="1.2"/>
+                  <line x1="8" y1="17" x2="16" y2="17" stroke="white" strokeWidth="1.2"/>
+                </svg>
+              </div>
+              <div className="text-center text-xs font-bold px-3 py-1 rounded" style={{ backgroundColor: '#E91E8C', color: 'white' }}>未使用</div>
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-bold mb-1">通常・一般席アリーナ14時</div>
+              <div className="text-xs mb-1">41ゲート 10通路 2階3塁側</div>
+              <div className="text-sm font-bold mb-2">20列 191番</div>
+              <div className="text-base font-bold">¥3,300(税込)</div>
+            </div>
           </div>
-          {/* 情報 */}
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:15, fontWeight:'bold', color:'#111', marginBottom:4 }}>{TICKET.type}</div>
-            <div style={{ fontSize:13, color:'#555', marginBottom:2 }}>{TICKET.floor}</div>
-            <div style={{ fontSize:13, color:'#555', marginBottom:8 }}>{TICKET.row}</div>
-            <div style={{ fontSize:15, fontWeight:'bold', color:'#111' }}>{TICKET.price}</div>
-          </div>
-          {/* 使用済スタンプ */}
-          {isUsed && (
-            <div style={{
-              position:'absolute', top:14, right:14,
-              border:'2.5px solid #e53935', color:'#e53935',
-              padding:'4px 8px', fontSize:16, fontWeight:'bold',
-              transform:'rotate(-15deg)', borderRadius:4,
-              animation:'stampIn 0.3s ease-out',
-              fontFamily:'serif', letterSpacing:2,
-            }}>使用済</div>
-          )}
+
+          <button className="w-full mt-3 py-2 rounded flex items-center justify-center text-sm font-medium border-2 border-dashed bg-white" style={{ borderColor: '#E91E8C', color: '#00A7A0' }}>
+            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+            </svg>
+            同行者へ分配する
+          </button>
         </div>
-        {usedTime && <div style={{ marginTop:8, fontSize:11, color:'#999' }}>使用日時: {usedTime}</div>}
+
+        <div style={{ backgroundColor: '#FFE4F0' }} className="px-4 py-3 rounded-b-lg text-xs leading-relaxed">
+          <div className="mb-1">遊戯王デュエルモンスターズ</div>
+          <div className="mb-1">決闘者伝説(The Legend of Duelist) QUARTER CENTURY</div>
+          <div className="mb-1">主催:株式会社コナミデジタルエンタテインメント</div>
+          <div className="mb-2">お問合せ:KONAMIお客様相談室 0570-086-573</div>
+          <div className="mb-2 text-gray-500" style={{fontSize:'10px'}}>※特設サイトをご確認ください。https://www.konami.com/yugioh/25th/event/</div>
+          <div className="mb-2" style={{fontSize:'10px'}}>＜営利目的の転売禁止＞</div>
+          <div className="mb-2">イープラス 050-3185-6483</div>
+          <div className="mb-2 font-medium" style={{ color: '#0066CC' }}>チケット裏面情報 ›</div>
+          <div className="font-medium" style={{ color: '#0066CC' }}>チケット番号: 1140008501907</div>
+        </div>
       </div>
 
-      {/* 分配エリア（点線ボーダーカード） */}
-      <div style={{
-        border:`1.5px dashed ${isUsed?'#ccc':PINK}`, borderTop:'none',
-        borderRadius:'0 0 10px 10px', background:'#fff',
-        padding:'12px 16px', display:'flex', alignItems:'center', gap:8, cursor:'pointer'
-      }}>
-        {/* チケットシェアアイコン */}
-        <svg width="22" height="18" viewBox="0 0 26 20" fill="none">
-          <rect x="0.5" y="0.5" width="19" height="13" rx="2" stroke={isUsed?'#ccc':TEAL} strokeWidth="1.4" fill="none"/>
-          <circle cx="0.5" cy="7" r="2.5" fill={isUsed?'#ccc':TEAL}/>
-          <circle cx="19.5" cy="7" r="2.5" fill={isUsed?'#ccc':TEAL}/>
-          <path d="M21 7 L25 4 L25 10 Z" fill={isUsed?'#ccc':TEAL}/>
-          <line x1="22" y1="7" x2="25.5" y2="7" stroke={isUsed?'#ccc':TEAL} strokeWidth="1.2"/>
-        </svg>
-        <span style={{ color: isUsed?'#ccc':TEAL, fontSize:14, fontWeight:'bold' }}>同行者へ分配する</span>
-      </div>
-    </div>
-
-    {/* 詳細テキスト（フラット・薄ピンク背景） */}
-    <div style={{ padding:'14px 16px', fontSize:11, color:'#444', lineHeight:1.9 }}>
-      <div style={{ marginBottom:4 }}>{TICKET.event}</div>
-      <div style={{ marginBottom:3 }}>■主催：イープラス劇団プロダクション</div>
-      <div style={{ marginBottom:3 }}>■企画制作：恵比寿CORPORATION</div>
-      <div style={{ marginBottom:8, color:'#555' }}>※チケットの紛失/盗難/お忘れなどいかなる理由でも再発行不可。（本券がないと入場できません）チケットは大切に保管してください。</div>
-      <div style={{ marginBottom:8 }}>＜営利目的の転売禁止＞</div>
-      <div style={{ marginBottom:6 }}>e+（イープラス）</div>
-      <div style={{ color:TEAL, fontWeight:'bold', marginBottom:4, cursor:'pointer' }}>チケット裏面情報 ›</div>
-      <div style={{ color:TEAL, fontWeight:'bold' }}>チケット番号: {TICKET.ticketNum}</div>
-    </div>
-
-    {/* 上へボタン */}
-    <div style={{ position:'fixed', bottom:24, right:20 }}>
-      <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} style={{
-        width:48, height:48, borderRadius:'50%', background:TEAL,
-        border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-        boxShadow:'0 2px 8px rgba(0,0,0,0.25)'
-      }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff">
-          <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+      <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} className="fixed bottom-6 right-6 w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: '#00A7A0' }}>
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7"/>
         </svg>
       </button>
     </div>
-  </div>
-);
+  );
 
-/* ─── GATE 画面 ─── */
-const GateView = ({ onComplete, onClose }) => {
-  const clock = useClock();
-  const [showWarning, setShowWarning] = useState(true);
-  const [arrowVis, setArrowVis] = useState(true);
-  const [slideX, setSlideX] = useState(0);
-  const [sliding, setSliding] = useState(false);
-  const trackRef = useRef(null);
-  const startXRef = useRef(0);
-  const TRACK_W = 280;
+  // ======== 選択画面 ========
+  const SelectionView = () => (
+    <div className="min-h-screen" style={{ backgroundColor: '#F5F5F5' }}>
+      <div className="bg-white px-4 py-3 flex items-center justify-between">
+        <span style={{ color: '#E91E8C' }} className="font-medium text-sm">1/1枚 選択中</span>
+        <button onClick={() => setCurrentView('detail')} className="text-gray-400 text-2xl">×</button>
+      </div>
 
-  useEffect(() => {
-    const t = setInterval(() => setArrowVis(v => !v), 600);
-    return () => clearInterval(t);
-  }, []);
+      <div style={{ backgroundColor: '#00A7A0' }} className="text-white text-center py-2 text-xs font-medium">
+        2024/02/03 (金) 16:48:42.27
+      </div>
 
-  const onTouchStart = e => {
-    startXRef.current = e.touches[0].clientX - slideX;
-    setSliding(true);
-  };
-  const onTouchMove = e => {
-    if (!sliding) return;
-    const x = Math.max(0, Math.min(TRACK_W - 64, e.touches[0].clientX - startXRef.current));
-    setSlideX(x);
-    if (x >= TRACK_W - 70) {
-      setSliding(false);
-      const now = new Date();
-      const days = ['日','月','火','水','木','金','土'];
-      const pad = n => String(n).padStart(2,'0');
-      const timeStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}(${days[now.getDay()]}) ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      onComplete(timeStr);
-    }
-  };
-  const onTouchEnd = () => { setSliding(false); if (slideX < TRACK_W - 70) setSlideX(0); };
-
-  const revealRatio = Math.min(1, slideX / (TRACK_W - 70));
-
-  return (
-    <div style={{ background:'#111', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
-
-      {/* 警告バー */}
-      {showWarning && (
-        <div style={{ background:'#FFF176', padding:'8px 12px', position:'relative' }}>
-          <div style={{ fontSize:11, color:'#d32f2f', lineHeight:1.6 }}>
-            スライドすると使用済になります。<br/>
-            使用済チケットは、入場・再発行不可
+      <div className="bg-white mx-4 mt-4 p-4 rounded-lg">
+        <div className="flex items-baseline justify-between mb-3">
+          <div className="flex items-baseline">
+            <span className="text-5xl font-bold mr-2">2/3</span>
+            <span className="text-sm font-medium">(土)</span>
           </div>
-          <button onClick={() => setShowWarning(false)} style={{
-            position:'absolute', top:8, right:8,
-            background:'none', border:'none', color:'#666', fontSize:16, cursor:'pointer'
-          }}>×</button>
+          <div className="text-right text-xs">
+            <div className="mb-1">08:00 開場</div>
+            <div>09:00 開演</div>
+          </div>
+        </div>
+
+        {/* 桜ドラッグ */}
+        <div className="flex justify-center items-center mb-4 relative" style={{ gap: '120px' }}>
+          <div
+            ref={leftStarRef}
+            className="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center cursor-move select-none relative z-10"
+            style={{
+              transform: starDrag.isDragging
+                ? `translate(${dragOffset}px, 0px)`
+                : 'translate(0, 0)',
+              transition: starDrag.isDragging ? 'none' : 'transform 0.3s ease',
+              touchAction: 'none'
+            }}
+            onTouchStart={handleStarTouchStart}
+            onTouchMove={handleStarTouchMove}
+            onTouchEnd={handleStarTouchEnd}
+            onMouseDown={handleStarMouseDown}
+          >
+            <span className="text-4xl pointer-events-none">⭐</span>
+          </div>
+          <div className="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center">
+            <span className="text-4xl">⭐</span>
+          </div>
+        </div>
+
+        <div className="text-sm font-bold mb-1">東京ドーム</div>
+        <div className="text-xs text-gray-600">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
+      </div>
+
+      <div className="mx-4 mt-3">
+        <div style={{ backgroundColor: '#0066CC' }} className="px-4 py-3 rounded-t-lg flex items-center justify-between">
+          <span className="text-white font-bold">本多 遥星 様</span>
+        </div>
+        <div style={{ backgroundColor: '#0066CC' }} className="px-4 py-4 rounded-b-lg flex items-center">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mr-4">
+            <svg className="w-10 h-10" viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#0066CC"/>
+            </svg>
+          </div>
+          <div className="text-white flex-1">
+            <div className="text-sm font-bold mb-1">通常・一般席アリーナ14時</div>
+            <div className="text-xs mb-1">41ゲート 10通路 2階3塁側</div>
+            <div className="text-base font-bold">20列 191番</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ======== GATEアニメーション ========
+  const GateAnimationView = () => (
+    <div className="min-h-screen bg-gray-100">
+      <div className="bg-white px-4 py-3">
+        <span style={{ color: '#E91E8C' }} className="font-medium text-sm">1/1枚 選択中</span>
+      </div>
+      <div style={{ backgroundColor: '#00A7A0' }} className="text-white text-center py-2 text-xs">
+        2024/02/03 (金) 16:48:47.20
+      </div>
+
+      {animationPhase >= 0 && animationPhase < 2 && (
+        <div>
+          <div className="bg-yellow-300 text-center py-2 text-xs font-bold">
+            <div>スライドすると使用済になります。</div>
+            <div>使用済チケットは、入場・再発行不可</div>
+          </div>
+          <div className="bg-blue-700 text-cyan-300 text-center py-24 text-7xl font-black tracking-widest">
+            GATE
+          </div>
         </div>
       )}
 
-      {/* 時刻バー */}
-      <div style={{ background:LIME, padding:'6px 0', textAlign:'center' }}>
-        <span style={{ color:'#fff', fontSize:12, fontWeight:'bold', letterSpacing:0.5 }}>{clock}</span>
-      </div>
-
-      {/* GATEブロック */}
-      <div style={{ position:'relative', overflow:'hidden', height:160, margin:'0' }}>
-        {/* 背面（ピンク/赤） */}
-        <div style={{
-          position:'absolute', inset:0,
-          background:`linear-gradient(135deg, ${PINK}, #d81b60)`,
-          display:'flex', alignItems:'center', justifyContent:'center'
-        }}>
-          <span style={{ fontSize:48, fontWeight:'bold', color:'rgba(255,255,255,0.5)', letterSpacing:8 }}>USED</span>
+      {animationPhase === 2 && (
+        <div className="flex" style={{ height: '200px' }}>
+          <div className="flex-1 bg-blue-700 flex items-center justify-center text-yellow-400 text-6xl font-bold">▶▶</div>
+          <div className="flex-1" style={{ backgroundColor: '#E91E8C' }}></div>
         </div>
-        {/* 前面（青いGATEスライダー） */}
-        <div style={{
-          position:'absolute', top:0, bottom:0,
-          left: -slideX,
-          width:'100%',
-          background:'#1565C0',
-          display:'flex', alignItems:'center', justifyContent:'center', gap:16,
-          transition: sliding ? 'none' : 'left 0.3s ease',
-          cursor:'grab',
-          userSelect:'none',
-        }}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          {arrowVis && <span style={{ fontSize:32, color:'#FFD600', fontWeight:'bold' }}>◀◀</span>}
-          <span style={{ fontSize:52, fontWeight:'900', color:'#0D47A1', letterSpacing:6, textShadow:'0 2px 8px rgba(0,0,0,0.3)' }}>GATE</span>
-          {arrowVis && <span style={{ fontSize:32, color:'#FFD600', fontWeight:'bold' }}>▶▶</span>}
+      )}
+    </div>
+  );
+
+  // ======== 使用済み画面 ========
+  const UsedView = () => (
+    <div className="min-h-screen" style={{ backgroundColor: '#F5F5F5' }}>
+      <div className="bg-white px-4 py-3 flex items-center justify-between">
+        <span style={{ color: '#E91E8C' }} className="font-medium text-sm">0/1枚 選択中</span>
+        <button onClick={() => setCurrentView('detail')} className="text-gray-400 text-2xl">×</button>
+      </div>
+      <div style={{ backgroundColor: '#00A7A0' }} className="text-white text-center py-2 text-xs">
+        2024/02/03 (金) 16:48:50.49
+      </div>
+      <div style={{ backgroundColor: '#E91E8C' }} className="text-white text-center py-12 text-lg font-bold">
+        1枚使用しました
+      </div>
+
+      <div className="px-4 mt-4">
+        <div style={{ backgroundColor: '#0066CC' }} className="px-4 py-3 rounded-t-lg">
+          <span className="text-white font-bold">本多 遥星 様</span>
         </div>
-      </div>
-
-      {/* 名前帯 */}
-      <div style={{ background:LIME, padding:'8px 16px' }}>
-        <span style={{ color:'#111', fontWeight:'bold', fontSize:14 }}>{TICKET.name} 様</span>
-      </div>
-
-      {/* チケット情報 */}
-      <div style={{ background:PINK, padding:'14px 16px', display:'flex', alignItems:'center', gap:12 }}>
-        <div style={{ width:28, height:28, borderRadius:'50%', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill={TEAL}/>
-          </svg>
+        <div className="bg-gray-300 p-4 rounded-b-lg relative">
+          <div className="flex items-start">
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mr-4">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <rect x="5" y="3" width="14" height="18" rx="2" fill="#9CA3AF"/>
+              </svg>
+            </div>
+            <div>
+              <div className="text-black font-bold text-sm mb-1">通常・一般席アリーナ14時</div>
+              <div className="text-black text-xs mb-1">41ゲート 10通路 2階3塁側</div>
+              <div className="text-black font-bold">20列 191番</div>
+            </div>
+            <div className="absolute top-4 right-4 border-4 border-red-500 text-red-500 px-2 py-1 rounded font-bold text-sm" style={{ transform: 'rotate(12deg)', animation: 'stampIn 0.3s ease-out' }}>
+              使用済
+            </div>
+          </div>
+          <div className="mt-6 text-black text-xs">使用日時: 2024/02/03(金) 16:48</div>
         </div>
-        <span style={{ color:'#111', fontWeight:'bold', fontSize:14 }}>{TICKET.type}</span>
-      </div>
-
-      {/* 閉じるボタン */}
-      <div style={{ display:'flex', justifyContent:'flex-end', padding:'12px 16px' }}>
-        <button onClick={onClose} style={{ background:'rgba(255,255,255,0.1)', border:'none', color:'#fff', fontSize:13, padding:'8px 16px', borderRadius:20, cursor:'pointer' }}>✕ 閉じる</button>
       </div>
     </div>
   );
-};
-
-/* ─── 使用済み画面 ─── */
-const UsedView = ({ usedTime, onClose }) => {
-  const clock = useClock();
-  return (
-    <div style={{ background:'#f5f5f5', minHeight:'100vh' }}>
-
-      {/* ヘッダー */}
-      <div style={{ background:'#fff', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid #eee' }}>
-        <span style={{ fontSize:13, color:'#333' }}>0/1枚 選択中</span>
-        <button onClick={onClose} style={{ background:'none', border:'none', fontSize:20, color:'#333', cursor:'pointer' }}>×</button>
-      </div>
-
-      {/* 時刻バー */}
-      <div style={{ background:LIME, padding:'6px 0', textAlign:'center' }}>
-        <span style={{ color:'#fff', fontSize:12, fontWeight:'bold' }}>{clock}</span>
-      </div>
-
-      {/* 使用完了メッセージ */}
-      <div style={{ background:'#FCE4EC', padding:'20px', textAlign:'center', margin:'12px 16px', borderRadius:8 }}>
-        <span style={{ fontSize:16, color:'#555', fontWeight:'bold' }}>1枚使用しました</span>
-      </div>
-
-      {/* 名前帯 */}
-      <div style={{ background:PINK, padding:'10px 16px', margin:'0 16px', borderRadius:'8px 8px 0 0' }}>
-        <span style={{ color:'#fff', fontWeight:'bold', fontSize:15 }}>{TICKET.name} 様</span>
-      </div>
-
-      {/* チケットカード（使用済み） */}
-      <div style={{ background:'#fff', margin:'0 16px', padding:'16px', borderRadius:'0 0 8px 8px', position:'relative', overflow:'hidden', border:'1px solid #eee', borderTop:'none' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-            <TicketIcon color="#9e9e9e" size={52} />
-            <span style={{ fontSize:10, color:'#e53935', fontWeight:'bold', border:'1px solid #e53935', padding:'1px 6px', borderRadius:3 }}>入場済</span>
-          </div>
-          <div>
-            <div style={{ fontSize:14, fontWeight:'bold', color:'#111' }}>{TICKET.type}</div>
-            {usedTime && <div style={{ fontSize:11, color:'#999', marginTop:4 }}>使用日時: {usedTime}</div>}
-          </div>
-        </div>
-        {/* 使用済スタンプ */}
-        <div style={{
-          position:'absolute', top:12, right:12,
-          border:'2.5px solid #e53935', color:'#e53935',
-          padding:'4px 10px', fontSize:18, fontWeight:'bold',
-          transform:'rotate(-15deg)', borderRadius:4,
-          animation:'stampIn 0.4s ease-out', fontFamily:'serif', letterSpacing:2,
-          opacity:0.9,
-        }}>使用済</div>
-      </div>
-    </div>
-  );
-};
-
-/* ─── App ─── */
-const App = () => {
-  const [view, setView] = useState('detail');
-  const [isUsed, setIsUsed] = useState(false);
-  const [usedTime, setUsedTime] = useState(null);
-
-  const handleComplete = (time) => {
-    setUsedTime(time);
-    setView('used');
-  };
-  const handleUsedClose = () => {
-    setIsUsed(true);
-    setView('detail');
-  };
 
   return (
-    <div style={{ maxWidth:390, margin:'0 auto', minHeight:'100vh', background:'#FFF0F5', position:'relative' }}>
-      {view === 'detail' && <DetailView isUsed={isUsed} usedTime={usedTime} onGate={() => setView('gate')} />}
-      {view === 'gate'   && <GateView onComplete={handleComplete} onClose={() => setView('detail')} />}
-      {view === 'used'   && <UsedView usedTime={usedTime} onClose={handleUsedClose} />}
+    <div className="max-w-md mx-auto bg-white min-h-screen">
+      {currentView === 'detail' && <DetailView />}
+      {currentView === 'selection' && <SelectionView />}
+      {currentView === 'gateAnimation' && <GateAnimationView />}
+      {currentView === 'used' && <UsedView />}
     </div>
   );
 };
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(<SmartTicketApp />);
 </script>
 </body>
 </html>
