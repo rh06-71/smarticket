@@ -1,317 +1,272 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>スマートチケット</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-@keyframes stampIn { 0%{opacity:0;transform:rotate(12deg) scale(1.4)} 100%{opacity:1;transform:rotate(12deg) scale(1)} }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <title>e+ スマチケ</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif; background-color: #F5F5F5; -webkit-font-smoothing: antialiased; }
+    #root { max-width: 448px; margin: 0 auto; background-color: white; min-height: 100vh; }
+    @keyframes stampIn { 0%{opacity:0;transform:rotate(12deg) scale(1.4)} 100%{opacity:1;transform:rotate(12deg) scale(1)} }
+  </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useRef, useEffect } = React;
+  <div id="root"></div>
+  <script type="text/babel">
+  const { useState, useRef, useEffect } = React;
 
-const SmartTicketApp = () => {
-  const [currentView, setCurrentView] = useState('detail');
-  const [animationPhase, setAnimationPhase] = useState(0);
-  const [starDrag, setStarDrag] = useState({ isDragging: false, startX: 0, currentX: 0 });
-  const leftStarRef = useRef(null);
+  const SmartTicketApp = () => {
+    const [currentView, setCurrentView] = useState('detail');
+    const [animationPhase, setAnimationPhase] = useState(0);
+    const [starDrag, setStarDrag] = useState({ isDragging: false, startX: 0, currentX: 0 });
+    const leftStarRef = useRef(null);
 
-  useEffect(() => {
-    if (starDrag.isDragging) return;
-    const deltaX = starDrag.currentX - starDrag.startX;
-    if (deltaX > 80 && starDrag.currentX !== starDrag.startX) {
-      setCurrentView('gateAnimation');
-      setAnimationPhase(0);
-      setStarDrag({ isDragging: false, startX: 0, currentX: 0 });
-      setTimeout(() => setAnimationPhase(1), 1500);
-      setTimeout(() => setAnimationPhase(2), 3000);
-      setTimeout(() => setCurrentView('used'), 4500);
-    }
-  }, [starDrag.isDragging, starDrag.currentX, starDrag.startX]);
+    useEffect(() => {
+      if (starDrag.isDragging) return;
+      const deltaX = starDrag.currentX - starDrag.startX;
+      if (deltaX > 80 && starDrag.currentX !== starDrag.startX) {
+        setCurrentView('gateAnimation');
+        setAnimationPhase(0);
+        setStarDrag({ isDragging: false, startX: 0, currentX: 0 });
+        setTimeout(() => setAnimationPhase(1), 1500);
+        setTimeout(() => setAnimationPhase(2), 3000);
+        setTimeout(() => setCurrentView('used'), 4500);
+      }
+    }, [starDrag.isDragging, starDrag.currentX, starDrag.startX]);
 
-  const handleStarTouchStart = (e) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    setStarDrag({ isDragging: true, startX: touch.clientX, currentX: touch.clientX });
-  };
-  const handleStarTouchMove = (e) => {
-    if (!starDrag.isDragging) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    setStarDrag(prev => ({ ...prev, currentX: touch.clientX }));
-  };
-  const handleStarTouchEnd = (e) => {
-    e.preventDefault();
-    setStarDrag(prev => ({ ...prev, isDragging: false }));
-  };
-  const handleStarMouseDown = (e) => {
-    e.preventDefault();
-    setStarDrag({ isDragging: true, startX: e.clientX, currentX: e.clientX });
-  };
-  const handleStarMouseMove = (e) => {
-    if (!starDrag.isDragging) return;
-    e.preventDefault();
-    setStarDrag(prev => ({ ...prev, currentX: e.clientX }));
-  };
-  const handleStarMouseUp = () => {
-    setStarDrag(prev => ({ ...prev, isDragging: false }));
-  };
-  useEffect(() => {
-    if (starDrag.isDragging) {
-      document.addEventListener('mousemove', handleStarMouseMove);
-      document.addEventListener('mouseup', handleStarMouseUp);
-    }
-    return () => {
-      document.removeEventListener('mousemove', handleStarMouseMove);
-      document.removeEventListener('mouseup', handleStarMouseUp);
-    };
-  }, [starDrag.isDragging]);
+    const handleStarTouchStart = (e) => { e.preventDefault(); const t = e.touches[0]; setStarDrag({ isDragging: true, startX: t.clientX, currentX: t.clientX }); };
+    const handleStarTouchMove = (e) => { if (!starDrag.isDragging) return; e.preventDefault(); const t = e.touches[0]; setStarDrag(p => ({ ...p, currentX: t.clientX })); };
+    const handleStarTouchEnd = (e) => { e.preventDefault(); setStarDrag(p => ({ ...p, isDragging: false })); };
+    const handleStarMouseDown = (e) => { e.preventDefault(); setStarDrag({ isDragging: true, startX: e.clientX, currentX: e.clientX }); };
+    const handleStarMouseMove = (e) => { if (!starDrag.isDragging) return; e.preventDefault(); setStarDrag(p => ({ ...p, currentX: e.clientX })); };
+    const handleStarMouseUp = () => { setStarDrag(p => ({ ...p, isDragging: false })); };
 
-  const dragOffset = Math.min(Math.max(starDrag.currentX - starDrag.startX, 0), 140);
+    useEffect(() => {
+      if (starDrag.isDragging) {
+        document.addEventListener('mousemove', handleStarMouseMove);
+        document.addEventListener('mouseup', handleStarMouseUp);
+      }
+      return () => {
+        document.removeEventListener('mousemove', handleStarMouseMove);
+        document.removeEventListener('mouseup', handleStarMouseUp);
+      };
+    }, [starDrag.isDragging]);
 
-  // ======== 詳細画面 ========
-  const DetailView = () => (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F5F5' }}>
-      <div className="bg-white px-4 py-3 flex items-center justify-between">
-        <button onClick={() => setCurrentView('selection')} className="text-2xl" style={{ color: '#00A7A0' }}>＜</button>
-        <button onClick={() => setCurrentView('selection')} className="text-white px-5 py-2 text-sm font-medium" style={{ backgroundColor: '#E91E8C', borderRadius: '20px' }}>入場画面に進む</button>
-      </div>
+    const dragOffset = Math.min(Math.max(starDrag.currentX - starDrag.startX, 0), 140);
 
-      <div className="px-4 py-4">
-        <div className="bg-white rounded-lg p-4 mb-3 relative">
-          <div className="text-xs text-gray-600 mb-2">2024年</div>
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-baseline">
-              <span className="text-5xl font-bold mr-2">2/3</span>
-              <span className="text-sm font-medium">(土)</span>
+    // ======== 詳細画面 ========
+    const DetailView = () => (
+      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
+        <div style={{ backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={() => setCurrentView('selection')} style={{ fontSize: '24px', color: '#00A7A0', border: 'none', background: 'none', cursor: 'pointer' }}>＜</button>
+          <button onClick={() => setCurrentView('selection')} style={{ backgroundColor: '#E91E8C', color: 'white', padding: '8px 20px', borderRadius: '20px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>入場画面に進む</button>
+        </div>
+        <div style={{ padding: '16px' }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '16px', marginBottom: '12px', position: 'relative' }}>
+            <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px' }}>2024年</div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline' }}>
+                <span style={{ fontSize: '48px', fontWeight: 'bold', marginRight: '8px' }}>2/3</span>
+                <span style={{ fontSize: '14px', fontWeight: '500' }}>(土)</span>
+              </div>
+              <div style={{ textAlign: 'right', fontSize: '12px' }}>
+                <div style={{ marginBottom: '4px' }}>08:00 開場</div>
+                <div>09:00 開演</div>
+              </div>
+              <button style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '20px', color: '#999', border: 'none', background: 'none', cursor: 'pointer' }}>⋯</button>
             </div>
-            <div className="text-right text-xs">
-              <div className="mb-1">08:00 開場</div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>東京ドーム</div>
+          </div>
+
+          <div style={{ backgroundColor: '#0066CC', borderRadius: '8px 8px 0 0', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>吉村 晃 様</span>
+            <span style={{ color: 'white', fontSize: '12px' }}>1枚目</span>
+          </div>
+          <div style={{ backgroundColor: '#FFE4F0', padding: '16px 16px 12px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <div style={{ marginRight: '16px' }}>
+                <div style={{ width: '80px', height: '80px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                  <svg width="44" height="44" viewBox="0 0 24 24">
+                    <rect x="5" y="3" width="14" height="18" rx="2" fill="#E91E8C"/>
+                    <rect x="8" y="7" width="8" height="5" rx="1" fill="white"/>
+                    <line x1="8" y1="14" x2="16" y2="14" stroke="white" strokeWidth="1.2"/>
+                    <line x1="8" y1="17" x2="16" y2="17" stroke="white" strokeWidth="1.2"/>
+                  </svg>
+                </div>
+                <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '4px', backgroundColor: '#E91E8C', color: 'white' }}>未使用</div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>通常・一般席アリーナ14時</div>
+                <div style={{ fontSize: '12px', marginBottom: '4px' }}>41ゲート 10通路 2階3塁側</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>20列 191番</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>¥3,300(税込)</div>
+              </div>
+            </div>
+            <button style={{ width: '100%', marginTop: '12px', padding: '10px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '500', border: '2px dashed #E91E8C', backgroundColor: 'white', color: '#00A7A0', cursor: 'pointer' }}>
+              <svg style={{ width: '16px', height: '16px', marginRight: '8px' }} fill="currentColor" viewBox="0 0 20 20">
+                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+              </svg>
+              同行者へ分配する
+            </button>
+          </div>
+          <div style={{ backgroundColor: '#FFE4F0', padding: '12px 16px', borderRadius: '0 0 8px 8px', fontSize: '12px', lineHeight: '1.75' }}>
+            <div style={{ marginBottom: '4px' }}>遊戯王デュエルモンスターズ</div>
+            <div style={{ marginBottom: '4px' }}>決闘者伝説(The Legend of Duelist) QUARTER CENTURY</div>
+            <div style={{ marginBottom: '4px' }}>主催:株式会社コナミデジタルエンタテインメント</div>
+            <div style={{ marginBottom: '8px' }}>お問合せ:KONAMIお客様相談室 0570-086-573</div>
+            <div style={{ fontSize: '10px', marginBottom: '8px', color: '#666' }}>※特設サイトをご確認ください。https://www.konami.com/yugioh/25th/event/</div>
+            <div style={{ fontSize: '10px', marginBottom: '8px' }}>＜営利目的の転売禁止＞</div>
+            <div style={{ marginBottom: '8px' }}>イープラス 050-3185-6483</div>
+            <div style={{ marginBottom: '4px', fontWeight: '500', color: '#0066CC', cursor: 'pointer' }}>チケット裏面情報 ›</div>
+            <div style={{ fontWeight: '500', color: '#0066CC' }}>チケット番号: 1140008501907</div>
+          </div>
+        </div>
+        <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} style={{ position: 'fixed', bottom: '24px', right: '24px', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#00A7A0', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', cursor: 'pointer' }}>
+          <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="white" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/>
+          </svg>
+        </button>
+      </div>
+    );
+
+    // ======== 選択画面 ========
+    const SelectionView = () => (
+      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
+        <div style={{ backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ color: '#E91E8C', fontWeight: '500', fontSize: '14px' }}>1/1枚 選択中</span>
+          <button onClick={() => setCurrentView('detail')} style={{ color: '#999', fontSize: '24px', border: 'none', background: 'none', cursor: 'pointer' }}>×</button>
+        </div>
+        <div style={{ backgroundColor: '#00A7A0', color: 'white', textAlign: 'center', padding: '8px', fontSize: '12px', fontWeight: '500' }}>2024/02/03 (金) 16:48:42.27</div>
+        <div style={{ backgroundColor: 'white', margin: '16px', padding: '16px', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline' }}>
+              <span style={{ fontSize: '48px', fontWeight: 'bold', marginRight: '8px' }}>2/3</span>
+              <span style={{ fontSize: '14px', fontWeight: '500' }}>(土)</span>
+            </div>
+            <div style={{ textAlign: 'right', fontSize: '12px' }}>
+              <div style={{ marginBottom: '4px' }}>08:00 開場</div>
               <div>09:00 開演</div>
             </div>
-            <button className="text-gray-400 text-xl absolute top-4 right-4">⋯</button>
           </div>
-          <div className="text-sm font-bold mb-1">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
-          <div className="text-xs text-gray-500">東京ドーム</div>
-        </div>
-
-        <div style={{ backgroundColor: '#0066CC' }} className="rounded-t-lg px-4 py-3 flex items-center justify-between">
-          <span className="text-white font-bold text-base">吉村 晃 様</span>
-          <span className="text-white text-xs">1枚目</span>
-        </div>
-
-        <div style={{ backgroundColor: '#FFE4F0' }} className="px-4 pt-4 pb-3">
-          <div className="flex items-start">
-            <div className="mr-4">
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-2">
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
-                  <rect x="5" y="3" width="14" height="18" rx="2" fill="#E91E8C"/>
-                  <rect x="8" y="7" width="8" height="5" rx="1" fill="white"/>
-                  <line x1="8" y1="14" x2="16" y2="14" stroke="white" strokeWidth="1.2"/>
-                  <line x1="8" y1="17" x2="16" y2="17" stroke="white" strokeWidth="1.2"/>
-                </svg>
-              </div>
-              <div className="text-center text-xs font-bold px-3 py-1 rounded" style={{ backgroundColor: '#E91E8C', color: 'white' }}>未使用</div>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '16px', gap: '120px', position: 'relative' }}>
+            <div
+              ref={leftStarRef}
+              onTouchStart={handleStarTouchStart}
+              onTouchMove={handleStarTouchMove}
+              onTouchEnd={handleStarTouchEnd}
+              onMouseDown={handleStarMouseDown}
+              style={{
+                width: '64px', height: '64px', backgroundColor: '#4ADE80',
+                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'move', userSelect: 'none', zIndex: 10, touchAction: 'none',
+                transform: starDrag.isDragging ? `translate(${dragOffset}px, 0px)` : 'translate(0, 0)',
+                transition: starDrag.isDragging ? 'none' : 'transform 0.3s ease',
+              }}
+            >
+              <span style={{ fontSize: '36px', pointerEvents: 'none' }}>⭐</span>
             </div>
-            <div className="flex-1">
-              <div className="text-sm font-bold mb-1">通常・一般席アリーナ14時</div>
-              <div className="text-xs mb-1">41ゲート 10通路 2階3塁側</div>
-              <div className="text-sm font-bold mb-2">20列 191番</div>
-              <div className="text-base font-bold">¥3,300(税込)</div>
+            <div style={{ width: '64px', height: '64px', backgroundColor: '#4ADE80', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '36px' }}>⭐</span>
             </div>
           </div>
-
-          <button className="w-full mt-3 py-2 rounded flex items-center justify-center text-sm font-medium border-2 border-dashed bg-white" style={{ borderColor: '#E91E8C', color: '#00A7A0' }}>
-            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-            </svg>
-            同行者へ分配する
-          </button>
+          <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>東京ドーム</div>
+          <div style={{ fontSize: '12px', color: '#666' }}>遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
         </div>
-
-        <div style={{ backgroundColor: '#FFE4F0' }} className="px-4 py-3 rounded-b-lg text-xs leading-relaxed">
-          <div className="mb-1">遊戯王デュエルモンスターズ</div>
-          <div className="mb-1">決闘者伝説(The Legend of Duelist) QUARTER CENTURY</div>
-          <div className="mb-1">主催:株式会社コナミデジタルエンタテインメント</div>
-          <div className="mb-2">お問合せ:KONAMIお客様相談室 0570-086-573</div>
-          <div className="mb-2 text-gray-500" style={{fontSize:'10px'}}>※特設サイトをご確認ください。https://www.konami.com/yugioh/25th/event/</div>
-          <div className="mb-2" style={{fontSize:'10px'}}>＜営利目的の転売禁止＞</div>
-          <div className="mb-2">イープラス 050-3185-6483</div>
-          <div className="mb-2 font-medium" style={{ color: '#0066CC' }}>チケット裏面情報 ›</div>
-          <div className="font-medium" style={{ color: '#0066CC' }}>チケット番号: 1140008501907</div>
-        </div>
-      </div>
-
-      <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} className="fixed bottom-6 right-6 w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: '#00A7A0' }}>
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7"/>
-        </svg>
-      </button>
-    </div>
-  );
-
-  // ======== 選択画面 ========
-  const SelectionView = () => (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F5F5' }}>
-      <div className="bg-white px-4 py-3 flex items-center justify-between">
-        <span style={{ color: '#E91E8C' }} className="font-medium text-sm">1/1枚 選択中</span>
-        <button onClick={() => setCurrentView('detail')} className="text-gray-400 text-2xl">×</button>
-      </div>
-
-      <div style={{ backgroundColor: '#00A7A0' }} className="text-white text-center py-2 text-xs font-medium">
-        2024/02/03 (金) 16:48:42.27
-      </div>
-
-      <div className="bg-white mx-4 mt-4 p-4 rounded-lg">
-        <div className="flex items-baseline justify-between mb-3">
-          <div className="flex items-baseline">
-            <span className="text-5xl font-bold mr-2">2/3</span>
-            <span className="text-sm font-medium">(土)</span>
+        <div style={{ margin: '0 16px' }}>
+          <div style={{ backgroundColor: '#0066CC', padding: '12px 16px' }}>
+            <span style={{ color: 'white', fontWeight: 'bold' }}>本多 遥星 様</span>
           </div>
-          <div className="text-right text-xs">
-            <div className="mb-1">08:00 開場</div>
-            <div>09:00 開演</div>
-          </div>
-        </div>
-
-        {/* 桜ドラッグ */}
-        <div className="flex justify-center items-center mb-4 relative" style={{ gap: '120px' }}>
-          <div
-            ref={leftStarRef}
-            className="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center cursor-move select-none relative z-10"
-            style={{
-              transform: starDrag.isDragging
-                ? `translate(${dragOffset}px, 0px)`
-                : 'translate(0, 0)',
-              transition: starDrag.isDragging ? 'none' : 'transform 0.3s ease',
-              touchAction: 'none'
-            }}
-            onTouchStart={handleStarTouchStart}
-            onTouchMove={handleStarTouchMove}
-            onTouchEnd={handleStarTouchEnd}
-            onMouseDown={handleStarMouseDown}
-          >
-            <span className="text-4xl pointer-events-none">⭐</span>
-          </div>
-          <div className="w-16 h-16 bg-green-400 rounded-full flex items-center justify-center">
-            <span className="text-4xl">⭐</span>
-          </div>
-        </div>
-
-        <div className="text-sm font-bold mb-1">東京ドーム</div>
-        <div className="text-xs text-gray-600">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
-      </div>
-
-      <div className="mx-4 mt-3">
-        <div style={{ backgroundColor: '#0066CC' }} className="px-4 py-3 rounded-t-lg flex items-center justify-between">
-          <span className="text-white font-bold">本多 遥星 様</span>
-        </div>
-        <div style={{ backgroundColor: '#0066CC' }} className="px-4 py-4 rounded-b-lg flex items-center">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mr-4">
-            <svg className="w-10 h-10" viewBox="0 0 24 24">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#0066CC"/>
-            </svg>
-          </div>
-          <div className="text-white flex-1">
-            <div className="text-sm font-bold mb-1">通常・一般席アリーナ14時</div>
-            <div className="text-xs mb-1">41ゲート 10通路 2階3塁側</div>
-            <div className="text-base font-bold">20列 191番</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // ======== GATEアニメーション ========
-  const GateAnimationView = () => (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white px-4 py-3">
-        <span style={{ color: '#E91E8C' }} className="font-medium text-sm">1/1枚 選択中</span>
-      </div>
-      <div style={{ backgroundColor: '#00A7A0' }} className="text-white text-center py-2 text-xs">
-        2024/02/03 (金) 16:48:47.20
-      </div>
-
-      {animationPhase >= 0 && animationPhase < 2 && (
-        <div>
-          <div className="bg-yellow-300 text-center py-2 text-xs font-bold">
-            <div>スライドすると使用済になります。</div>
-            <div>使用済チケットは、入場・再発行不可</div>
-          </div>
-          <div className="bg-blue-700 text-cyan-300 text-center py-24 text-7xl font-black tracking-widest">
-            GATE
-          </div>
-        </div>
-      )}
-
-      {animationPhase === 2 && (
-        <div className="flex" style={{ height: '200px' }}>
-          <div className="flex-1 bg-blue-700 flex items-center justify-center text-yellow-400 text-6xl font-bold">▶▶</div>
-          <div className="flex-1" style={{ backgroundColor: '#E91E8C' }}></div>
-        </div>
-      )}
-    </div>
-  );
-
-  // ======== 使用済み画面 ========
-  const UsedView = () => (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F5F5' }}>
-      <div className="bg-white px-4 py-3 flex items-center justify-between">
-        <span style={{ color: '#E91E8C' }} className="font-medium text-sm">0/1枚 選択中</span>
-        <button onClick={() => setCurrentView('detail')} className="text-gray-400 text-2xl">×</button>
-      </div>
-      <div style={{ backgroundColor: '#00A7A0' }} className="text-white text-center py-2 text-xs">
-        2024/02/03 (金) 16:48:50.49
-      </div>
-      <div style={{ backgroundColor: '#E91E8C' }} className="text-white text-center py-12 text-lg font-bold">
-        1枚使用しました
-      </div>
-
-      <div className="px-4 mt-4">
-        <div style={{ backgroundColor: '#0066CC' }} className="px-4 py-3 rounded-t-lg">
-          <span className="text-white font-bold">本多 遥星 様</span>
-        </div>
-        <div className="bg-gray-300 p-4 rounded-b-lg relative">
-          <div className="flex items-start">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mr-4">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                <rect x="5" y="3" width="14" height="18" rx="2" fill="#9CA3AF"/>
+          <div style={{ backgroundColor: '#0066CC', padding: '16px', display: 'flex', alignItems: 'center' }}>
+            <div style={{ width: '80px', height: '80px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '16px' }}>
+              <svg style={{ width: '48px', height: '48px' }} fill="#0066CC" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
               </svg>
             </div>
-            <div>
-              <div className="text-black font-bold text-sm mb-1">通常・一般席アリーナ14時</div>
-              <div className="text-black text-xs mb-1">41ゲート 10通路 2階3塁側</div>
-              <div className="text-black font-bold">20列 191番</div>
-            </div>
-            <div className="absolute top-4 right-4 border-4 border-red-500 text-red-500 px-2 py-1 rounded font-bold text-sm" style={{ transform: 'rotate(12deg)', animation: 'stampIn 0.3s ease-out' }}>
-              使用済
+            <div style={{ color: 'white', flex: 1 }}>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>通常・一般席アリーナ14時</div>
+              <div style={{ fontSize: '12px', marginBottom: '4px' }}>41ゲート 10通路 2階3塁側</div>
+              <div style={{ fontSize: '16px', fontWeight: 'bold' }}>20列 191番</div>
             </div>
           </div>
-          <div className="mt-6 text-black text-xs">使用日時: 2024/02/03(金) 16:48</div>
         </div>
       </div>
-    </div>
-  );
+    );
 
-  return (
-    <div className="max-w-md mx-auto bg-white min-h-screen">
-      {currentView === 'detail' && <DetailView />}
-      {currentView === 'selection' && <SelectionView />}
-      {currentView === 'gateAnimation' && <GateAnimationView />}
-      {currentView === 'used' && <UsedView />}
-    </div>
-  );
-};
+    // ======== GATEアニメーション ========
+    const GateAnimationView = () => (
+      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
+        <div style={{ backgroundColor: 'white', padding: '12px 16px' }}>
+          <span style={{ color: '#E91E8C', fontWeight: '500', fontSize: '14px' }}>1/1枚 選択中</span>
+        </div>
+        <div style={{ backgroundColor: '#00A7A0', color: 'white', textAlign: 'center', padding: '8px', fontSize: '12px' }}>2024/02/03 (金) 16:48:47.20</div>
+        {animationPhase >= 0 && (
+          <div>
+            <div style={{ backgroundColor: '#FCD34D', textAlign: 'center', padding: '8px', fontSize: '12px', fontWeight: 'bold' }}>
+              <div>スライドすると使用済になります。</div>
+              <div>使用済チケットは、入場・再発行不可</div>
+            </div>
+            <div style={{ backgroundColor: '#2563EB', color: '#67E8F9', textAlign: 'center', padding: '96px 0', fontSize: '72px', fontWeight: '900', letterSpacing: '12px' }}>GATE</div>
+          </div>
+        )}
+        {animationPhase === 2 && (
+          <div style={{ display: 'flex', height: '256px' }}>
+            <div style={{ flex: 1, backgroundColor: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FBBF24', fontSize: '60px', fontWeight: 'bold' }}>▶▶</div>
+            <div style={{ flex: 1, backgroundColor: '#F472B6' }}></div>
+          </div>
+        )}
+      </div>
+    );
 
-ReactDOM.createRoot(document.getElementById('root')).render(<SmartTicketApp />);
-</script>
+    // ======== 使用済み画面 ========
+    const UsedView = () => (
+      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
+        <div style={{ backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ color: '#E91E8C', fontWeight: '500', fontSize: '14px' }}>0/1枚 選択中</span>
+          <button onClick={() => setCurrentView('detail')} style={{ color: '#999', fontSize: '24px', border: 'none', background: 'none', cursor: 'pointer' }}>×</button>
+        </div>
+        <div style={{ backgroundColor: '#00A7A0', color: 'white', textAlign: 'center', padding: '8px', fontSize: '12px' }}>2024/02/03 (金) 16:48:50.49</div>
+        <div style={{ backgroundColor: '#E91E8C', color: 'white', textAlign: 'center', padding: '48px 0', fontSize: '18px', fontWeight: 'bold' }}>1枚使用しました</div>
+        <div style={{ padding: '0 16px', marginTop: '16px' }}>
+          <div style={{ backgroundColor: '#0066CC', padding: '12px 16px', borderRadius: '8px 8px 0 0' }}>
+            <span style={{ color: 'white', fontWeight: 'bold' }}>本多 遥星 様</span>
+          </div>
+          <div style={{ backgroundColor: '#D1D5DB', padding: '16px', borderRadius: '0 0 8px 8px', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              <div style={{ width: '80px', height: '80px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '16px' }}>
+                <svg width="40" height="40" viewBox="0 0 24 24">
+                  <rect x="5" y="3" width="14" height="18" rx="2" fill="#9CA3AF"/>
+                </svg>
+              </div>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>通常・一般席アリーナ14時</div>
+                <div style={{ fontSize: '12px', marginBottom: '4px' }}>41ゲート 10通路 2階3塁側</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>20列 191番</div>
+              </div>
+              <div style={{ position: 'absolute', top: '16px', right: '16px', border: '3px solid #EF4444', color: '#EF4444', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '14px', animation: 'stampIn 0.3s ease-out' }}>使用済</div>
+            </div>
+            <div style={{ marginTop: '24px', fontSize: '12px' }}>使用日時: 2024/02/03(金) 16:48</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    return (
+      <div>
+        {currentView === 'detail' && <DetailView />}
+        {currentView === 'selection' && <SelectionView />}
+        {currentView === 'gateAnimation' && <GateAnimationView />}
+        {currentView === 'used' && <UsedView />}
+      </div>
+    );
+  };
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<SmartTicketApp />);
+  </script>
 </body>
 </html>
