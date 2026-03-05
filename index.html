@@ -66,7 +66,7 @@ const TicketIcon = ({ color = PINK, size = 56 }) => (
 
 /* ─── Detail 画面 ─── */
 const DetailView = ({ isUsed, usedTime, onGate }) => (
-  <div style={{ background:'#fff', minHeight:'100vh' }}>
+  <div style={{ background:'#FFF0F5', minHeight:'100vh' }}>
 
     {/* ヘッダー */}
     <div style={{ background:'#fff', padding:'12px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid #eee' }}>
@@ -363,7 +363,7 @@ const App = () => {
   };
 
   return (
-    <div style={{ maxWidth:390, margin:'0 auto', minHeight:'100vh', background:'#fff', position:'relative' }}>
+    <div style={{ maxWidth:390, margin:'0 auto', minHeight:'100vh', background:'#FFF0F5', position:'relative' }}>
       {view === 'detail' && <DetailView isUsed={isUsed} usedTime={usedTime} onGate={() => setView('gate')} />}
       {view === 'gate'   && <GateView onComplete={handleComplete} onClose={() => setView('detail')} />}
       {view === 'used'   && <UsedView usedTime={usedTime} onClose={handleUsedClose} />}
