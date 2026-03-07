@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <title>e+ スマチケ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background-color: #F5F5F5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 448px;
+      margin: 0 auto;
+      background-color: white;
+      min-height: 100vh;
+    }
+    
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+    
+    .screen.active {
+      display: block;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes stampIn {
+      0% { opacity: 0; transform: rotate(12deg) scale(1.4); }
+      100% { opacity: 1; transform: rotate(12deg) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Detail Screen (unused ticket) -->
+    <div class="screen active" id="detailUnused">
+      <div style="min-height: 100vh; backgroundColor: #F5F5F5">
+        <div style="backgroundColor: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between">
+          <button onClick="showScreen('selection')" style="fontSize: 24px; color: #00A7A0; border: none; background: none; cursor: pointer">＜</button>
+          <button onClick="showScreen('selection')" style="backgroundColor: #00A7A0; color: white; padding: 8px 20px; borderRadius: 20px; border: none; fontSize: 14px; fontWeight: 500; cursor: pointer">入場画面に進む</button>
+        </div>
+        <div style="padding: 16px">
+          <div style="backgroundColor: white; borderRadius: 8px; padding: 16px; marginBottom: 12px; position: relative">
+            <div style="fontSize: 12px; color: #666; marginBottom: 8px">2024年</div>
+            <div style="display: flex; alignItems: flex-start; justifyContent: space-between; marginBottom: 12px">
+              <div style="display: flex; alignItems: baseline">
+                <span style="fontSize: 48px; fontWeight: bold; marginRight: 8px">2/3</span>
+                <span style="fontSize: 14px; fontWeight: 500">(土)</span>
+              </div>
+              <div style="textAlign: right; fontSize: 12px">
+                <div style="marginBottom: 4px">08:00 開場</div>
+                <div>09:00 開演</div>
+              </div>
+              <button style="position: absolute; top: 16px; right: 16px; fontSize: 20px; color: #999; border: none; background: none; cursor: pointer">⋯</button>
+            </div>
+            <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
+            <div style="fontSize: 12px; color: #666">東京ドーム</div>
+          </div>
+
+          <div style="backgroundColor: #0066CC; borderRadius: 8px 8px 0 0; padding: 12px 16px; display: flex; alignItems: center; justifyContent: space-between">
+            <span style="color: white; fontWeight: bold; fontSize: 16px">吉村 晃 様</span>
+            <span style="color: white; fontSize: 12px">1枚目</span>
+          </div>
+          <div style="backgroundColor: #FFE4F0; padding: 16px 16px 12px">
+            <div style="display: flex; alignItems: flex-start">
+              <div style="marginRight: 16px">
+                <div style="width: 80px; height: 80px; backgroundColor: #E91E8C; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; marginBottom: 8px">
+                  <svg width="46" height="30" viewBox="0 0 46 30" fill="none">
+                    <rect x="1" y="1" width="44" height="28" rx="4" fill="white"/>
+                    <circle cx="1" cy="15" r="6" fill="#E91E8C"/>
+                    <circle cx="45" cy="15" r="6" fill="#E91E8C"/>
+                    <line x1="14" y1="1" x2="14" y2="29" stroke="#E91E8C" strokeWidth="1" strokeDasharray="3,2"/>
+                  </svg>
+                </div>
+                <div style="textAlign: center; fontSize: 12px; fontWeight: bold; padding: 4px 10px; borderRadius: 4px; backgroundColor: #E91E8C; color: white">未使用</div>
+              </div>
+              <div style="flex: 1">
+                <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">通常・一般席アリーナ14時</div>
+                <div style="fontSize: 12px; marginBottom: 4px">41ゲート 10通路 2階3塁側</div>
+                <div style="fontSize: 14px; fontWeight: bold; marginBottom: 8px">20列 191番</div>
+                <div style="fontSize: 16px; fontWeight: bold">¥3,300(税込)</div>
+              </div>
+            </div>
+            <button style="width: 100%; marginTop: 8px; padding: 7px 10px; borderRadius: 4px; display: flex; alignItems: center; justifyContent: center; fontSize: 13px; fontWeight: 500; border: 1.5px dashed #E91E8C; backgroundColor: white; color: #E91E8C; cursor: pointer">
+              <svg style="width: 14px; height: 14px; marginRight: 6px" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+              </svg>
+              同行者へ分配する
+            </button>
+          </div>
+          <div style="backgroundColor: #FFE4F0; padding: 12px 16px; borderRadius: 0 0 8px 8px; fontSize: 12px; lineHeight: 1.75">
+            <div style="marginBottom: 4px">遊戯王デュエルモンスターズ</div>
+            <div style="marginBottom: 4px">決闘者伝説(The Legend of Duelist) QUARTER CENTURY</div>
+            <div style="marginBottom: 4px">主催:株式会社コナミデジタルエンタテインメント</div>
+            <div style="marginBottom: 8px">お問合せ:KONAMIお客様相談室 0570-086-573</div>
+            <div style="fontSize: 10px; marginBottom: 8px; color: #666">※特設サイトをご確認ください。https://www.konami.com/yugioh/25th/event/</div>
+            <div style="fontSize: 10px; marginBottom: 8px">＜営利目的の転売禁止＞</div>
+            <div style="marginBottom: 8px">イープラス 050-3185-6483</div>
+            <div style="marginBottom: 4px; fontWeight: 500; color: #0066CC; cursor: pointer">チケット裏面情報 ›</div>
+            <div style="fontWeight: 500; color: #0066CC">チケット番号: 1140008501907</div>
+          </div>
+        </div>
+        <button onClick="window.scrollTo({top:0,behavior:'smooth'})" style="position: fixed; bottom: 24px; right: 24px; width: 48px; height: 48px; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; backgroundColor: #00A7A0; border: none; boxShadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer">
+          <svg style="width: 24px; height: 24px" fill="none" stroke="white" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Selection Screen -->
+    <div class="screen" id="entryScreen">
+      <div style="min-height: 100vh; backgroundColor: #F5F5F5">
+        <div style="backgroundColor: white; padding: 12px 16px; display: flex; alignItems: center; justifyContent: space-between">
+          <span style="color: #E91E8C; fontWeight: 500; fontSize: 14px">1/1枚 選択中</span>
+          <button id="closeEntry" style="color: #999; fontSize: 24px; border: none; background: none; cursor: pointer">×</button>
+        </div>
+        <div style="backgroundColor: #00A7A0; color: white; textAlign: center; padding: 8px; fontSize: 12px; fontWeight: 500" id="entryMessage">2024/02/03 (金) 16:48:42.27</div>
+        <div style="backgroundColor: white; margin: 16px; padding: 16px; borderRadius: 8px">
+          <div style="display: flex; alignItems: baseline; justifyContent: space-between; marginBottom: 12px">
+            <div style="display: flex; alignItems: baseline">
+              <span style="fontSize: 48px; fontWeight: bold; marginRight: 8px">2/3</span>
+              <span style="fontSize: 14px; fontWeight: 500">(土)</span>
+            </div>
+            <div style="textAlign: right; fontSize: 12px">
+              <div style="marginBottom: 4px">08:00 開場</div>
+              <div>09:00 開演</div>
+            </div>
+          </div>
+          <div style="display: flex; justifyContent: center; alignItems: center; marginBottom: 16px; gap: 120px; position: relative">
+            <div
+              id="leftStar"
+              onTouchStart="handleStarTouchStart(event)"
+              onTouchMove="handleStarTouchMove(event)"
+              onTouchEnd="handleStarTouchEnd(event)"
+              onMouseDown="handleStarMouseDown(event)"
+              style="width: 64px; height: 64px; backgroundColor: #4ADE80; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; cursor: move; userSelect: none; zIndex: 10; touchAction: none"
+            >
+              <span style="fontSize: 36px; pointerEvents: none">⭐</span>
+            </div>
+            <div style="width: 64px; height: 64px; backgroundColor: #4ADE80; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center">
+              <span style="fontSize: 36px">⭐</span>
+            </div>
+          </div>
+          <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">東京ドーム</div>
+          <div style="fontSize: 12px; color: #666">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
+        </div>
+        <div style="margin: 0 16px">
+          <div style="backgroundColor: #0066CC; padding: 12px 16px">
+            <span style="color: white; fontWeight: bold">本多 遥星 様</span>
+          </div>
+          <div style="backgroundColor: #0066CC; padding: 16px; display: flex; alignItems: center">
+            <div style="width: 80px; height: 80px; backgroundColor: white; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; marginRight: 16px">
+              <svg style="width: 48px; height: 48px" fill="#0066CC" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+            </div>
+            <div style="color: white; flex: 1">
+              <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">通常・一般席アリーナ14時</div>
+              <div style="fontSize: 12px; marginBottom: 4px">41ゲート 10通路 2階3塁側</div>
+              <div style="fontSize: 16px; fontWeight: bold">20列 191番</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Used Ticket Screen -->
+    <div class="screen" id="detailUsed">
+      <div style="min-height: 100vh; backgroundColor: #F5F5F5">
+        <div style="backgroundColor: white; padding: 12px 16px; display: flex; alignItems: center; justifyContent: space-between">
+          <span style="color: #E91E8C; fontWeight: 500; fontSize: 14px">0/1枚 選択中</span>
+          <button onClick="showScreen('detailUnused')" style="color: #999; fontSize: 24px; border: none; background: none; cursor: pointer">×</button>
+        </div>
+        <div style="backgroundColor: #00A7A0; color: white; textAlign: center; padding: 8px; fontSize: 12px" id="usedTimestamp">2024/02/03 (金) 16:48:50.49</div>
+        <div style="backgroundColor: #E91E8C; color: white; textAlign: center; padding: 48px 0; fontSize: 18px; fontWeight: bold">1枚使用しました</div>
+        <div style="padding: 0 16px; marginTop: 16px">
+          <div style="backgroundColor: #0066CC; padding: 12px 16px; borderRadius: 8px 8px 0 0">
+            <span style="color: white; fontWeight: bold">本多 遥星 様</span>
+          </div>
+          <div style="backgroundColor: #D1D5DB; padding: 16px; borderRadius: 0 0 8px 8px; position: relative">
+            <div style="display: flex; alignItems: flex-start">
+              <div style="width: 80px; height: 80px; backgroundColor: white; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; marginRight: 16px">
+                <svg width="40" height="40" viewBox="0 0 24 24">
+                  <rect x="5" y="3" width="14" height="18" rx="2" fill="#9CA3AF"/>
+                </svg>
+              </div>
+              <div>
+                <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">通常・一般席アリーナ14時</div>
+                <div style="fontSize: 12px; marginBottom: 4px">41ゲート 10通路 2階3塁側</div>
+                <div style="fontSize: 14px; fontWeight: bold">20列 191番</div>
+              </div>
+              <div style="position: absolute; top: 16px; right: 16px; border: 3px solid #EF4444; color: #EF4444; padding: 4px 8px; borderRadius: 4px; fontWeight: bold; fontSize: 14px; animation: stampIn 0.3s ease-out">使用済</div>
+            </div>
+            <div style="marginTop: 24px; fontSize: 12px">使用日時: 2024/02/03(金) 16:48</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentScreen = 'detailUnused';
+    let inSwipeMode = false;
+    let dragging = false;
+    let startX = 0;
+    let progress = 0;
+    let animationPhase = 0;
+    let starDrag = { isDragging: false, startX: 0, currentX: 0 };
+    const activeTouches = new Map();
+
+    const detailUnused = document.getElementById('detailUnused');
+    const entryScreen = document.getElementById('entryScreen');
+    const detailUsed = document.getElementById('detailUsed');
+    const leftStar = document.getElementById('leftStar');
+    const closeEntry = document.getElementById('closeEntry');
+    const entryMessage = document.getElementById('entryMessage');
+    const usedTimestamp = document.getElementById('usedTimestamp');
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      currentScreen = screenId;
+    }
+
+    function setupEntryPreState() {
+      entryMessage.textContent = "QRコードを読み取り中";
+      setTimeout(() => {
+        entryMessage.textContent = "✅ 認証成功";
+      }, 1500);
+      setTimeout(() => {
+        entryMessage.textContent = "入場を許可しています...";
+      }, 3000);
+    }
+
+    function setupSwipeMode() {
+      inSwipeMode = true;
+      document.body.classList.add('swipe-mode-active');
+    }
+
+    function completeUseFlow() {
+      inSwipeMode = false;
+      document.body.classList.remove('swipe-mode-active');
+      setTimeout(() => {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} (${['日','月','火','水','木','金','土'][now.getDay()]})`;
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).slice(0,2)}`;
+        usedTimestamp.textContent = `${dateStr} ${timeStr}`;
+      }, 1200);
+
+      setTimeout(() => {
+        showScreen('detailUsed');
+      }, 3000);
+    }
+
+    function handleStarTouchStart(e) { 
+      e.preventDefault(); 
+      const t = e.touches[0]; 
+      starDrag = { isDragging: true, startX: t.clientX, currentX: t.clientX }; 
+    }
+    
+    function handleStarTouchMove(e) { 
+      if (!starDrag.isDragging) return; 
+      e.preventDefault(); 
+      const t = e.touches[0]; 
+      starDrag.currentX = t.clientX;
+      updateStarPosition();
+    }
+    
+    function handleStarTouchEnd(e) { 
+      e.preventDefault(); 
+      checkStarDragComplete();
+      starDrag.isDragging = false;
+    }
+    
+    function handleStarMouseDown(e) { 
+      e.preventDefault(); 
+      starDrag = { isDragging: true, startX: e.clientX, currentX: e.clientX }; 
+      document.addEventListener('mousemove', handleStarMouseMove);
+      document.addEventListener('mouseup', handleStarMouseUp);
+    }
+    
+    function handleStarMouseMove(e) { 
+      if (!starDrag.isDragging) return; 
+      e.preventDefault(); 
+      starDrag.currentX = e.clientX;
+      updateStarPosition();
+    }
+    
+    function handleStarMouseUp() { 
+      checkStarDragComplete();
+      starDrag.isDragging = false;
+      document.removeEventListener('mousemove', handleStarMouseMove);
+      document.removeEventListener('mouseup', handleStarMouseUp);
+    }
+
+    function updateStarPosition() {
+      const deltaX = starDrag.currentX - starDrag.startX;
+      const dragOffset = Math.min(Math.max(deltaX, 0), 140);
+      leftStar.style.transform = starDrag.isDragging ? `translate(${dragOffset}px, 0px)` : 'translate(0, 0)';
+      leftStar.style.transition = starDrag.isDragging ? 'none' : 'transform 0.3s ease';
+    }
+
+    function checkStarDragComplete() {
+      const deltaX = starDrag.currentX - starDrag.startX;
+      if (deltaX > 80 && starDrag.currentX !== starDrag.startX) {
+        // Gate animation sequence
+        showScreen('gateAnimation');
+        animationPhase = 0;
+        starDrag = { isDragging: false, startX: 0, currentX: 0 };
+        setTimeout(() => animationPhase = 1, 1500);
+        setTimeout(() => animationPhase = 2, 3000);
+        setTimeout(() => completeUseFlow(), 4500);
+      } else {
+        leftStar.style.transform = 'translate(0, 0)';
+      }
+    }
+
+    closeEntry.addEventListener("click", () => {
+      showScreen('detailUnused');
+    });
+
+    // Initialize event handlers for navigation
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add click handlers for navigation buttons
+      const navButtons = document.querySelectorAll('button[onClick*="showScreen"]');
+      navButtons.forEach(button => {
+        const onClick = button.getAttribute('onClick');
+        if (onClick) {
+          const screenId = onClick.match(/showScreen\(['"]([^'"]+)['"]\)/)?.[1];
+          if (screenId) {
+            button.addEventListener('click', () => showScreen(screenId));
+            button.removeAttribute('onClick');
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
