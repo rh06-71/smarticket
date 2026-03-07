@@ -4,269 +4,511 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <title>e+ スマチケ</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif; background-color: #F5F5F5; -webkit-font-smoothing: antialiased; }
-    #root { max-width: 448px; margin: 0 auto; background-color: white; min-height: 100vh; }
-    @keyframes stampIn { 0%{opacity:0;transform:rotate(12deg) scale(1.4)} 100%{opacity:1;transform:rotate(12deg) scale(1)} }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background-color: #F5F5F5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 448px;
+      margin: 0 auto;
+      background-color: white;
+      min-height: 100vh;
+    }
+    
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+    
+    .screen.active {
+      display: block;
+    }
+    
+    .header {
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      color: white;
+      padding: 16px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .header .logo {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .header .app-name {
+      font-size: 14px;
+    }
+    
+    .detail-screen {
+      background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 50%, #e9d5ff 100%);
+    }
+    
+    .detail-content {
+      padding: 20px;
+    }
+    
+    .ticket-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    
+    .ticket-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .concert-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+    
+    .concert-date {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+    
+    .seat-info {
+      font-size: 16px;
+      font-weight: 500;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+    
+    .entry-zone {
+      position: relative;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 2px dashed #cbd5e1;
+    }
+    
+    .entry-instruction {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+    
+    .gate-area {
+      position: relative;
+      background: #1e293b;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+    }
+    
+    .gate-star {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 20px;
+      pointer-events: none;
+    }
+    
+    .gate-text {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 16px;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    
+    .gate-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #059669, #10b981);
+      transition: none;
+      pointer-events: none;
+    }
+    
+    .button-row {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .entry-button {
+      flex: 1;
+      background: #14b8a6;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .distribute-button {
+      background: #ec4899;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    
+    .entry-screen {
+      background: linear-gradient(120deg, #e1fffd 0%, #b3f5ff 50%, #7fe8ff 100%);
+    }
+    
+    .entry-content {
+      padding: 60px 20px;
+      text-align: center;
+      color: #0f172a;
+    }
+    
+    .entry-title {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1e40af;
+    }
+    
+    .entry-message {
+      font-size: 18px;
+      color: #64748b;
+      margin-bottom: 40px;
+    }
+    
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #0891b2;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    .gate-animation {
+      margin-top: 40px;
+    }
+    
+    .gate-left, .gate-right {
+      display: inline-block;
+      width: 80px;
+      height: 100px;
+      background: #1e293b;
+      margin: 0 10px;
+      border-radius: 8px;
+      position: relative;
+      transition: transform 0.8s ease-out;
+    }
+    
+    .gate-right.open {
+      transform: translateX(60px);
+    }
+    
+    .swipe-mode-active .gate-area {
+      cursor: grabbing;
+    }
+    
+    .used-screen {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+    }
+    
+    .used-content {
+      padding: 40px 20px;
+      text-align: center;
+    }
+    
+    .used-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #059669;
+      margin-bottom: 30px;
+    }
+    
+    .used-card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+    
+    .used-concert-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 16px;
+    }
+    
+    .used-timestamp {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    .used-icon {
+      width: 80px;
+      height: 80px;
+      background: #059669;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin: 0 auto 20px;
+    }
+    
+    .used-seat {
+      font-size: 16px;
+      color: #1f2937;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    
+    .used-message {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .close-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-  const { useState, useRef, useEffect } = React;
+  <div class="container">
+    <!-- Detail Screen (unused ticket) -->
+    <div class="screen active" id="detailUnused">
+      <div class="detail-screen">
+        <div class="header">
+          <span class="logo">e+</span>
+          <span class="app-name">スマチケ</span>
+        </div>
+        <div class="detail-content">
+          <div class="ticket-card">
+            <div class="ticket-info">
+              <div class="concert-title">THE ALFEE 2025 Winter Concert</div>
+              <div class="concert-date">2026/03/08 (土) 18:30 開演</div>
+              <div class="seat-info">アリーナ A席 2列 15番</div>
+            </div>
+            <div class="entry-zone">
+              <div class="entry-instruction">右にスワイプして入場 →</div>
+              <div class="gate-area" id="gateArea">
+                <div class="gate-star">⭐</div>
+                <div class="gate-text">GATE</div>
+                <div class="gate-progress" id="gateProgress"></div>
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="entry-button" id="goEntry">入場画面に進む</button>
+              <button class="distribute-button">同行者に分配</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  const SmartTicketApp = () => {
-    const [currentView, setCurrentView] = useState('detail');
-    const [animationPhase, setAnimationPhase] = useState(0);
-    const [starDrag, setStarDrag] = useState({ isDragging: false, startX: 0, currentX: 0 });
-    const leftStarRef = useRef(null);
+    <!-- Entry Processing Screen -->
+    <div class="screen" id="entryScreen">
+      <div class="entry-screen">
+        <div class="header">
+          <span class="logo">e+</span>
+          <span class="app-name">スマチケ</span>
+        </div>
+        <button class="close-button" id="closeEntry">×</button>
+        <div class="entry-content">
+          <div class="entry-title">🎫 入場処理中...</div>
+          <div class="entry-message" id="entryMessage">QRコードを読み取り中</div>
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+    </div>
 
-    useEffect(() => {
-      if (starDrag.isDragging) return;
-      const deltaX = starDrag.currentX - starDrag.startX;
-      if (deltaX > 80 && starDrag.currentX !== starDrag.startX) {
-        setCurrentView('gateAnimation');
-        setAnimationPhase(0);
-        setStarDrag({ isDragging: false, startX: 0, currentX: 0 });
-        setTimeout(() => setAnimationPhase(1), 1500);
-        setTimeout(() => setAnimationPhase(2), 3000);
-        setTimeout(() => setCurrentView('used'), 4500);
+    <!-- Used Ticket Screen -->
+    <div class="screen" id="detailUsed">
+      <div class="used-screen">
+        <div class="header">
+          <span class="logo">e+</span>
+          <span class="app-name">スマチケ</span>
+        </div>
+        <div class="used-content">
+          <div class="used-title">✅ 入場済み</div>
+          <div class="used-card">
+            <div class="used-concert-title">THE ALFEE 2025 Winter Concert</div>
+            <div class="used-timestamp" id="usedTimestamp">2026/03/04 (水) 11:56:21.87</div>
+            <div class="used-icon">✓</div>
+            <div class="used-seat">アリーナ A席 2列 15番</div>
+            <div class="used-message">ご入場ありがとうございました</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentScreen = 'detailUnused';
+    let inSwipeMode = false;
+    let dragging = false;
+    let startX = 0;
+    let progress = 0;
+    const activeTouches = new Map();
+
+    const detailUnused = document.getElementById('detailUnused');
+    const entryScreen = document.getElementById('entryScreen');
+    const detailUsed = document.getElementById('detailUsed');
+    const gateArea = document.getElementById('gateArea');
+    const gateProgress = document.getElementById('gateProgress');
+    const gateRight = gateProgress;
+    const goEntry = document.getElementById('goEntry');
+    const closeEntry = document.getElementById('closeEntry');
+    const entryMessage = document.getElementById('entryMessage');
+    const usedTimestamp = document.getElementById('usedTimestamp');
+
+    function showScreen(screenElement) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      screenElement.classList.add('active');
+    }
+
+    function setupEntryPreState() {
+      entryMessage.textContent = "QRコードを読み取り中";
+      setTimeout(() => {
+        entryMessage.textContent = "✅ 認証成功";
+      }, 1500);
+      setTimeout(() => {
+        entryMessage.textContent = "入場を許可しています...";
+      }, 3000);
+    }
+
+    function setupSwipeMode() {
+      inSwipeMode = true;
+      document.body.classList.add('swipe-mode-active');
+    }
+
+    function completeUseFlow() {
+      inSwipeMode = false;
+      document.body.classList.remove('swipe-mode-active');
+      setTimeout(() => {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} (${['日','月','火','水','木','金','土'][now.getDay()]})`;
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).slice(0,2)}`;
+        usedTimestamp.textContent = `${dateStr} ${timeStr}`;
+      }, 1200);
+
+      setTimeout(() => {
+        showScreen(detailUsed);
+      }, 3000);
+    }
+
+    function updateProgress(clientX) {
+      const rect = gateArea.getBoundingClientRect();
+      const delta = clientX - startX;
+      progress = Math.max(0, Math.min(1, delta / rect.width));
+      gateRight.style.width = `${Math.round(progress * 100)}%`;
+      if (progress >= 0.96) {
+        dragging = false;
+        gateRight.style.width = "100%";
+        completeUseFlow();
       }
-    }, [starDrag.isDragging, starDrag.currentX, starDrag.startX]);
+    }
 
-    const handleStarTouchStart = (e) => { e.preventDefault(); const t = e.touches[0]; setStarDrag({ isDragging: true, startX: t.clientX, currentX: t.clientX }); };
-    const handleStarTouchMove = (e) => { if (!starDrag.isDragging) return; e.preventDefault(); const t = e.touches[0]; setStarDrag(p => ({ ...p, currentX: t.clientX })); };
-    const handleStarTouchEnd = (e) => { e.preventDefault(); setStarDrag(p => ({ ...p, isDragging: false })); };
-    const handleStarMouseDown = (e) => { e.preventDefault(); setStarDrag({ isDragging: true, startX: e.clientX, currentX: e.clientX }); };
-    const handleStarMouseMove = (e) => { if (!starDrag.isDragging) return; e.preventDefault(); setStarDrag(p => ({ ...p, currentX: e.clientX })); };
-    const handleStarMouseUp = () => { setStarDrag(p => ({ ...p, isDragging: false })); };
+    function averageTouchX() {
+      const values = Array.from(activeTouches.values());
+      if (values.length === 0) return 0;
+      return values.reduce((sum, x) => sum + x, 0) / values.length;
+    }
 
-    useEffect(() => {
-      if (starDrag.isDragging) {
-        document.addEventListener('mousemove', handleStarMouseMove);
-        document.addEventListener('mouseup', handleStarMouseUp);
+    goEntry.addEventListener("click", () => {
+      showScreen(entryScreen);
+      setupEntryPreState();
+      setTimeout(setupSwipeMode, 1200);
+    });
+
+    closeEntry.addEventListener("click", () => {
+      showScreen(detailUnused);
+    });
+
+    gateArea.addEventListener("pointerdown", (e) => {
+      if (!inSwipeMode) return;
+      if (e.pointerType === "touch") {
+        activeTouches.set(e.pointerId, e.clientX);
+        if (activeTouches.size < 2) return;
+        startX = averageTouchX();
+      } else {
+        startX = e.clientX;
       }
-      return () => {
-        document.removeEventListener('mousemove', handleStarMouseMove);
-        document.removeEventListener('mouseup', handleStarMouseUp);
-      };
-    }, [starDrag.isDragging]);
+      dragging = true;
+      gateArea.setPointerCapture(e.pointerId);
+    });
 
-    const dragOffset = Math.min(Math.max(starDrag.currentX - starDrag.startX, 0), 140);
+    gateArea.addEventListener("pointermove", (e) => {
+      if (!inSwipeMode) return;
+      if (e.pointerType === "touch" && activeTouches.has(e.pointerId)) {
+        activeTouches.set(e.pointerId, e.clientX);
+      }
+      if (!dragging) return;
+      if (e.pointerType === "touch" && activeTouches.size < 2) return;
+      updateProgress(e.pointerType === "touch" ? averageTouchX() : e.clientX);
+    });
 
-    // ======== 詳細画面 ========
-    const DetailView = () => (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
-        <div style={{ backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={() => setCurrentView('selection')} style={{ fontSize: '24px', color: '#00A7A0', border: 'none', background: 'none', cursor: 'pointer' }}>＜</button>
-          <button onClick={() => setCurrentView('selection')} style={{ backgroundColor: '#00A7A0', color: 'white', padding: '8px 20px', borderRadius: '20px', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>入場画面に進む</button>
-        </div>
-        <div style={{ padding: '16px' }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '16px', marginBottom: '12px', position: 'relative' }}>
-            <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px' }}>2024年</div>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                <span style={{ fontSize: '48px', fontWeight: 'bold', marginRight: '8px' }}>2/3</span>
-                <span style={{ fontSize: '14px', fontWeight: '500' }}>(土)</span>
-              </div>
-              <div style={{ textAlign: 'right', fontSize: '12px' }}>
-                <div style={{ marginBottom: '4px' }}>08:00 開場</div>
-                <div>09:00 開演</div>
-              </div>
-              <button style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '20px', color: '#999', border: 'none', background: 'none', cursor: 'pointer' }}>⋯</button>
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
-            <div style={{ fontSize: '12px', color: '#666' }}>東京ドーム</div>
-          </div>
+    gateArea.addEventListener("pointerup", (e) => {
+      if (e.pointerType === "touch") {
+        activeTouches.delete(e.pointerId);
+      }
+      if (!dragging) return;
+      dragging = false;
+      if (progress < 0.96) {
+        gateRight.style.width = "0%";
+        progress = 0;
+      }
+    });
 
-          <div style={{ backgroundColor: '#0066CC', borderRadius: '8px 8px 0 0', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>吉村 晃 様</span>
-            <span style={{ color: 'white', fontSize: '12px' }}>1枚目</span>
-          </div>
-          <div style={{ backgroundColor: '#FFE4F0', padding: '16px 16px 12px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-              <div style={{ marginRight: '16px' }}>
-                <div style={{ width: '80px', height: '80px', backgroundColor: '#E91E8C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-                  <svg width="46" height="30" viewBox="0 0 46 30" fill="none">
-                    <rect x="1" y="1" width="44" height="28" rx="4" fill="white"/>
-                    <circle cx="1" cy="15" r="6" fill="#E91E8C"/>
-                    <circle cx="45" cy="15" r="6" fill="#E91E8C"/>
-                    <line x1="14" y1="1" x2="14" y2="29" stroke="#E91E8C" strokeWidth="1" strokeDasharray="3,2"/>
-                  </svg>
-                </div>
-                <div style={{ textAlign: 'center', fontSize: '12px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '4px', backgroundColor: '#E91E8C', color: 'white' }}>未使用</div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>通常・一般席アリーナ14時</div>
-                <div style={{ fontSize: '12px', marginBottom: '4px' }}>41ゲート 10通路 2階3塁側</div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>20列 191番</div>
-                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>¥3,300(税込)</div>
-              </div>
-            </div>
-            <button style={{ width: '100%', marginTop: '8px', padding: '7px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '500', border: '1.5px dashed #E91E8C', backgroundColor: 'white', color: '#E91E8C', cursor: 'pointer' }}>
-              <svg style={{ width: '14px', height: '14px', marginRight: '6px' }} fill="currentColor" viewBox="0 0 20 20">
-                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-              </svg>
-              同行者へ分配する
-            </button>
-          </div>
-          <div style={{ backgroundColor: '#FFE4F0', padding: '12px 16px', borderRadius: '0 0 8px 8px', fontSize: '12px', lineHeight: '1.75' }}>
-            <div style={{ marginBottom: '4px' }}>遊戯王デュエルモンスターズ</div>
-            <div style={{ marginBottom: '4px' }}>決闘者伝説(The Legend of Duelist) QUARTER CENTURY</div>
-            <div style={{ marginBottom: '4px' }}>主催:株式会社コナミデジタルエンタテインメント</div>
-            <div style={{ marginBottom: '8px' }}>お問合せ:KONAMIお客様相談室 0570-086-573</div>
-            <div style={{ fontSize: '10px', marginBottom: '8px', color: '#666' }}>※特設サイトをご確認ください。https://www.konami.com/yugioh/25th/event/</div>
-            <div style={{ fontSize: '10px', marginBottom: '8px' }}>＜営利目的の転売禁止＞</div>
-            <div style={{ marginBottom: '8px' }}>イープラス 050-3185-6483</div>
-            <div style={{ marginBottom: '4px', fontWeight: '500', color: '#0066CC', cursor: 'pointer' }}>チケット裏面情報 ›</div>
-            <div style={{ fontWeight: '500', color: '#0066CC' }}>チケット番号: 1140008501907</div>
-          </div>
-        </div>
-        <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} style={{ position: 'fixed', bottom: '24px', right: '24px', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#00A7A0', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', cursor: 'pointer' }}>
-          <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="white" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/>
-          </svg>
-        </button>
-      </div>
-    );
-
-    // ======== 選択画面 ========
-    const SelectionView = () => (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
-        <div style={{ backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ color: '#E91E8C', fontWeight: '500', fontSize: '14px' }}>1/1枚 選択中</span>
-          <button onClick={() => setCurrentView('detail')} style={{ color: '#999', fontSize: '24px', border: 'none', background: 'none', cursor: 'pointer' }}>×</button>
-        </div>
-        <div style={{ backgroundColor: '#00A7A0', color: 'white', textAlign: 'center', padding: '8px', fontSize: '12px', fontWeight: '500' }}>2024/02/03 (金) 16:48:42.27</div>
-        <div style={{ backgroundColor: 'white', margin: '16px', padding: '16px', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline' }}>
-              <span style={{ fontSize: '48px', fontWeight: 'bold', marginRight: '8px' }}>2/3</span>
-              <span style={{ fontSize: '14px', fontWeight: '500' }}>(土)</span>
-            </div>
-            <div style={{ textAlign: 'right', fontSize: '12px' }}>
-              <div style={{ marginBottom: '4px' }}>08:00 開場</div>
-              <div>09:00 開演</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '16px', gap: '120px', position: 'relative' }}>
-            <div
-              ref={leftStarRef}
-              onTouchStart={handleStarTouchStart}
-              onTouchMove={handleStarTouchMove}
-              onTouchEnd={handleStarTouchEnd}
-              onMouseDown={handleStarMouseDown}
-              style={{
-                width: '64px', height: '64px', backgroundColor: '#4ADE80',
-                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'move', userSelect: 'none', zIndex: 10, touchAction: 'none',
-                transform: starDrag.isDragging ? `translate(${dragOffset}px, 0px)` : 'translate(0, 0)',
-                transition: starDrag.isDragging ? 'none' : 'transform 0.3s ease',
-              }}
-            >
-              <span style={{ fontSize: '36px', pointerEvents: 'none' }}>⭐</span>
-            </div>
-            <div style={{ width: '64px', height: '64px', backgroundColor: '#4ADE80', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '36px' }}>⭐</span>
-            </div>
-          </div>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>東京ドーム</div>
-          <div style={{ fontSize: '12px', color: '#666' }}>遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
-        </div>
-        <div style={{ margin: '0 16px' }}>
-          <div style={{ backgroundColor: '#0066CC', padding: '12px 16px' }}>
-            <span style={{ color: 'white', fontWeight: 'bold' }}>本多 遥星 様</span>
-          </div>
-          <div style={{ backgroundColor: '#0066CC', padding: '16px', display: 'flex', alignItems: 'center' }}>
-            <div style={{ width: '80px', height: '80px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '16px' }}>
-              <svg style={{ width: '48px', height: '48px' }} fill="#0066CC" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-              </svg>
-            </div>
-            <div style={{ color: 'white', flex: 1 }}>
-              <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>通常・一般席アリーナ14時</div>
-              <div style={{ fontSize: '12px', marginBottom: '4px' }}>41ゲート 10通路 2階3塁側</div>
-              <div style={{ fontSize: '16px', fontWeight: 'bold' }}>20列 191番</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-
-    // ======== GATEアニメーション ========
-    const GateAnimationView = () => (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
-        <div style={{ backgroundColor: 'white', padding: '12px 16px' }}>
-          <span style={{ color: '#E91E8C', fontWeight: '500', fontSize: '14px' }}>1/1枚 選択中</span>
-        </div>
-        <div style={{ backgroundColor: '#00A7A0', color: 'white', textAlign: 'center', padding: '8px', fontSize: '12px' }}>2024/02/03 (金) 16:48:47.20</div>
-        {animationPhase >= 0 && (
-          <div>
-            <div style={{ backgroundColor: '#FCD34D', textAlign: 'center', padding: '8px', fontSize: '12px', fontWeight: 'bold' }}>
-              <div>スライドすると使用済になります。</div>
-              <div>使用済チケットは、入場・再発行不可</div>
-            </div>
-            <div style={{ backgroundColor: '#2563EB', color: '#67E8F9', textAlign: 'center', padding: '96px 0', fontSize: '72px', fontWeight: '900', letterSpacing: '12px' }}>GATE</div>
-          </div>
-        )}
-        {animationPhase === 2 && (
-          <div style={{ display: 'flex', height: '256px' }}>
-            <div style={{ flex: 1, backgroundColor: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FBBF24', fontSize: '60px', fontWeight: 'bold' }}>▶▶</div>
-            <div style={{ flex: 1, backgroundColor: '#F472B6' }}></div>
-          </div>
-        )}
-      </div>
-    );
-
-    // ======== 使用済み画面 ========
-    const UsedView = () => (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5' }}>
-        <div style={{ backgroundColor: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ color: '#E91E8C', fontWeight: '500', fontSize: '14px' }}>0/1枚 選択中</span>
-          <button onClick={() => setCurrentView('detail')} style={{ color: '#999', fontSize: '24px', border: 'none', background: 'none', cursor: 'pointer' }}>×</button>
-        </div>
-        <div style={{ backgroundColor: '#00A7A0', color: 'white', textAlign: 'center', padding: '8px', fontSize: '12px' }}>2024/02/03 (金) 16:48:50.49</div>
-        <div style={{ backgroundColor: '#E91E8C', color: 'white', textAlign: 'center', padding: '48px 0', fontSize: '18px', fontWeight: 'bold' }}>1枚使用しました</div>
-        <div style={{ padding: '0 16px', marginTop: '16px' }}>
-          <div style={{ backgroundColor: '#0066CC', padding: '12px 16px', borderRadius: '8px 8px 0 0' }}>
-            <span style={{ color: 'white', fontWeight: 'bold' }}>本多 遥星 様</span>
-          </div>
-          <div style={{ backgroundColor: '#D1D5DB', padding: '16px', borderRadius: '0 0 8px 8px', position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-              <div style={{ width: '80px', height: '80px', backgroundColor: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '16px' }}>
-                <svg width="40" height="40" viewBox="0 0 24 24">
-                  <rect x="5" y="3" width="14" height="18" rx="2" fill="#9CA3AF"/>
-                </svg>
-              </div>
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>通常・一般席アリーナ14時</div>
-                <div style={{ fontSize: '12px', marginBottom: '4px' }}>41ゲート 10通路 2階3塁側</div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>20列 191番</div>
-              </div>
-              <div style={{ position: 'absolute', top: '16px', right: '16px', border: '3px solid #EF4444', color: '#EF4444', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '14px', animation: 'stampIn 0.3s ease-out' }}>使用済</div>
-            </div>
-            <div style={{ marginTop: '24px', fontSize: '12px' }}>使用日時: 2024/02/03(金) 16:48</div>
-          </div>
-        </div>
-      </div>
-    );
-
-    return (
-      <div>
-        {currentView === 'detail' && <DetailView />}
-        {currentView === 'selection' && <SelectionView />}
-        {currentView === 'gateAnimation' && <GateAnimationView />}
-        {currentView === 'used' && <UsedView />}
-      </div>
-    );
-  };
-
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(<SmartTicketApp />);
+    gateArea.addEventListener("pointercancel", (e) => {
+      if (e.pointerType === "touch") {
+        activeTouches.delete(e.pointerId);
+      }
+      dragging = false;
+    });
   </script>
 </body>
 </html>
