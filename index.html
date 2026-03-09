@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>e+ Smatike Replica</title>
+  <title>e+ Ticket Replica</title>
   <style>
     :root {
       --bg: #ececee;
@@ -29,7 +29,7 @@
       min-height: 100%;
       background: var(--bg);
       color: #222;
-      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
       font-feature-settings: "palt";
@@ -77,7 +77,6 @@
       background: var(--pink);
       font-size: 14px;
       font-weight: 500;
-      letter-spacing: 0;
       line-height: 1;
       border-radius: 7px 0 0 7px;
       padding: 10px 14px;
@@ -173,20 +172,38 @@
     }
 
     .icon-circle {
-      width: 74px;
-      height: 74px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      background: var(--pink);
+      background: #e24699;
       display: grid;
       place-items: center;
     }
 
     .ticket-icon {
-      width: 39px;
-      height: 21px;
-      border-radius: 2px;
+      width: 40px;
+      height: 22px;
+      border-radius: 4px;
       background: #fff;
       position: relative;
+      display: grid;
+      place-items: center;
+      color: #666;
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .ticket-icon::before {
+      content: "";
+      position: absolute;
+      right: -3px;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      background: #e24699;
     }
 
     .ticket-icon::after {
@@ -196,17 +213,6 @@
       top: 2px;
       bottom: 2px;
       border-right: 2px dotted #ed9cc1;
-    }
-
-    .unused-pill {
-      border: 2px solid #e96cab;
-      border-radius: 10px;
-      color: #e6529d;
-      background: #ffeff8;
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1;
-      padding: 5px 11px;
     }
 
     .ticket-type {
@@ -233,19 +239,18 @@
 
     .share-btn {
       border: 1.5px solid var(--blue);
-      border-radius: 9px;
+      border-radius: 8px;
       color: var(--blue);
       background: #fff;
       width: fit-content;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       line-height: 1;
-      padding: 5px 9px;
+      padding: 5px 8px;
       text-decoration: none;
-      letter-spacing: 0;
       margin-left: auto;
       white-space: nowrap;
     }
@@ -260,12 +265,12 @@
     }
 
     .ticket-detail {
-      border-top: 1px dashed rgba(92, 61, 77, 0.3);
+      border-top: 1px dashed rgba(92, 61, 77, 0.28);
       background: var(--pink-detail);
       padding: 7px 9px 8px;
       font-size: 10px;
-      font-weight: 300;
-      line-height: 1.24;
+      font-weight: 200;
+      line-height: 1.22;
       color: #33363c;
     }
 
@@ -357,12 +362,25 @@
 
     .stars {
       margin: 7px 0;
-      text-align: center;
-      color: #63e86d;
-      font-size: 30px;
-      letter-spacing: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 70px;
       cursor: pointer;
       user-select: none;
+      touch-action: manipulation;
+    }
+
+    .star-bubble {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #63e86d;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      line-height: 1;
     }
 
     .valid-line1 {
@@ -435,18 +453,17 @@
       transform: translateX(-50%);
       font-size: 11px;
       color: rgba(255, 255, 255, 0.8);
-      letter-spacing: 0.03em;
       pointer-events: none;
     }
 
     .entry-owner {
-      height: 48px;
+      height: 46px;
       background: var(--pink);
       color: #fff;
       display: flex;
       align-items: center;
       padding: 0 12px;
-      font-size: 24px;
+      font-size: 23px;
       font-weight: 700;
       border-top: 1px dashed rgba(255, 255, 255, 0.45);
     }
@@ -475,9 +492,7 @@
       border-top: 1px solid rgba(255, 255, 255, 0.62);
     }
 
-    .entry-ticket.off {
-      background: #d8dde6;
-    }
+    .entry-ticket.off { background: #d8dde6; }
 
     .entry-check {
       margin-top: 8px;
@@ -507,9 +522,7 @@
       font-weight: 700;
     }
 
-    .entry-ticket.off .entry-name {
-      color: #7a8290;
-    }
+    .entry-ticket.off .entry-name { color: #7a8290; }
 
     .used-banner {
       display: none;
@@ -520,7 +533,6 @@
       color: #fff;
       font-size: 26px;
       font-weight: 500;
-      letter-spacing: 0.01em;
     }
 
     .used-banner.show { display: flex; }
@@ -538,9 +550,7 @@
       text-align: center;
     }
 
-    .entry-ticket.used .entry-name {
-      color: #2d2f33;
-    }
+    .entry-ticket.used .entry-name { color: #2d2f33; }
 
     .used-stamp {
       display: none;
@@ -569,28 +579,14 @@
 
     .entry-ticket.used .used-time { display: block; }
 
-    .gray .event-box {
-      background: #ececef;
-      color: #7c828e;
-    }
-
+    .gray .event-box { background: #ececef; color: #7c828e; }
     .gray .event-state,
     .gray .event-title,
-    .gray .event-sub {
-      color: #7c828e;
-    }
-
+    .gray .event-sub { color: #7c828e; }
     .gray .owner { background: var(--gray-owner); }
     .gray .ticket-main { background: var(--gray-main); }
     .gray .icon-circle { background: #adb6c5; }
     .gray .ticket-detail { background: var(--gray-detail); }
-
-    @media (max-width: 360px) {
-      .event-title { font-size: 20px; }
-      .owner-name, .entry-owner { font-size: 22px; }
-      .ticket-type { font-size: 20px; }
-      .ticket-price { font-size: 17px; }
-    }
   </style>
 </head>
 <body>
@@ -614,8 +610,7 @@
           </div>
           <div class="ticket-main">
             <div class="icon-stack">
-              <div class="icon-circle"><div class="ticket-icon"></div></div>
-              <div class="unused-pill">未使用</div>
+              <div class="icon-circle"><div class="ticket-icon">未使用</div></div>
             </div>
             <div>
               <div class="ticket-type">入場券幼児</div>
@@ -628,12 +623,18 @@
           <div class="ticket-detail">
             夢科テディベア美術館 入館券<br>
             2025年4月1日(火) ～ 2026年3月31日(火)<br>
-            開館時間:4月19日(土)〜11月16日(日) 9:00〜17:00<br>
-            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
+            開館時間:4月19日(土)～11月16日(日) 9:00~17:00<br>
+            4月18日(金)迄と11月17日(月)～4月17日(金) 9:30~16:30<br>
             ※ 入館は閉館30分前までにお願いします<br>
-            ※ ご入場には本画面の提示が必要です<br>
-            ※ 一回限り有効<br>
-            ※ 払い戻し不可<br>
+            ※大人(中学生以上)小人(小学生)幼児(3歳~小学生未満)<br>
+            ※施設及び展示品管理のため休館となる場合がございます<br>
+            お問合せ:池の平ホテル＆リゾーツ 総合予約センター<br>
+            TEL0266-68-2100 9:00~18:30 年中無休<br>
+            夢科テディベア美術館<br>
+            入館券<br>
+            ※切離し無効<br>
+            ※一回限り有効<br>
+            ※払い戻し不可<br>
             ＜営利目的の転売禁止＞<br>
             イープラス 050-3185-6483<br>
             <a href="#">チケット裏面情報 ›</a>
@@ -656,7 +657,10 @@
         <div class="entry-panel">
           <div id="valid-panel" class="valid">
             <h2>期間中有効</h2>
-            <div id="stars-trigger" class="stars">★ ★</div>
+            <div id="stars-trigger" class="stars">
+              <span class="star-bubble">★</span>
+              <span class="star-bubble">★</span>
+            </div>
             <div class="valid-line1">夢科テディベア美術館</div>
             <div class="valid-line2">夢科テディベア美術館 入館券</div>
           </div>
@@ -697,7 +701,7 @@
           </div>
           <div class="ticket-main">
             <div class="icon-stack">
-              <div class="icon-circle"><div class="ticket-icon"></div></div>
+              <div class="icon-circle"><div class="ticket-icon">未使用</div></div>
             </div>
             <div style="position:relative;">
               <div class="ticket-type">入場券幼児</div>
@@ -708,12 +712,18 @@
           <div class="ticket-detail">
             夢科テディベア美術館 入館券<br>
             2025年4月1日(火) ～ 2026年3月31日(火)<br>
-            開館時間:4月19日(土)〜11月16日(日) 9:00〜17:00<br>
-            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
+            開館時間:4月19日(土)～11月16日(日) 9:00~17:00<br>
+            4月18日(金)迄と11月17日(月)～4月17日(金) 9:30~16:30<br>
             ※ 入館は閉館30分前までにお願いします<br>
-            ※ ご入場には本画面の提示が必要です<br>
-            ※ 一回限り有効<br>
-            ※ 払い戻し不可<br>
+            ※大人(中学生以上)小人(小学生)幼児(3歳~小学生未満)<br>
+            ※施設及び展示品管理のため休館となる場合がございます<br>
+            お問合せ:池の平ホテル＆リゾーツ 総合予約センター<br>
+            TEL0266-68-2100 9:00~18:30 年中無休<br>
+            夢科テディベア美術館<br>
+            入館券<br>
+            ※切離し無効<br>
+            ※一回限り有効<br>
+            ※払い戻し不可<br>
             ＜営利目的の転売禁止＞<br>
             イープラス 050-3185-6483<br>
             <a href="#">チケット裏面情報 ›</a>
@@ -755,7 +765,6 @@
     let progress = 0;
     let finishTimerA = null;
     let finishTimerB = null;
-    const touchMap = new Map();
 
     function showScreen(name) {
       Object.values(screens).forEach((s) => s.classList.remove("active"));
@@ -797,7 +806,6 @@
       isUsed = false;
       gateActive = false;
       dragging = false;
-      touchMap.clear();
       warnEl.classList.remove("show");
       gateEl.classList.remove("show");
       validPanelEl.style.display = "block";
@@ -817,10 +825,14 @@
       resetGateProgress();
     }
 
-    function averageTouchX() {
-      const xs = Array.from(touchMap.values());
-      if (xs.length === 0) return 0;
-      return xs.reduce((sum, x) => sum + x, 0) / xs.length;
+    function getTouchCenter(touchList) {
+      let sumX = 0;
+      let sumY = 0;
+      for (const t of touchList) {
+        sumX += t.clientX;
+        sumY += t.clientY;
+      }
+      return { x: sumX / touchList.length, y: sumY / touchList.length };
     }
 
     function finishUseFlow() {
@@ -828,7 +840,6 @@
       isUsed = true;
       gateActive = false;
       dragging = false;
-      touchMap.clear();
       warnEl.classList.remove("show");
       gateEl.classList.remove("show");
       usedBannerEl.classList.add("show");
@@ -875,26 +886,24 @@
 
     function startTouchDrag(e) {
       if (!gateActive || !isSelected || isUsed) return;
-      touchMap.clear();
-      for (const t of e.touches) touchMap.set(t.identifier, t.clientX);
-      if (touchMap.size < 2) return;
+      if (e.touches.length < 2) return;
+      e.preventDefault();
+      const center = getTouchCenter(e.touches);
       dragging = true;
-      startX = averageTouchX();
+      startX = center.x;
     }
 
     function moveTouchDrag(e) {
       if (!gateActive || !dragging) return;
-      touchMap.clear();
-      for (const t of e.touches) touchMap.set(t.identifier, t.clientX);
-      if (touchMap.size < 2) return;
-      updateProgress(averageTouchX());
+      if (e.touches.length < 2) return;
+      e.preventDefault();
+      const center = getTouchCenter(e.touches);
+      updateProgress(center.x);
     }
 
     function endTouchDrag(e) {
-      touchMap.clear();
-      for (const t of e.touches) touchMap.set(t.identifier, t.clientX);
       if (!dragging) return;
-      if (touchMap.size >= 2) return;
+      if (e.touches.length >= 2) return;
       dragging = false;
       if (progress < 0.95) resetGateProgress();
     }
@@ -910,7 +919,12 @@
     });
 
     starsTriggerEl.addEventListener("click", openGateFromStars);
-    starsTriggerEl.addEventListener("touchstart", () => openGateFromStars(), { passive: true });
+    starsTriggerEl.addEventListener("touchstart", (e) => {
+      if (e.touches.length >= 2) {
+        e.preventDefault();
+        openGateFromStars();
+      }
+    }, { passive: false });
 
     entryCheckEl.addEventListener("click", () => {
       if (isUsed) return;
@@ -920,10 +934,10 @@
 
     gateEl.addEventListener("mousedown", (e) => startMouseDrag(e.clientX));
     window.addEventListener("mousemove", (e) => moveMouseDrag(e.clientX));
-    window.addEventListener("mouseup", () => endMouseDrag());
+    window.addEventListener("mouseup", endMouseDrag);
 
-    gateEl.addEventListener("touchstart", startTouchDrag, { passive: true });
-    gateEl.addEventListener("touchmove", moveTouchDrag, { passive: true });
+    gateEl.addEventListener("touchstart", startTouchDrag, { passive: false });
+    gateEl.addEventListener("touchmove", moveTouchDrag, { passive: false });
     gateEl.addEventListener("touchend", endTouchDrag, { passive: true });
     gateEl.addEventListener("touchcancel", endTouchDrag, { passive: true });
   </script>
