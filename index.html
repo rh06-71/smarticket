@@ -54,49 +54,9 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    .statusbar {
-      height: 52px;
-      background: #fff;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      padding: 0 16px 7px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .status-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .island {
-      width: 122px;
-      height: 30px;
-      background: #000;
-      border-radius: 16px;
-      position: relative;
-      margin: 0 6px;
-    }
-
-    .island::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #ff4a3e;
-      position: absolute;
-      left: 11px;
-      top: 10px;
-    }
-
     .navbar {
       height: 56px;
       background: #fff;
-      border-top: 1px solid #f4f4f6;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
@@ -633,14 +593,6 @@
 <body>
   <div class="app">
     <section id="detail-unused" class="screen active">
-      <div class="statusbar">
-        <div>11:56 ◔</div>
-        <div class="status-right">
-          <div class="island"></div>
-          <div>4G</div>
-          <div>21</div>
-        </div>
-      </div>
       <div class="navbar">
         <button class="back-btn" type="button" aria-label="戻る">‹</button>
         <button id="go-entry" class="enter-btn" type="button">入場画面に進む</button>
@@ -733,14 +685,6 @@
     </section>
 
     <section id="detail-used" class="screen gray">
-      <div class="statusbar">
-        <div>11:56 ◔</div>
-        <div class="status-right">
-          <div class="island"></div>
-          <div>4G</div>
-          <div>21</div>
-        </div>
-      </div>
       <div class="navbar">
         <button class="back-btn" type="button">‹</button>
         <button class="enter-btn" type="button">入場画面に進む</button>
