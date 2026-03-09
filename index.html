@@ -6,11 +6,11 @@
   <title>e+ Smatike Replica</title>
   <style>
     :root {
-      --bg: #e6e6e6;
-      --card: #eeeeef;
-      --pink: #e24699;
-      --pink-soft: #f5dceb;
-      --pink-detail: #efcbdd;
+      --bg: #ececee;
+      --card: #f0f0f2;
+      --pink: #dd4f96;
+      --pink-soft: #f2dbe7;
+      --pink-detail: #ebc9da;
       --gray-owner: #9da8ba;
       --gray-main: #cfd5de;
       --gray-detail: #d3d8e0;
@@ -98,56 +98,56 @@
     }
 
     .content {
-      padding: 10px 8px 22px;
+      padding: 8px 8px 18px;
     }
 
     .event-box {
       background: var(--card);
       border: 1px solid #dbdbde;
       border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
+      padding: 9px 11px;
+      margin-bottom: 7px;
     }
 
     .event-state {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       margin-bottom: 3px;
     }
 
     .event-title {
-      font-size: 22px;
-      line-height: 1.28;
-      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 600;
       letter-spacing: -0.01em;
     }
 
     .event-sub {
       margin-top: 1px;
-      font-size: 13px;
+      font-size: 12px;
       color: #4f5154;
     }
 
     .ticket-card {
-      border: 1px solid #d8b9c9;
+      border: 1px solid #d6bdca;
       border-radius: 11px;
       overflow: hidden;
       background: var(--pink-soft);
     }
 
     .owner {
-      height: 48px;
+      height: 46px;
       background: var(--pink);
       color: #fff;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 12px;
-      border-bottom: 1px dotted rgba(255, 255, 255, 0.5);
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.45);
     }
 
     .owner-name {
-      font-size: 24px;
+      font-size: 23px;
       font-weight: 700;
       letter-spacing: -0.01em;
     }
@@ -159,9 +159,9 @@
 
     .ticket-main {
       display: grid;
-      grid-template-columns: 92px 1fr;
-      gap: 10px;
-      padding: 11px 10px;
+      grid-template-columns: 90px 1fr;
+      gap: 8px;
+      padding: 10px 9px;
       background: var(--pink-soft);
     }
 
@@ -169,12 +169,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
     }
 
     .icon-circle {
-      width: 76px;
-      height: 76px;
+      width: 74px;
+      height: 74px;
       border-radius: 50%;
       background: var(--pink);
       display: grid;
@@ -203,74 +203,84 @@
       border-radius: 10px;
       color: #e6529d;
       background: #ffeff8;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       line-height: 1;
-      padding: 5px 12px;
+      padding: 5px 11px;
     }
 
     .ticket-type {
       margin-top: 1px;
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 21px;
+      font-weight: 800;
       letter-spacing: -0.01em;
+    }
+
+    .price-share-row {
+      margin-top: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .ticket-price {
-      margin-top: 13px;
       font-size: 18px;
       font-weight: 600;
       letter-spacing: -0.01em;
+      white-space: nowrap;
     }
 
     .share-btn {
-      margin-top: 11px;
       border: 1.5px solid var(--blue);
-      border-radius: 10px;
+      border-radius: 9px;
       color: var(--blue);
       background: #fff;
       width: fit-content;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      font-size: 14px;
+      gap: 6px;
+      font-size: 13px;
       font-weight: 500;
       line-height: 1;
-      padding: 6px 10px;
+      padding: 5px 9px;
       text-decoration: none;
       letter-spacing: 0;
+      margin-left: auto;
+      white-space: nowrap;
     }
 
     .share-btn::before {
       content: "";
-      width: 14px;
-      height: 10px;
+      width: 13px;
+      height: 9px;
       border: 1.5px solid var(--blue);
       border-radius: 2px;
       display: inline-block;
     }
 
     .ticket-detail {
-      border-top: 1px dashed rgba(92, 61, 77, 0.36);
+      border-top: 1px dashed rgba(92, 61, 77, 0.3);
       background: var(--pink-detail);
-      padding: 8px 10px 10px;
-      font-size: 11px;
-      line-height: 1.35;
+      padding: 7px 9px 8px;
+      font-size: 10px;
+      font-weight: 300;
+      line-height: 1.24;
       color: #33363c;
     }
 
     .ticket-detail a {
       color: var(--blue);
-      font-weight: 600;
+      font-weight: 500;
       text-decoration: none;
     }
 
     .ticket-number-row {
-      margin-top: 6px;
-      padding-top: 7px;
-      border-top: 1px solid rgba(88, 88, 98, 0.2);
+      margin-top: 5px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(88, 88, 98, 0.18);
       color: var(--blue);
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -279,14 +289,14 @@
     }
 
     .detail-arrow {
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       border-radius: 50%;
       background: var(--blue);
       color: #fff;
       display: grid;
       place-items: center;
-      font-size: 11px;
+      font-size: 10px;
       flex-shrink: 0;
     }
 
@@ -335,7 +345,7 @@
 
     .valid {
       padding: 12px 10px 9px;
-      border-bottom: 1px dashed rgba(79, 79, 89, 0.45);
+      border-bottom: 1px dashed rgba(79, 79, 89, 0.35);
     }
 
     .valid h2 {
@@ -438,7 +448,7 @@
       padding: 0 12px;
       font-size: 24px;
       font-weight: 700;
-      border-top: 1px dotted rgba(255, 255, 255, 0.5);
+      border-top: 1px dashed rgba(255, 255, 255, 0.45);
     }
 
     .entry-owner.off {
@@ -609,23 +619,19 @@
             </div>
             <div>
               <div class="ticket-type">入場券幼児</div>
-              <div class="ticket-price">¥400(税込)</div>
-              <a href="#" class="share-btn">同行者へ分配する</a>
+              <div class="price-share-row">
+                <div class="ticket-price">¥400(税込)</div>
+                <a href="#" class="share-btn">同行者へ分配する</a>
+              </div>
             </div>
           </div>
           <div class="ticket-detail">
             夢科テディベア美術館 入館券<br>
             2025年4月1日(火) ～ 2026年3月31日(火)<br>
-            開館時間:4月19日(土)～11月16日(日) 9:00~17:00<br>
-            4月18日(金)迄と11月17日(月)～4月17日(金) 9:30~16:30<br>
+            開館時間:4月19日(土)〜11月16日(日) 9:00〜17:00<br>
+            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
             ※ 入館は閉館30分前までにお願いします<br>
-            ※ 大人(中学生以上)小人(小学生)幼児(3歳~小学生未満)<br>
-            ※ 施設及び展示品管理のため休館となる場合がございます<br>
-            お問合せ:池の平ホテル&リゾーツ 総合予約センター<br>
-            TEL0266-68-2100 9:00~18:30 年中無休<br>
-            夢科テディベア美術館<br>
-            入館券<br>
-            ※ 切離し無効<br>
+            ※ ご入場には本画面の提示が必要です<br>
             ※ 一回限り有効<br>
             ※ 払い戻し不可<br>
             ＜営利目的の転売禁止＞<br>
@@ -702,10 +708,12 @@
           <div class="ticket-detail">
             夢科テディベア美術館 入館券<br>
             2025年4月1日(火) ～ 2026年3月31日(火)<br>
-            開館時間:4月19日(土)～11月16日(日) 9:00~17:00<br>
-            4月18日(金)迄と11月17日(月)～4月17日(金) 9:30~16:30<br>
+            開館時間:4月19日(土)〜11月16日(日) 9:00〜17:00<br>
+            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
             ※ 入館は閉館30分前までにお願いします<br>
-            ※ 一回限り有効 / 払い戻し不可<br>
+            ※ ご入場には本画面の提示が必要です<br>
+            ※ 一回限り有効<br>
+            ※ 払い戻し不可<br>
             ＜営利目的の転売禁止＞<br>
             イープラス 050-3185-6483<br>
             <a href="#">チケット裏面情報 ›</a>
