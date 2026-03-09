@@ -2,23 +2,24 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>e+ Ticket Flow Replica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>e+ Smatike Replica</title>
   <style>
     :root {
-      --bg: #e8e8e8;
-      --panel: #efefef;
-      --pink: #e24895;
-      --pink-soft: #f5dbe8;
-      --pink-detail: #efcadb;
-      --blue: #0e4ea8;
-      --blue-text: #1f9ff1;
-      --teal: #2aa8b8;
-      --gray-owner: #9ea7b8;
-      --gray-main: #cfd4dd;
+      --bg: #e6e6e6;
+      --card: #eeeeef;
+      --pink: #e24699;
+      --pink-soft: #f5dceb;
+      --pink-detail: #efcbdd;
+      --gray-owner: #9da8ba;
+      --gray-main: #cfd5de;
       --gray-detail: #d3d8e0;
-      --line: #d4d4d4;
-      --danger: #df111b;
+      --line: #d4d4d7;
+      --blue: #007aff;
+      --gate-blue: #0f4da7;
+      --gate-blue-text: #1fa4f2;
+      --danger: #e1111b;
+      --teal: #35bccd;
     }
 
     * { box-sizing: border-box; }
@@ -27,14 +28,16 @@
       margin: 0;
       min-height: 100%;
       background: var(--bg);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
       color: #222;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-feature-settings: "palt";
     }
 
     body {
       display: flex;
       justify-content: center;
-      padding: 0;
     }
 
     .app {
@@ -48,260 +51,298 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    .top {
+    .topbar {
+      height: 54px;
       background: #fff;
       border-bottom: 1px solid var(--line);
-      min-height: 50px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: 0 10px;
     }
 
     .back {
       border: 0;
       background: transparent;
-      color: #34b9ca;
-      font-size: 26px;
+      color: var(--teal);
+      font-size: 34px;
+      font-weight: 400;
       line-height: 1;
       cursor: pointer;
     }
 
-    .btn-enter {
+    .enter-btn {
       border: 0;
       color: #fff;
       background: var(--pink);
       font-size: 14px;
       font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1;
       border-radius: 7px 0 0 7px;
-      padding: 8px 12px;
+      padding: 10px 14px;
       position: relative;
       cursor: pointer;
-      letter-spacing: 0;
     }
 
-    .btn-enter::after {
+    .enter-btn::after {
       content: "";
       position: absolute;
       top: 0;
-      right: -12px;
+      right: -13px;
       width: 0;
       height: 0;
       border-top: 17px solid transparent;
       border-bottom: 17px solid transparent;
-      border-left: 12px solid var(--pink);
+      border-left: 13px solid var(--pink);
     }
 
     .content {
-      padding: 10px 8px 20px;
+      padding: 10px 8px 22px;
     }
 
-    .event {
-      background: var(--panel);
-      border: 1px solid #dddddd;
+    .event-box {
+      background: var(--card);
+      border: 1px solid #dbdbde;
       border-radius: 10px;
-      padding: 10px;
+      padding: 10px 12px;
       margin-bottom: 8px;
     }
 
-    .event .ttl {
+    .event-state {
       font-size: 14px;
-      font-weight: 800;
-      margin-bottom: 2px;
+      font-weight: 700;
+      margin-bottom: 3px;
     }
 
-    .event .name {
+    .event-title {
       font-size: 22px;
-      font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.28;
+      font-weight: 700;
       letter-spacing: -0.01em;
     }
 
-    .event .sub {
+    .event-sub {
+      margin-top: 1px;
       font-size: 13px;
-      color: #555;
-      margin-top: 2px;
+      color: #4f5154;
     }
 
-    .card {
-      border-radius: 10px;
+    .ticket-card {
+      border: 1px solid #d8b9c9;
+      border-radius: 11px;
       overflow: hidden;
-      border: 1px solid #d9b7c9;
+      background: var(--pink-soft);
     }
 
     .owner {
+      height: 48px;
       background: var(--pink);
       color: #fff;
-      height: 48px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       padding: 0 12px;
-      font-size: 24px;
-      font-weight: 800;
       border-bottom: 1px dotted rgba(255, 255, 255, 0.5);
     }
 
-    .owner .count {
-      font-size: 12px;
+    .owner-name {
+      font-size: 24px;
       font-weight: 700;
+      letter-spacing: -0.01em;
     }
 
-    .main {
-      background: var(--pink-soft);
+    .owner-index {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .ticket-main {
       display: grid;
       grid-template-columns: 92px 1fr;
-      gap: 8px;
-      padding: 10px;
+      gap: 10px;
+      padding: 11px 10px;
+      background: var(--pink-soft);
     }
 
-    .icon-col {
+    .icon-stack {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
 
-    .icon-round {
-      width: 72px;
-      height: 72px;
+    .icon-circle {
+      width: 76px;
+      height: 76px;
       border-radius: 50%;
       background: var(--pink);
       display: grid;
       place-items: center;
     }
 
-    .ticket-shape {
-      width: 36px;
-      height: 20px;
-      background: #fff;
+    .ticket-icon {
+      width: 39px;
+      height: 21px;
       border-radius: 2px;
+      background: #fff;
       position: relative;
     }
 
-    .ticket-shape::after {
+    .ticket-icon::after {
       content: "";
       position: absolute;
-      right: 7px;
+      right: 8px;
       top: 2px;
       bottom: 2px;
-      border-right: 2px dotted #f09cc2;
+      border-right: 2px dotted #ed9cc1;
     }
 
-    .unused {
-      border: 2px solid #ea6cab;
-      border-radius: 7px;
+    .unused-pill {
+      border: 2px solid #e96cab;
+      border-radius: 10px;
+      color: #e6529d;
       background: #ffeff8;
-      color: #e6569f;
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 700;
       line-height: 1;
-      padding: 3px 10px 4px;
+      padding: 5px 12px;
     }
 
-    .type {
-      font-size: 22px;
-      font-weight: 800;
+    .ticket-type {
       margin-top: 1px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }
 
-    .price {
-      margin-top: 14px;
+    .ticket-price {
+      margin-top: 13px;
       font-size: 18px;
       font-weight: 600;
+      letter-spacing: -0.01em;
     }
 
-    .share {
-      margin-top: 8px;
-      border: 1.5px solid #007aff;
-      border-radius: 6px;
-      color: #007aff;
+    .share-btn {
+      margin-top: 11px;
+      border: 1.5px solid var(--blue);
+      border-radius: 10px;
+      color: var(--blue);
       background: #fff;
       width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
       font-size: 14px;
       font-weight: 500;
       line-height: 1;
-      padding: 5px 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      padding: 6px 10px;
+      text-decoration: none;
+      letter-spacing: 0;
     }
 
-    .share::before {
+    .share-btn::before {
       content: "";
       width: 14px;
-      height: 9px;
-      border: 1.5px solid #007aff;
+      height: 10px;
+      border: 1.5px solid var(--blue);
       border-radius: 2px;
       display: inline-block;
     }
 
-    .detail {
+    .ticket-detail {
+      border-top: 1px dashed rgba(92, 61, 77, 0.36);
       background: var(--pink-detail);
-      border-top: 1px dashed rgba(80, 52, 66, 0.3);
-      padding: 8px 8px 10px;
+      padding: 8px 10px 10px;
       font-size: 11px;
       line-height: 1.35;
-      color: #36363a;
+      color: #33363c;
     }
 
-    .detail a {
-      color: #007aff;
+    .ticket-detail a {
+      color: var(--blue);
+      font-weight: 600;
       text-decoration: none;
-      font-weight: 700;
     }
 
-    .ticket-no {
+    .ticket-number-row {
       margin-top: 6px;
-      border-top: 1px solid rgba(76, 76, 84, 0.18);
-      padding-top: 6px;
-      color: #007aff;
+      padding-top: 7px;
+      border-top: 1px solid rgba(88, 88, 98, 0.2);
+      color: var(--blue);
       font-size: 16px;
-      font-weight: 800;
-    }
-
-    .entry-top {
-      background: #fff;
-      border-bottom: 1px solid var(--line);
-      height: 50px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
+    }
+
+    .detail-arrow {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .entry-top {
+      height: 54px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
       padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-size: 18px;
       font-weight: 500;
     }
 
-    .entry-top .x {
+    .entry-close {
       border: 0;
       background: transparent;
-      color: #999;
+      color: #98989f;
       font-size: 30px;
       line-height: 1;
       cursor: pointer;
     }
 
-    .entry-wrap {
-      padding: 8px;
-    }
+    .entry-wrap { padding: 8px; }
 
     .entry-panel {
-      border: 1px solid #d8d8da;
+      border: 1px solid #d7d7db;
       border-radius: 10px;
+      background: #efeff1;
       overflow: hidden;
-      background: #f0f0f2;
     }
 
+    .warn {
+      margin: 0 10px;
+      padding: 6px 8px;
+      background: #eceb34;
+      color: #ee3434;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.25;
+      display: none;
+    }
+
+    .warn.show { display: block; }
+
     .valid {
-      padding: 12px 10px 10px;
-      border-bottom: 1px dashed rgba(85, 85, 93, 0.4);
+      padding: 12px 10px 9px;
+      border-bottom: 1px dashed rgba(79, 79, 89, 0.45);
     }
 
     .valid h2 {
       margin: 0;
       text-align: center;
-      font-size: 28px;
-      font-weight: 900;
+      font-size: 29px;
+      font-weight: 800;
     }
 
     .stars {
@@ -309,45 +350,32 @@
       text-align: center;
       color: #63e86d;
       font-size: 30px;
-      letter-spacing: 18px;
+      letter-spacing: 20px;
       cursor: pointer;
       user-select: none;
     }
 
-    .valid .line1 {
+    .valid-line1 {
       font-size: 20px;
       font-weight: 700;
       line-height: 1.2;
     }
 
-    .valid .line2 {
-      font-size: 14px;
-      color: #444;
+    .valid-line2 {
       margin-top: 1px;
+      color: #4e5053;
+      font-size: 14px;
     }
-
-    .warn {
-      margin: 0 10px;
-      background: #eceb34;
-      color: #ee3636;
-      font-size: 16px;
-      font-weight: 800;
-      line-height: 1.2;
-      padding: 6px 8px;
-      display: none;
-    }
-
-    .warn.show { display: block; }
 
     .gate {
       margin: 8px 8px 0;
       height: 136px;
       border-radius: 10px 10px 0 0;
-      overflow: hidden;
+      background: var(--gate-blue);
       position: relative;
-      background: var(--blue);
+      overflow: hidden;
       display: none;
-      touch-action: pan-y;
+      touch-action: none;
       user-select: none;
     }
 
@@ -355,12 +383,12 @@
 
     .gate-progress {
       position: absolute;
-      top: 0;
       right: 0;
+      top: 0;
       bottom: 0;
-      width: 0;
-      background: #e64f4f;
-      transition: width 0.06s linear;
+      width: 0%;
+      background: #e74e4e;
+      transition: width 0.03s linear;
     }
 
     .gate-label {
@@ -368,56 +396,64 @@
       inset: 0;
       display: grid;
       place-items: center;
-      color: var(--blue-text);
+      color: var(--gate-blue-text);
       font-size: 42px;
-      font-weight: 900;
+      font-weight: 800;
       text-decoration: underline;
+      pointer-events: none;
     }
 
-    .arrows {
+    .gate-arrows {
       position: absolute;
       left: 0;
       right: 0;
       top: 50%;
       transform: translateY(-50%);
-      color: #eceb34;
-      font-size: 34px;
-      font-weight: 900;
       display: flex;
       justify-content: space-between;
-      padding: 0 40px;
+      padding: 0 39px;
+      color: #ecea34;
+      font-size: 34px;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .finger-hint {
+      position: absolute;
+      left: 50%;
+      top: 12px;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.8);
+      letter-spacing: 0.03em;
       pointer-events: none;
     }
 
     .entry-owner {
+      height: 48px;
       background: var(--pink);
       color: #fff;
-      height: 48px;
       display: flex;
       align-items: center;
       padding: 0 12px;
       font-size: 24px;
-      font-weight: 800;
+      font-weight: 700;
       border-top: 1px dotted rgba(255, 255, 255, 0.5);
     }
 
     .entry-owner.off {
-      background: #b8bfcb;
-      color: #f7f9fc;
+      background: #b8bfcc;
+      color: #f8f9fb;
     }
 
     .entry-ticket {
-      background: var(--pink);
       min-height: 130px;
+      background: var(--pink);
       display: grid;
       grid-template-columns: 68px 1fr;
       gap: 12px;
       padding: 10px 12px;
       position: relative;
-    }
-
-    .entry-ticket.off {
-      background: #d7dce5;
     }
 
     .entry-ticket::before {
@@ -426,69 +462,74 @@
       left: 10px;
       right: 10px;
       top: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.6);
+      border-top: 1px solid rgba(255, 255, 255, 0.62);
     }
 
-    .check {
+    .entry-ticket.off {
+      background: #d8dde6;
+    }
+
+    .entry-check {
       margin-top: 8px;
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: #f3f2f5;
-      color: #e5539f;
+      border: 0;
+      cursor: pointer;
+      background: #f3f2f6;
+      color: #e4529d;
       display: grid;
       place-items: center;
       font-size: 34px;
-      font-weight: 900;
-      cursor: pointer;
+      font-weight: 800;
+      padding: 0;
     }
 
-    .entry-ticket.off .check {
+    .entry-ticket.off .entry-check {
       background: #eceff4;
-      color: #9ca3af;
+      color: #9ea5b1;
     }
 
     .entry-name {
+      margin-top: 5px;
       color: #fff;
       font-size: 24px;
-      font-weight: 800;
-      margin-top: 5px;
+      font-weight: 700;
     }
 
     .entry-ticket.off .entry-name {
-      color: #7b8290;
+      color: #7a8290;
     }
 
     .used-banner {
-      height: 136px;
       display: none;
       align-items: center;
       justify-content: center;
-      background: #d83f74;
+      height: 136px;
+      background: #d73f74;
       color: #fff;
       font-size: 26px;
       font-weight: 500;
+      letter-spacing: 0.01em;
     }
 
     .used-banner.show { display: flex; }
 
     .entry-ticket.used {
       background: var(--gray-main);
-      color: #222;
+      color: #2a2b2f;
     }
 
-    .entry-ticket.used .check {
-      background: #b4bcc9;
+    .entry-ticket.used .entry-check {
+      background: #b2bcc9;
       color: #fff;
       font-size: 18px;
       line-height: 1.15;
       text-align: center;
-      padding: 8px 2px;
-      font-weight: 700;
     }
 
     .entry-ticket.used .entry-name {
-      color: #2e2f32;
+      color: #2d2f33;
     }
 
     .used-stamp {
@@ -497,96 +538,112 @@
       right: 12px;
       top: 30px;
       border: 5px solid var(--danger);
-      color: var(--danger);
       border-radius: 7px;
+      color: var(--danger);
       font-size: 28px;
-      font-weight: 900;
+      font-weight: 800;
       line-height: 1;
       padding: 6px 8px;
       transform: rotate(-15deg);
     }
 
-    .entry-ticket.used .used-stamp {
-      display: block;
-    }
+    .entry-ticket.used .used-stamp { display: block; }
 
     .used-time {
       grid-column: 1 / -1;
+      margin-top: 7px;
       font-size: 15px;
-      margin-top: 6px;
-      color: #2b2c2f;
+      color: #2b2d31;
       display: none;
     }
 
-    .entry-ticket.used .used-time {
-      display: block;
+    .entry-ticket.used .used-time { display: block; }
+
+    .gray .event-box {
+      background: #ececef;
+      color: #7c828e;
     }
 
-    .gray .event { background: #ececef; color: #7b818c; }
-    .gray .event .name,
-    .gray .event .sub,
-    .gray .event .ttl { color: #7b818c; }
+    .gray .event-state,
+    .gray .event-title,
+    .gray .event-sub {
+      color: #7c828e;
+    }
+
     .gray .owner { background: var(--gray-owner); }
-    .gray .main { background: var(--gray-main); }
-    .gray .icon-round { background: #adb6c5; }
-    .gray .detail { background: var(--gray-detail); }
+    .gray .ticket-main { background: var(--gray-main); }
+    .gray .icon-circle { background: #adb6c5; }
+    .gray .ticket-detail { background: var(--gray-detail); }
 
     @media (max-width: 360px) {
-      .event .name { font-size: 20px; }
-      .owner { font-size: 22px; }
-      .type { font-size: 20px; }
-      .price { font-size: 16px; }
-      .share { font-size: 13px; }
+      .event-title { font-size: 20px; }
+      .owner-name, .entry-owner { font-size: 22px; }
+      .ticket-type { font-size: 20px; }
+      .ticket-price { font-size: 17px; }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <section id="screen-ticket-unused" class="screen active">
-      <div class="top">
+    <section id="screen-unused" class="screen active">
+      <div class="topbar">
         <button class="back" type="button" aria-label="戻る">‹</button>
-        <button id="go-entry" class="btn-enter" type="button">入場画面に進む</button>
+        <button id="go-entry" class="enter-btn" type="button">入場画面に進む</button>
       </div>
       <div class="content">
-        <div class="event">
-          <div class="ttl">期間中有効</div>
-          <div class="name">夢科テディベア美術館 入館券</div>
-          <div class="sub">夢科テディベア美術館</div>
-        </div>
-        <div class="card">
-          <div class="owner"><span>東久保 慶 様</span><span class="count">1枚目</span></div>
-          <div class="main">
-            <div class="icon-col">
-              <div class="icon-round"><div class="ticket-shape"></div></div>
-              <div class="unused">未使用</div>
+        <article class="event-box">
+          <div class="event-state">期間中有効</div>
+          <div class="event-title">夢科テディベア美術館 入館券</div>
+          <div class="event-sub">夢科テディベア美術館</div>
+        </article>
+
+        <section class="ticket-card">
+          <div class="owner">
+            <div class="owner-name">東久保 慶 様</div>
+            <div class="owner-index">1枚目</div>
+          </div>
+          <div class="ticket-main">
+            <div class="icon-stack">
+              <div class="icon-circle"><div class="ticket-icon"></div></div>
+              <div class="unused-pill">未使用</div>
             </div>
             <div>
-              <div class="type">入場券幼児</div>
-              <div class="price">¥400(税込)</div>
-              <div class="share">同行者へ分配する</div>
+              <div class="ticket-type">入場券幼児</div>
+              <div class="ticket-price">¥400(税込)</div>
+              <a href="#" class="share-btn">同行者へ分配する</a>
             </div>
           </div>
-          <div class="detail">
+          <div class="ticket-detail">
             夢科テディベア美術館 入館券<br>
             2025年4月1日(火) ～ 2026年3月31日(火)<br>
-            開館時間:4月19日(土)～11月16日(日) 9:00〜17:00<br>
-            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
+            開館時間:4月19日(土)～11月16日(日) 9:00~17:00<br>
+            4月18日(金)迄と11月17日(月)～4月17日(金) 9:30~16:30<br>
             ※ 入館は閉館30分前までにお願いします<br>
-            ※ ご入場には本画面の提示が必要です<br>
-            ※ 一回限り有効 / 払い戻し不可<br>
+            ※ 大人(中学生以上)小人(小学生)幼児(3歳~小学生未満)<br>
+            ※ 施設及び展示品管理のため休館となる場合がございます<br>
+            お問合せ:池の平ホテル&リゾーツ 総合予約センター<br>
+            TEL0266-68-2100 9:00~18:30 年中無休<br>
+            夢科テディベア美術館<br>
+            入館券<br>
+            ※ 切離し無効<br>
+            ※ 一回限り有効<br>
+            ※ 払い戻し不可<br>
             ＜営利目的の転売禁止＞<br>
             イープラス 050-3185-6483<br>
             <a href="#">チケット裏面情報 ›</a>
-            <div class="ticket-no">チケット番号:1160027394397</div>
+            <div class="ticket-number-row">
+              <span>チケット番号:1160027394397</span>
+              <span class="detail-arrow">▲</span>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </section>
 
     <section id="screen-entry" class="screen">
       <div class="entry-top">
-        <div id="selection-count">1/1枚選択中</div>
-        <button id="close-entry" class="x" type="button" aria-label="閉じる">×</button>
+        <div id="select-count">1/1枚選択中</div>
+        <button id="close-entry" class="entry-close" type="button" aria-label="閉じる">×</button>
       </div>
       <div class="entry-wrap">
         <div id="warn" class="warn">スライドすると使用済になります。<br>使用済チケットは、入場・再発行不可</div>
@@ -594,18 +651,19 @@
           <div id="valid-panel" class="valid">
             <h2>期間中有効</h2>
             <div id="stars-trigger" class="stars">★ ★</div>
-            <div class="line1">夢科テディベア美術館</div>
-            <div class="line2">夢科テディベア美術館 入館券</div>
+            <div class="valid-line1">夢科テディベア美術館</div>
+            <div class="valid-line2">夢科テディベア美術館 入館券</div>
           </div>
           <div id="gate" class="gate">
             <div id="gate-progress" class="gate-progress"></div>
             <div class="gate-label">GATE</div>
-            <div class="arrows"><span>◀◀</span><span>▶▶</span></div>
+            <div class="gate-arrows"><span>◀◀</span><span>▶▶</span></div>
+            <div class="finger-hint">2本指で横スライド</div>
           </div>
           <div id="used-banner" class="used-banner">1枚使用しました</div>
           <div id="entry-owner" class="entry-owner">東久保 慶 様</div>
           <div id="entry-ticket" class="entry-ticket">
-            <div id="entry-check" class="check">✓</div>
+            <button id="entry-check" class="entry-check" type="button" aria-label="選択切替">✓</button>
             <div class="entry-name">入場券幼児</div>
             <div class="used-stamp">使用済</div>
             <div class="used-time">使用日時: 2026/03/04(水) 11:56</div>
@@ -614,59 +672,66 @@
       </div>
     </section>
 
-    <section id="screen-ticket-used" class="screen gray">
-      <div class="top">
+    <section id="screen-used" class="screen gray">
+      <div class="topbar">
         <button class="back" type="button" aria-label="戻る">‹</button>
-        <button class="btn-enter" type="button">入場画面に進む</button>
+        <button class="enter-btn" type="button">入場画面に進む</button>
       </div>
       <div class="content">
-        <div class="event">
-          <div class="ttl">期間中有効</div>
-          <div class="name">夢科テディベア美術館 入館券</div>
-          <div class="sub">夢科テディベア美術館</div>
-        </div>
-        <div class="card">
-          <div class="owner"><span>東久保 慶 様</span><span class="count">1枚目</span></div>
-          <div class="main">
-            <div class="icon-col">
-              <div class="icon-round"><div class="ticket-shape"></div></div>
+        <article class="event-box">
+          <div class="event-state">期間中有効</div>
+          <div class="event-title">夢科テディベア美術館 入館券</div>
+          <div class="event-sub">夢科テディベア美術館</div>
+        </article>
+
+        <section class="ticket-card">
+          <div class="owner">
+            <div class="owner-name">東久保 慶 様</div>
+            <div class="owner-index">1枚目</div>
+          </div>
+          <div class="ticket-main">
+            <div class="icon-stack">
+              <div class="icon-circle"><div class="ticket-icon"></div></div>
             </div>
-            <div style="position: relative;">
-              <div class="type">入場券幼児</div>
-              <div class="price">¥400(税込)</div>
-              <div class="used-stamp" style="display:block; right:6px; top:12px;">使用済</div>
+            <div style="position:relative;">
+              <div class="ticket-type">入場券幼児</div>
+              <div class="ticket-price">¥400(税込)</div>
+              <div class="used-stamp" style="display:block; right:6px; top:14px;">使用済</div>
             </div>
           </div>
-          <div class="detail">
+          <div class="ticket-detail">
             夢科テディベア美術館 入館券<br>
             2025年4月1日(火) ～ 2026年3月31日(火)<br>
-            開館時間:4月19日(土)～11月16日(日) 9:00〜17:00<br>
-            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
+            開館時間:4月19日(土)～11月16日(日) 9:00~17:00<br>
+            4月18日(金)迄と11月17日(月)～4月17日(金) 9:30~16:30<br>
             ※ 入館は閉館30分前までにお願いします<br>
             ※ 一回限り有効 / 払い戻し不可<br>
             ＜営利目的の転売禁止＞<br>
             イープラス 050-3185-6483<br>
             <a href="#">チケット裏面情報 ›</a>
-            <div class="ticket-no">チケット番号:1160027394397<br><span style="color:#222;font-weight:500;">使用日時:2026/03/04(水) 11:56</span></div>
+            <div class="ticket-number-row">
+              <span>チケット番号:1160027394397<br><span style="color:#222;font-weight:500;">使用日時:2026/03/04(水) 11:56</span></span>
+              <span class="detail-arrow">▲</span>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </section>
   </div>
 
   <script>
     const screens = {
-      unused: document.getElementById("screen-ticket-unused"),
+      unused: document.getElementById("screen-unused"),
       entry: document.getElementById("screen-entry"),
-      used: document.getElementById("screen-ticket-used")
+      used: document.getElementById("screen-used")
     };
 
     const goEntryBtn = document.getElementById("go-entry");
     const closeEntryBtn = document.getElementById("close-entry");
-    const selectionCountEl = document.getElementById("selection-count");
+    const countEl = document.getElementById("select-count");
     const warnEl = document.getElementById("warn");
-    const validPanelEl = document.getElementById("valid-panel");
     const starsTriggerEl = document.getElementById("stars-trigger");
+    const validPanelEl = document.getElementById("valid-panel");
     const gateEl = document.getElementById("gate");
     const gateProgressEl = document.getElementById("gate-progress");
     const usedBannerEl = document.getElementById("used-banner");
@@ -674,17 +739,18 @@
     const entryTicketEl = document.getElementById("entry-ticket");
     const entryCheckEl = document.getElementById("entry-check");
 
-    let swipeEnabled = false;
+    let isSelected = true;
+    let isUsed = false;
+    let gateActive = false;
     let dragging = false;
     let startX = 0;
     let progress = 0;
-    let isSelected = true;
-    let isUsed = false;
     let finishTimerA = null;
     let finishTimerB = null;
+    const touchMap = new Map();
 
-    function show(name) {
-      Object.values(screens).forEach((el) => el.classList.remove("active"));
+    function showScreen(name) {
+      Object.values(screens).forEach((s) => s.classList.remove("active"));
       screens[name].classList.add("active");
     }
 
@@ -695,30 +761,35 @@
       finishTimerB = null;
     }
 
+    function resetGateProgress() {
+      progress = 0;
+      gateProgressEl.style.width = "0%";
+    }
+
+    function closeGate() {
+      gateActive = false;
+      dragging = false;
+      warnEl.classList.remove("show");
+      gateEl.classList.remove("show");
+      validPanelEl.style.display = "block";
+      resetGateProgress();
+    }
+
     function applySelectionState() {
-      selectionCountEl.textContent = isSelected ? "1/1枚選択中" : "0/1枚選択中";
+      countEl.textContent = isSelected ? "1/1枚選択中" : "0/1枚選択中";
       entryOwnerEl.classList.toggle("off", !isSelected);
       entryTicketEl.classList.toggle("off", !isSelected);
       entryCheckEl.textContent = isSelected ? "✓" : "";
-      if (!isSelected) {
-        swipeEnabled = false;
-        dragging = false;
-        progress = 0;
-        gateProgressEl.style.width = "0%";
-        warnEl.classList.remove("show");
-        gateEl.classList.remove("show");
-        validPanelEl.style.display = "block";
-      }
+      if (!isSelected) closeGate();
     }
 
     function resetEntryState() {
       clearTimers();
-      swipeEnabled = false;
-      dragging = false;
-      progress = 0;
       isSelected = true;
       isUsed = false;
-      gateProgressEl.style.width = "0%";
+      gateActive = false;
+      dragging = false;
+      touchMap.clear();
       warnEl.classList.remove("show");
       gateEl.classList.remove("show");
       validPanelEl.style.display = "block";
@@ -729,19 +800,27 @@
       applySelectionState();
     }
 
-    function beginSwipePhase() {
+    function openGateFromStars() {
       if (!isSelected || isUsed) return;
-      swipeEnabled = true;
+      gateActive = true;
       warnEl.classList.add("show");
       validPanelEl.style.display = "none";
       gateEl.classList.add("show");
+      resetGateProgress();
     }
 
-    function finishFlow() {
+    function averageTouchX() {
+      const xs = Array.from(touchMap.values());
+      if (xs.length === 0) return 0;
+      return xs.reduce((sum, x) => sum + x, 0) / xs.length;
+    }
+
+    function finishUseFlow() {
       if (isUsed) return;
-      swipeEnabled = false;
-      dragging = false;
       isUsed = true;
+      gateActive = false;
+      dragging = false;
+      touchMap.clear();
       warnEl.classList.remove("show");
       gateEl.classList.remove("show");
       usedBannerEl.classList.add("show");
@@ -754,8 +833,8 @@
       }, 1200);
 
       finishTimerB = setTimeout(() => {
-        show("used");
-      }, 2800);
+        showScreen("used");
+      }, 2600);
     }
 
     function updateProgress(clientX) {
@@ -763,43 +842,67 @@
       const delta = clientX - startX;
       progress = Math.max(0, Math.min(1, delta / rect.width));
       gateProgressEl.style.width = `${Math.round(progress * 100)}%`;
-      if (progress >= 0.94) {
+      if (progress >= 0.95) {
         gateProgressEl.style.width = "100%";
-        finishFlow();
+        finishUseFlow();
       }
     }
 
-    function startDrag(clientX) {
-      if (!swipeEnabled || !isSelected || isUsed) return;
+    function startMouseDrag(clientX) {
+      if (!gateActive || !isSelected || isUsed) return;
       dragging = true;
       startX = clientX;
     }
 
-    function moveDrag(clientX) {
-      if (!dragging || !swipeEnabled) return;
+    function moveMouseDrag(clientX) {
+      if (!dragging || !gateActive) return;
       updateProgress(clientX);
     }
 
-    function endDrag() {
+    function endMouseDrag() {
       if (!dragging) return;
       dragging = false;
-      if (progress < 0.94) {
-        progress = 0;
-        gateProgressEl.style.width = "0%";
-      }
+      if (progress < 0.95) resetGateProgress();
+    }
+
+    function startTouchDrag(e) {
+      if (!gateActive || !isSelected || isUsed) return;
+      touchMap.clear();
+      for (const t of e.touches) touchMap.set(t.identifier, t.clientX);
+      if (touchMap.size < 2) return;
+      dragging = true;
+      startX = averageTouchX();
+    }
+
+    function moveTouchDrag(e) {
+      if (!gateActive || !dragging) return;
+      touchMap.clear();
+      for (const t of e.touches) touchMap.set(t.identifier, t.clientX);
+      if (touchMap.size < 2) return;
+      updateProgress(averageTouchX());
+    }
+
+    function endTouchDrag(e) {
+      touchMap.clear();
+      for (const t of e.touches) touchMap.set(t.identifier, t.clientX);
+      if (!dragging) return;
+      if (touchMap.size >= 2) return;
+      dragging = false;
+      if (progress < 0.95) resetGateProgress();
     }
 
     goEntryBtn.addEventListener("click", () => {
-      show("entry");
+      showScreen("entry");
       resetEntryState();
     });
 
     closeEntryBtn.addEventListener("click", () => {
       resetEntryState();
-      show("unused");
+      showScreen("unused");
     });
 
-    starsTriggerEl.addEventListener("click", beginSwipePhase);
+    starsTriggerEl.addEventListener("click", openGateFromStars);
+    starsTriggerEl.addEventListener("touchstart", () => openGateFromStars(), { passive: true });
 
     entryCheckEl.addEventListener("click", () => {
       if (isUsed) return;
@@ -807,22 +910,14 @@
       applySelectionState();
     });
 
-    gateEl.addEventListener("mousedown", (e) => startDrag(e.clientX));
-    window.addEventListener("mousemove", (e) => moveDrag(e.clientX));
-    window.addEventListener("mouseup", () => endDrag());
+    gateEl.addEventListener("mousedown", (e) => startMouseDrag(e.clientX));
+    window.addEventListener("mousemove", (e) => moveMouseDrag(e.clientX));
+    window.addEventListener("mouseup", () => endMouseDrag());
 
-    gateEl.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 0) return;
-      startDrag(e.touches[0].clientX);
-    }, { passive: true });
-
-    gateEl.addEventListener("touchmove", (e) => {
-      if (e.touches.length === 0) return;
-      moveDrag(e.touches[0].clientX);
-    }, { passive: true });
-
-    gateEl.addEventListener("touchend", () => endDrag(), { passive: true });
-    gateEl.addEventListener("touchcancel", () => endDrag(), { passive: true });
+    gateEl.addEventListener("touchstart", startTouchDrag, { passive: true });
+    gateEl.addEventListener("touchmove", moveTouchDrag, { passive: true });
+    gateEl.addEventListener("touchend", endTouchDrag, { passive: true });
+    gateEl.addEventListener("touchcancel", endTouchDrag, { passive: true });
   </script>
 </body>
 </html>
