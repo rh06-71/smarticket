@@ -2,354 +2,773 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <title>e+ スマチケ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>e+ Ticket Flow Replica</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    :root {
+      --bg: #e8e8e8;
+      --panel: #efefef;
+      --pink: #e24895;
+      --pink-soft: #f5dbe8;
+      --pink-detail: #efcadb;
+      --blue: #0e4ea8;
+      --blue-text: #1f9ff1;
+      --teal: #2aa8b8;
+      --gray-owner: #9ea7b8;
+      --gray-main: #cfd4dd;
+      --gray-detail: #d3d8e0;
+      --line: #d4d4d4;
+      --danger: #df111b;
     }
-    
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+      color: #222;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-      background-color: #F5F5F5;
-      -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 390px;
+      min-height: 100vh;
+      background: var(--bg);
       overflow-x: hidden;
     }
-    
-    .container {
-      max-width: 448px;
-      margin: 0 auto;
-      background-color: white;
-      min-height: 100vh;
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .top {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
     }
-    
-    .screen {
+
+    .back {
+      border: 0;
+      background: transparent;
+      color: #34b9ca;
+      font-size: 32px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .btn-enter {
+      border: 0;
+      color: #fff;
+      background: var(--pink);
+      font-size: 27px;
+      font-weight: 700;
+      border-radius: 7px 0 0 7px;
+      padding: 6px 14px 8px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .btn-enter::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: -16px;
+      width: 0;
+      height: 0;
+      border-top: 22px solid transparent;
+      border-bottom: 22px solid transparent;
+      border-left: 16px solid var(--pink);
+    }
+
+    .content {
+      padding: 10px 8px 20px;
+    }
+
+    .event {
+      background: var(--panel);
+      border: 1px solid #dddddd;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .event .ttl {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .event .name {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .event .sub {
+      font-size: 20px;
+      color: #555;
+      margin-top: 2px;
+    }
+
+    .card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #d9b7c9;
+    }
+
+    .owner {
+      background: var(--pink);
+      color: #fff;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 37px;
+      font-weight: 800;
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.5);
+    }
+
+    .owner .count {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .main {
+      background: var(--pink-soft);
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .icon-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-round {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--pink);
+      display: grid;
+      place-items: center;
+    }
+
+    .ticket-shape {
+      width: 36px;
+      height: 20px;
+      background: #fff;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .ticket-shape::after {
+      content: "";
+      position: absolute;
+      right: 7px;
+      top: 2px;
+      bottom: 2px;
+      border-right: 2px dotted #f09cc2;
+    }
+
+    .unused {
+      border: 2px solid #ea6cab;
+      border-radius: 7px;
+      background: #ffeff8;
+      color: #e6569f;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 3px 10px 4px;
+    }
+
+    .type {
+      font-size: 36px;
+      font-weight: 800;
+      margin-top: 1px;
+    }
+
+    .price {
+      margin-top: 14px;
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .share {
+      margin-top: 8px;
+      border: 2px solid #007aff;
+      border-radius: 7px;
+      color: #007aff;
+      background: #fff;
+      width: fit-content;
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 5px 9px 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .share::before {
+      content: "";
+      width: 20px;
+      height: 12px;
+      border: 2px solid #007aff;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .detail {
+      background: var(--pink-detail);
+      border-top: 1px dashed rgba(80, 52, 66, 0.3);
+      padding: 8px 8px 10px;
+      font-size: 20px;
+      line-height: 1.32;
+      color: #36363a;
+    }
+
+    .detail a {
+      color: #007aff;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .ticket-no {
+      margin-top: 6px;
+      border-top: 1px solid rgba(76, 76, 84, 0.18);
+      padding-top: 6px;
+      color: #007aff;
+      font-size: 27px;
+      font-weight: 800;
+    }
+
+    .entry-top {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 30px;
+      font-weight: 500;
+    }
+
+    .entry-top .x {
+      border: 0;
+      background: transparent;
+      color: #999;
+      font-size: 38px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .entry-wrap {
+      padding: 8px;
+    }
+
+    .entry-panel {
+      border: 1px solid #d8d8da;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #f0f0f2;
+    }
+
+    .valid {
+      padding: 12px 10px 10px;
+      border-bottom: 1px dashed rgba(85, 85, 93, 0.4);
+    }
+
+    .valid h2 {
+      margin: 0;
+      text-align: center;
+      font-size: 44px;
+      font-weight: 900;
+    }
+
+    .stars {
+      margin: 7px 0;
+      text-align: center;
+      color: #63e86d;
+      font-size: 44px;
+      letter-spacing: 28px;
+    }
+
+    .valid .line1 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .valid .line2 {
+      font-size: 23px;
+      color: #444;
+      margin-top: 1px;
+    }
+
+    .warn {
+      margin: 0 10px;
+      background: #eceb34;
+      color: #ee3636;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+      padding: 6px 8px;
       display: none;
-      min-height: 100vh;
     }
-    
-    .screen.active {
+
+    .warn.show { display: block; }
+
+    .gate {
+      margin: 8px 8px 0;
+      height: 136px;
+      border-radius: 10px 10px 0 0;
+      overflow: hidden;
+      position: relative;
+      background: var(--blue);
+      display: none;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .gate.show { display: block; }
+
+    .gate-progress {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 0;
+      background: #e64f4f;
+      transition: width 0.06s linear;
+    }
+
+    .gate-label {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--blue-text);
+      font-size: 54px;
+      font-weight: 900;
+      text-decoration: underline;
+    }
+
+    .arrows {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #eceb34;
+      font-size: 42px;
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40px;
+      pointer-events: none;
+    }
+
+    .entry-owner {
+      background: var(--pink);
+      color: #fff;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 37px;
+      font-weight: 800;
+      border-top: 1px dotted rgba(255, 255, 255, 0.5);
+    }
+
+    .entry-ticket {
+      background: var(--pink);
+      min-height: 130px;
+      display: grid;
+      grid-template-columns: 68px 1fr;
+      gap: 12px;
+      padding: 10px 12px;
+      position: relative;
+    }
+
+    .entry-ticket::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .check {
+      margin-top: 8px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #f3f2f5;
+      color: #e5539f;
+      display: grid;
+      place-items: center;
+      font-size: 46px;
+      font-weight: 900;
+    }
+
+    .entry-name {
+      color: #fff;
+      font-size: 38px;
+      font-weight: 800;
+      margin-top: 5px;
+    }
+
+    .used-banner {
+      height: 136px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #d83f74;
+      color: #fff;
+      font-size: 38px;
+      font-weight: 500;
+    }
+
+    .used-banner.show { display: flex; }
+
+    .entry-ticket.used {
+      background: var(--gray-main);
+      color: #222;
+    }
+
+    .entry-ticket.used .check {
+      background: #b4bcc9;
+      color: #fff;
+      font-size: 24px;
+      line-height: 1.15;
+      text-align: center;
+      padding: 8px 2px;
+      font-weight: 700;
+    }
+
+    .entry-ticket.used .entry-name {
+      color: #2e2f32;
+    }
+
+    .used-stamp {
+      display: none;
+      position: absolute;
+      right: 12px;
+      top: 30px;
+      border: 5px solid var(--danger);
+      color: var(--danger);
+      border-radius: 7px;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+      padding: 6px 8px;
+      transform: rotate(-15deg);
+    }
+
+    .entry-ticket.used .used-stamp {
       display: block;
     }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+
+    .used-time {
+      grid-column: 1 / -1;
+      font-size: 30px;
+      margin-top: 6px;
+      color: #2b2c2f;
+      display: none;
     }
-    
-    @keyframes stampIn {
-      0% { opacity: 0; transform: rotate(12deg) scale(1.4); }
-      100% { opacity: 1; transform: rotate(12deg) scale(1); }
+
+    .entry-ticket.used .used-time {
+      display: block;
+    }
+
+    .gray .event { background: #ececef; color: #7b818c; }
+    .gray .event .name,
+    .gray .event .sub,
+    .gray .event .ttl { color: #7b818c; }
+    .gray .owner { background: var(--gray-owner); }
+    .gray .main { background: var(--gray-main); }
+    .gray .icon-round { background: #adb6c5; }
+    .gray .detail { background: var(--gray-detail); }
+
+    @media (max-width: 360px) {
+      .event .name { font-size: 32px; }
+      .owner { font-size: 33px; }
+      .type { font-size: 32px; }
+      .price { font-size: 30px; }
+      .share { font-size: 26px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Detail Screen (unused ticket) -->
-    <div class="screen active" id="detailUnused">
-      <div style="min-height: 100vh; backgroundColor: #F5F5F5">
-        <div style="backgroundColor: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between">
-          <button onClick="showScreen('selection')" style="fontSize: 24px; color: #00A7A0; border: none; background: none; cursor: pointer">＜</button>
-          <button onClick="showScreen('selection')" style="backgroundColor: #00A7A0; color: white; padding: 8px 20px; borderRadius: 20px; border: none; fontSize: 14px; fontWeight: 500; cursor: pointer">入場画面に進む</button>
-        </div>
-        <div style="padding: 16px">
-          <div style="backgroundColor: white; borderRadius: 8px; padding: 16px; marginBottom: 12px; position: relative">
-            <div style="fontSize: 12px; color: #666; marginBottom: 8px">2024年</div>
-            <div style="display: flex; alignItems: flex-start; justifyContent: space-between; marginBottom: 12px">
-              <div style="display: flex; alignItems: baseline">
-                <span style="fontSize: 48px; fontWeight: bold; marginRight: 8px">2/3</span>
-                <span style="fontSize: 14px; fontWeight: 500">(土)</span>
-              </div>
-              <div style="textAlign: right; fontSize: 12px">
-                <div style="marginBottom: 4px">08:00 開場</div>
-                <div>09:00 開演</div>
-              </div>
-              <button style="position: absolute; top: 16px; right: 16px; fontSize: 20px; color: #999; border: none; background: none; cursor: pointer">⋯</button>
-            </div>
-            <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
-            <div style="fontSize: 12px; color: #666">東京ドーム</div>
-          </div>
-
-          <div style="backgroundColor: #0066CC; borderRadius: 8px 8px 0 0; padding: 12px 16px; display: flex; alignItems: center; justifyContent: space-between">
-            <span style="color: white; fontWeight: bold; fontSize: 16px">吉村 晃 様</span>
-            <span style="color: white; fontSize: 12px">1枚目</span>
-          </div>
-          <div style="backgroundColor: #FFE4F0; padding: 16px 16px 12px">
-            <div style="display: flex; alignItems: flex-start">
-              <div style="marginRight: 16px">
-                <div style="width: 80px; height: 80px; backgroundColor: #E91E8C; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; marginBottom: 8px">
-                  <svg width="46" height="30" viewBox="0 0 46 30" fill="none">
-                    <rect x="1" y="1" width="44" height="28" rx="4" fill="white"/>
-                    <circle cx="1" cy="15" r="6" fill="#E91E8C"/>
-                    <circle cx="45" cy="15" r="6" fill="#E91E8C"/>
-                    <line x1="14" y1="1" x2="14" y2="29" stroke="#E91E8C" strokeWidth="1" strokeDasharray="3,2"/>
-                  </svg>
-                </div>
-                <div style="textAlign: center; fontSize: 12px; fontWeight: bold; padding: 4px 10px; borderRadius: 4px; backgroundColor: #E91E8C; color: white">未使用</div>
-              </div>
-              <div style="flex: 1">
-                <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">通常・一般席アリーナ14時</div>
-                <div style="fontSize: 12px; marginBottom: 4px">41ゲート 10通路 2階3塁側</div>
-                <div style="fontSize: 14px; fontWeight: bold; marginBottom: 8px">20列 191番</div>
-                <div style="fontSize: 16px; fontWeight: bold">¥3,300(税込)</div>
-              </div>
-            </div>
-            <button style="width: 100%; marginTop: 8px; padding: 7px 10px; borderRadius: 4px; display: flex; alignItems: center; justifyContent: center; fontSize: 13px; fontWeight: 500; border: 1.5px dashed #E91E8C; backgroundColor: white; color: #E91E8C; cursor: pointer">
-              <svg style="width: 14px; height: 14px; marginRight: 6px" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-              </svg>
-              同行者へ分配する
-            </button>
-          </div>
-          <div style="backgroundColor: #FFE4F0; padding: 12px 16px; borderRadius: 0 0 8px 8px; fontSize: 12px; lineHeight: 1.75">
-            <div style="marginBottom: 4px">遊戯王デュエルモンスターズ</div>
-            <div style="marginBottom: 4px">決闘者伝説(The Legend of Duelist) QUARTER CENTURY</div>
-            <div style="marginBottom: 4px">主催:株式会社コナミデジタルエンタテインメント</div>
-            <div style="marginBottom: 8px">お問合せ:KONAMIお客様相談室 0570-086-573</div>
-            <div style="fontSize: 10px; marginBottom: 8px; color: #666">※特設サイトをご確認ください。https://www.konami.com/yugioh/25th/event/</div>
-            <div style="fontSize: 10px; marginBottom: 8px">＜営利目的の転売禁止＞</div>
-            <div style="marginBottom: 8px">イープラス 050-3185-6483</div>
-            <div style="marginBottom: 4px; fontWeight: 500; color: #0066CC; cursor: pointer">チケット裏面情報 ›</div>
-            <div style="fontWeight: 500; color: #0066CC">チケット番号: 1140008501907</div>
-          </div>
-        </div>
-        <button onClick="window.scrollTo({top:0,behavior:'smooth'})" style="position: fixed; bottom: 24px; right: 24px; width: 48px; height: 48px; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; backgroundColor: #00A7A0; border: none; boxShadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer">
-          <svg style="width: 24px; height: 24px" fill="none" stroke="white" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/>
-          </svg>
-        </button>
+  <div class="app">
+    <section id="screen-ticket-unused" class="screen active">
+      <div class="top">
+        <button class="back" type="button" aria-label="戻る">‹</button>
+        <button id="go-entry" class="btn-enter" type="button">入場画面に進む</button>
       </div>
-    </div>
-
-    <!-- Selection Screen -->
-    <div class="screen" id="entryScreen">
-      <div style="min-height: 100vh; backgroundColor: #F5F5F5">
-        <div style="backgroundColor: white; padding: 12px 16px; display: flex; alignItems: center; justifyContent: space-between">
-          <span style="color: #E91E8C; fontWeight: 500; fontSize: 14px">1/1枚 選択中</span>
-          <button id="closeEntry" style="color: #999; fontSize: 24px; border: none; background: none; cursor: pointer">×</button>
+      <div class="content">
+        <div class="event">
+          <div class="ttl">期間中有効</div>
+          <div class="name">夢科テディベア美術館 入館券</div>
+          <div class="sub">夢科テディベア美術館</div>
         </div>
-        <div style="backgroundColor: #00A7A0; color: white; textAlign: center; padding: 8px; fontSize: 12px; fontWeight: 500" id="entryMessage">2024/02/03 (金) 16:48:42.27</div>
-        <div style="backgroundColor: white; margin: 16px; padding: 16px; borderRadius: 8px">
-          <div style="display: flex; alignItems: baseline; justifyContent: space-between; marginBottom: 12px">
-            <div style="display: flex; alignItems: baseline">
-              <span style="fontSize: 48px; fontWeight: bold; marginRight: 8px">2/3</span>
-              <span style="fontSize: 14px; fontWeight: 500">(土)</span>
+        <div class="card">
+          <div class="owner"><span>東久保 慶 様</span><span class="count">1枚目</span></div>
+          <div class="main">
+            <div class="icon-col">
+              <div class="icon-round"><div class="ticket-shape"></div></div>
+              <div class="unused">未使用</div>
             </div>
-            <div style="textAlign: right; fontSize: 12px">
-              <div style="marginBottom: 4px">08:00 開場</div>
-              <div>09:00 開演</div>
-            </div>
-          </div>
-          <div style="display: flex; justifyContent: center; alignItems: center; marginBottom: 16px; gap: 120px; position: relative">
-            <div
-              id="leftStar"
-              onTouchStart="handleStarTouchStart(event)"
-              onTouchMove="handleStarTouchMove(event)"
-              onTouchEnd="handleStarTouchEnd(event)"
-              onMouseDown="handleStarMouseDown(event)"
-              style="width: 64px; height: 64px; backgroundColor: #4ADE80; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; cursor: move; userSelect: none; zIndex: 10; touchAction: none"
-            >
-              <span style="fontSize: 36px; pointerEvents: none">⭐</span>
-            </div>
-            <div style="width: 64px; height: 64px; backgroundColor: #4ADE80; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center">
-              <span style="fontSize: 36px">⭐</span>
+            <div>
+              <div class="type">入場券幼児</div>
+              <div class="price">¥400(税込)</div>
+              <div class="share">同行者へ分配する</div>
             </div>
           </div>
-          <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">東京ドーム</div>
-          <div style="fontSize: 12px; color: #666">遊戯王デュエルモンスターズ 決闘者伝説（The Legend of Duelist）QUARTER CENTURY</div>
-        </div>
-        <div style="margin: 0 16px">
-          <div style="backgroundColor: #0066CC; padding: 12px 16px">
-            <span style="color: white; fontWeight: bold">本多 遥星 様</span>
-          </div>
-          <div style="backgroundColor: #0066CC; padding: 16px; display: flex; alignItems: center">
-            <div style="width: 80px; height: 80px; backgroundColor: white; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; marginRight: 16px">
-              <svg style="width: 48px; height: 48px" fill="#0066CC" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-              </svg>
-            </div>
-            <div style="color: white; flex: 1">
-              <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">通常・一般席アリーナ14時</div>
-              <div style="fontSize: 12px; marginBottom: 4px">41ゲート 10通路 2階3塁側</div>
-              <div style="fontSize: 16px; fontWeight: bold">20列 191番</div>
-            </div>
+          <div class="detail">
+            夢科テディベア美術館 入館券<br>
+            2025年4月1日(火) ～ 2026年3月31日(火)<br>
+            開館時間:4月19日(土)～11月16日(日) 9:00〜17:00<br>
+            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
+            ※ 入館は閉館30分前までにお願いします<br>
+            ※ ご入場には本画面の提示が必要です<br>
+            ※ 一回限り有効 / 払い戻し不可<br>
+            ＜営利目的の転売禁止＞<br>
+            イープラス 050-3185-6483<br>
+            <a href="#">チケット裏面情報 ›</a>
+            <div class="ticket-no">チケット番号:1160027394397</div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Used Ticket Screen -->
-    <div class="screen" id="detailUsed">
-      <div style="min-height: 100vh; backgroundColor: #F5F5F5">
-        <div style="backgroundColor: white; padding: 12px 16px; display: flex; alignItems: center; justifyContent: space-between">
-          <span style="color: #E91E8C; fontWeight: 500; fontSize: 14px">0/1枚 選択中</span>
-          <button onClick="showScreen('detailUnused')" style="color: #999; fontSize: 24px; border: none; background: none; cursor: pointer">×</button>
-        </div>
-        <div style="backgroundColor: #00A7A0; color: white; textAlign: center; padding: 8px; fontSize: 12px" id="usedTimestamp">2024/02/03 (金) 16:48:50.49</div>
-        <div style="backgroundColor: #E91E8C; color: white; textAlign: center; padding: 48px 0; fontSize: 18px; fontWeight: bold">1枚使用しました</div>
-        <div style="padding: 0 16px; marginTop: 16px">
-          <div style="backgroundColor: #0066CC; padding: 12px 16px; borderRadius: 8px 8px 0 0">
-            <span style="color: white; fontWeight: bold">本多 遥星 様</span>
+    <section id="screen-entry" class="screen">
+      <div class="entry-top">
+        <div>0/1枚選択中</div>
+        <button id="close-entry" class="x" type="button" aria-label="閉じる">×</button>
+      </div>
+      <div class="entry-wrap">
+        <div id="warn" class="warn">スライドすると使用済になります。<br>使用済チケットは、入場・再発行不可</div>
+        <div class="entry-panel">
+          <div id="valid-panel" class="valid">
+            <h2>期間中有効</h2>
+            <div class="stars">★ ★</div>
+            <div class="line1">夢科テディベア美術館</div>
+            <div class="line2">夢科テディベア美術館 入館券</div>
           </div>
-          <div style="backgroundColor: #D1D5DB; padding: 16px; borderRadius: 0 0 8px 8px; position: relative">
-            <div style="display: flex; alignItems: flex-start">
-              <div style="width: 80px; height: 80px; backgroundColor: white; borderRadius: 50%; display: flex; alignItems: center; justifyContent: center; marginRight: 16px">
-                <svg width="40" height="40" viewBox="0 0 24 24">
-                  <rect x="5" y="3" width="14" height="18" rx="2" fill="#9CA3AF"/>
-                </svg>
-              </div>
-              <div>
-                <div style="fontSize: 14px; fontWeight: bold; marginBottom: 4px">通常・一般席アリーナ14時</div>
-                <div style="fontSize: 12px; marginBottom: 4px">41ゲート 10通路 2階3塁側</div>
-                <div style="fontSize: 14px; fontWeight: bold">20列 191番</div>
-              </div>
-              <div style="position: absolute; top: 16px; right: 16px; border: 3px solid #EF4444; color: #EF4444; padding: 4px 8px; borderRadius: 4px; fontWeight: bold; fontSize: 14px; animation: stampIn 0.3s ease-out">使用済</div>
-            </div>
-            <div style="marginTop: 24px; fontSize: 12px">使用日時: 2024/02/03(金) 16:48</div>
+          <div id="gate" class="gate">
+            <div id="gate-progress" class="gate-progress"></div>
+            <div class="gate-label">GATE</div>
+            <div class="arrows"><span>◀◀</span><span>▶▶</span></div>
+          </div>
+          <div id="used-banner" class="used-banner">1枚使用しました</div>
+          <div class="entry-owner">東久保 慶 様</div>
+          <div id="entry-ticket" class="entry-ticket">
+            <div id="entry-check" class="check">✓</div>
+            <div class="entry-name">入場券幼児</div>
+            <div class="used-stamp">使用済</div>
+            <div class="used-time">使用日時: 2026/03/04(水) 11:56</div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <section id="screen-ticket-used" class="screen gray">
+      <div class="top">
+        <button class="back" type="button" aria-label="戻る">‹</button>
+        <button class="btn-enter" type="button">入場画面に進む</button>
+      </div>
+      <div class="content">
+        <div class="event">
+          <div class="ttl">期間中有効</div>
+          <div class="name">夢科テディベア美術館 入館券</div>
+          <div class="sub">夢科テディベア美術館</div>
+        </div>
+        <div class="card">
+          <div class="owner"><span>東久保 慶 様</span><span class="count">1枚目</span></div>
+          <div class="main">
+            <div class="icon-col">
+              <div class="icon-round"><div class="ticket-shape"></div></div>
+            </div>
+            <div style="position: relative;">
+              <div class="type">入場券幼児</div>
+              <div class="price">¥400(税込)</div>
+              <div class="used-stamp" style="display:block; right:6px; top:12px;">使用済</div>
+            </div>
+          </div>
+          <div class="detail">
+            夢科テディベア美術館 入館券<br>
+            2025年4月1日(火) ～ 2026年3月31日(火)<br>
+            開館時間:4月19日(土)～11月16日(日) 9:00〜17:00<br>
+            4月18日(金)迄は12月17日(月)〜4月17日(金) 9:30〜16:30<br>
+            ※ 入館は閉館30分前までにお願いします<br>
+            ※ 一回限り有効 / 払い戻し不可<br>
+            ＜営利目的の転売禁止＞<br>
+            イープラス 050-3185-6483<br>
+            <a href="#">チケット裏面情報 ›</a>
+            <div class="ticket-no">チケット番号:1160027394397<br><span style="color:#222;font-weight:500;">使用日時:2026/03/04(水) 11:56</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
-    let currentScreen = 'detailUnused';
-    let inSwipeMode = false;
+    const screens = {
+      unused: document.getElementById("screen-ticket-unused"),
+      entry: document.getElementById("screen-entry"),
+      used: document.getElementById("screen-ticket-used")
+    };
+
+    const goEntryBtn = document.getElementById("go-entry");
+    const closeEntryBtn = document.getElementById("close-entry");
+    const warnEl = document.getElementById("warn");
+    const validPanelEl = document.getElementById("valid-panel");
+    const gateEl = document.getElementById("gate");
+    const gateProgressEl = document.getElementById("gate-progress");
+    const usedBannerEl = document.getElementById("used-banner");
+    const entryTicketEl = document.getElementById("entry-ticket");
+    const entryCheckEl = document.getElementById("entry-check");
+
+    let swipeEnabled = false;
     let dragging = false;
     let startX = 0;
     let progress = 0;
-    let animationPhase = 0;
-    let starDrag = { isDragging: false, startX: 0, currentX: 0 };
-    const activeTouches = new Map();
+    let previewTimer = null;
+    let finishTimerA = null;
+    let finishTimerB = null;
 
-    const detailUnused = document.getElementById('detailUnused');
-    const entryScreen = document.getElementById('entryScreen');
-    const detailUsed = document.getElementById('detailUsed');
-    const leftStar = document.getElementById('leftStar');
-    const closeEntry = document.getElementById('closeEntry');
-    const entryMessage = document.getElementById('entryMessage');
-    const usedTimestamp = document.getElementById('usedTimestamp');
-
-    function showScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
-      currentScreen = screenId;
+    function show(name) {
+      Object.values(screens).forEach((el) => el.classList.remove("active"));
+      screens[name].classList.add("active");
     }
 
-    function setupEntryPreState() {
-      entryMessage.textContent = "QRコードを読み取り中";
-      setTimeout(() => {
-        entryMessage.textContent = "✅ 認証成功";
-      }, 1500);
-      setTimeout(() => {
-        entryMessage.textContent = "入場を許可しています...";
-      }, 3000);
+    function clearTimers() {
+      if (previewTimer) clearTimeout(previewTimer);
+      if (finishTimerA) clearTimeout(finishTimerA);
+      if (finishTimerB) clearTimeout(finishTimerB);
+      previewTimer = null;
+      finishTimerA = null;
+      finishTimerB = null;
     }
 
-    function setupSwipeMode() {
-      inSwipeMode = true;
-      document.body.classList.add('swipe-mode-active');
+    function resetEntryState() {
+      clearTimers();
+      swipeEnabled = false;
+      dragging = false;
+      progress = 0;
+      gateProgressEl.style.width = "0%";
+      warnEl.classList.remove("show");
+      gateEl.classList.remove("show");
+      validPanelEl.style.display = "block";
+      usedBannerEl.classList.remove("show");
+      entryTicketEl.classList.remove("used");
+      entryCheckEl.textContent = "✓";
     }
 
-    function completeUseFlow() {
-      inSwipeMode = false;
-      document.body.classList.remove('swipe-mode-active');
-      setTimeout(() => {
-        const now = new Date();
-        const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} (${['日','月','火','水','木','金','土'][now.getDay()]})`;
-        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).slice(0,2)}`;
-        usedTimestamp.textContent = `${dateStr} ${timeStr}`;
+    function beginSwipePhase() {
+      swipeEnabled = true;
+      warnEl.classList.add("show");
+      validPanelEl.style.display = "none";
+      gateEl.classList.add("show");
+    }
+
+    function finishFlow() {
+      swipeEnabled = false;
+      dragging = false;
+      warnEl.classList.remove("show");
+      gateEl.classList.remove("show");
+      usedBannerEl.classList.add("show");
+      entryTicketEl.classList.add("used");
+      entryCheckEl.textContent = "入場済";
+
+      finishTimerA = setTimeout(() => {
+        usedBannerEl.classList.remove("show");
+        validPanelEl.style.display = "block";
       }, 1200);
 
-      setTimeout(() => {
-        showScreen('detailUsed');
-      }, 3000);
+      finishTimerB = setTimeout(() => {
+        show("used");
+      }, 2800);
     }
 
-    function handleStarTouchStart(e) { 
-      e.preventDefault(); 
-      const t = e.touches[0]; 
-      starDrag = { isDragging: true, startX: t.clientX, currentX: t.clientX }; 
-    }
-    
-    function handleStarTouchMove(e) { 
-      if (!starDrag.isDragging) return; 
-      e.preventDefault(); 
-      const t = e.touches[0]; 
-      starDrag.currentX = t.clientX;
-      updateStarPosition();
-    }
-    
-    function handleStarTouchEnd(e) { 
-      e.preventDefault(); 
-      checkStarDragComplete();
-      starDrag.isDragging = false;
-    }
-    
-    function handleStarMouseDown(e) { 
-      e.preventDefault(); 
-      starDrag = { isDragging: true, startX: e.clientX, currentX: e.clientX }; 
-      document.addEventListener('mousemove', handleStarMouseMove);
-      document.addEventListener('mouseup', handleStarMouseUp);
-    }
-    
-    function handleStarMouseMove(e) { 
-      if (!starDrag.isDragging) return; 
-      e.preventDefault(); 
-      starDrag.currentX = e.clientX;
-      updateStarPosition();
-    }
-    
-    function handleStarMouseUp() { 
-      checkStarDragComplete();
-      starDrag.isDragging = false;
-      document.removeEventListener('mousemove', handleStarMouseMove);
-      document.removeEventListener('mouseup', handleStarMouseUp);
-    }
-
-    function updateStarPosition() {
-      const deltaX = starDrag.currentX - starDrag.startX;
-      const dragOffset = Math.min(Math.max(deltaX, 0), 140);
-      leftStar.style.transform = starDrag.isDragging ? `translate(${dragOffset}px, 0px)` : 'translate(0, 0)';
-      leftStar.style.transition = starDrag.isDragging ? 'none' : 'transform 0.3s ease';
-    }
-
-    function checkStarDragComplete() {
-      const deltaX = starDrag.currentX - starDrag.startX;
-      if (deltaX > 80 && starDrag.currentX !== starDrag.startX) {
-        // Gate animation sequence
-        showScreen('gateAnimation');
-        animationPhase = 0;
-        starDrag = { isDragging: false, startX: 0, currentX: 0 };
-        setTimeout(() => animationPhase = 1, 1500);
-        setTimeout(() => animationPhase = 2, 3000);
-        setTimeout(() => completeUseFlow(), 4500);
-      } else {
-        leftStar.style.transform = 'translate(0, 0)';
+    function updateProgress(clientX) {
+      const rect = gateEl.getBoundingClientRect();
+      const delta = clientX - startX;
+      progress = Math.max(0, Math.min(1, delta / rect.width));
+      gateProgressEl.style.width = `${Math.round(progress * 100)}%`;
+      if (progress >= 0.94) {
+        gateProgressEl.style.width = "100%";
+        finishFlow();
       }
     }
 
-    closeEntry.addEventListener("click", () => {
-      showScreen('detailUnused');
+    function startDrag(clientX) {
+      if (!swipeEnabled) return;
+      dragging = true;
+      startX = clientX;
+    }
+
+    function moveDrag(clientX) {
+      if (!dragging || !swipeEnabled) return;
+      updateProgress(clientX);
+    }
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      if (progress < 0.94) {
+        progress = 0;
+        gateProgressEl.style.width = "0%";
+      }
+    }
+
+    goEntryBtn.addEventListener("click", () => {
+      show("entry");
+      resetEntryState();
+      previewTimer = setTimeout(beginSwipePhase, 1200);
     });
 
-    // Initialize event handlers for navigation
-    document.addEventListener('DOMContentLoaded', function() {
-      // Add click handlers for navigation buttons
-      const navButtons = document.querySelectorAll('button[onClick*="showScreen"]');
-      navButtons.forEach(button => {
-        const onClick = button.getAttribute('onClick');
-        if (onClick) {
-          const screenId = onClick.match(/showScreen\(['"]([^'"]+)['"]\)/)?.[1];
-          if (screenId) {
-            button.addEventListener('click', () => showScreen(screenId));
-            button.removeAttribute('onClick');
-          }
-        }
-      });
+    closeEntryBtn.addEventListener("click", () => {
+      resetEntryState();
+      show("unused");
     });
+
+    gateEl.addEventListener("mousedown", (e) => startDrag(e.clientX));
+    window.addEventListener("mousemove", (e) => moveDrag(e.clientX));
+    window.addEventListener("mouseup", () => endDrag());
+
+    gateEl.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 0) return;
+      startDrag(e.touches[0].clientX);
+    }, { passive: true });
+
+    gateEl.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 0) return;
+      moveDrag(e.touches[0].clientX);
+    }, { passive: true });
+
+    gateEl.addEventListener("touchend", () => endDrag(), { passive: true });
+    gateEl.addEventListener("touchcancel", () => endDrag(), { passive: true });
   </script>
 </body>
 </html>
