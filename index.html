@@ -55,20 +55,20 @@
     .screen.active { display: block; }
 
     .navbar {
-      height: 56px;
+      height: 54px;
       background: #fff;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 12px;
+      padding: 0 11px;
     }
 
     .back-btn {
       border: 0;
       background: transparent;
       color: var(--teal);
-      font-size: 38px;
+      font-size: 34px;
       font-weight: 300;
       line-height: 1;
       cursor: pointer;
@@ -82,7 +82,7 @@
       font-weight: 500;
       line-height: 1;
       border-radius: 8px 0 0 8px;
-      padding: 11px 16px;
+      padding: 10px 16px;
       position: relative;
       cursor: pointer;
     }
@@ -94,13 +94,13 @@
       right: -15px;
       width: 0;
       height: 0;
-      border-top: 18px solid transparent;
-      border-bottom: 18px solid transparent;
+      border-top: 17px solid transparent;
+      border-bottom: 17px solid transparent;
       border-left: 15px solid var(--pink);
     }
 
     .content {
-      padding: 9px 9px 16px;
+      padding: 10px 9px 16px;
     }
 
     .event-card {
@@ -108,7 +108,7 @@
       border: 1px solid #d8d8dc;
       border-radius: 12px;
       padding: 10px 11px 9px;
-      margin-bottom: 8px;
+      margin-bottom: 9px;
     }
 
     .event-state {
@@ -120,7 +120,7 @@
     .event-title {
       font-size: 19px;
       line-height: 1.26;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: -0.01em;
     }
 
@@ -138,14 +138,14 @@
     }
 
     .owner-row {
-      height: 50px;
+      height: 49px;
       background: var(--pink);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.24);
     }
 
     .owner-name {
@@ -163,7 +163,7 @@
       display: grid;
       grid-template-columns: 94px 1fr;
       gap: 8px;
-      padding: 10px 9px 10px;
+      padding: 9px 9px 10px;
       background: var(--pink-soft);
     }
 
@@ -171,12 +171,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
 
     .pink-circle {
-      width: 78px;
-      height: 78px;
+      width: 79px;
+      height: 79px;
       border-radius: 50%;
       background: #e24699;
       display: grid;
@@ -216,11 +216,13 @@
       border: 2px solid #ea6cab;
       background: #ffeff8;
       color: #e5569f;
-      border-radius: 10px;
+      border-radius: 11px;
       font-size: 12px;
       font-weight: 700;
       line-height: 1;
       padding: 4px 11px;
+      min-width: 96px;
+      text-align: center;
     }
 
     .ticket-type {
@@ -231,14 +233,14 @@
     }
 
     .ticket-price {
-      margin-top: 15px;
+      margin-top: 13px;
       font-size: 17px;
       font-weight: 600;
       letter-spacing: -0.01em;
     }
 
     .distribute-btn {
-      margin-top: 12px;
+      margin-top: 10px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -246,7 +248,7 @@
       border-radius: 10px;
       color: var(--blue);
       background: #fff;
-      padding: 5px 9px;
+      padding: 5px 10px 5px 8px;
       font-size: 12px;
       font-weight: 600;
       line-height: 1;
@@ -255,8 +257,8 @@
     }
 
     .share-ico {
-      width: 14px;
-      height: 10px;
+      width: 18px;
+      height: 12px;
       border: 1.5px solid var(--blue);
       border-radius: 2px;
       position: relative;
@@ -267,23 +269,32 @@
     .share-ico::before {
       content: "";
       position: absolute;
-      left: -8px;
-      top: -4px;
-      width: 9px;
-      height: 9px;
-      border-top: 2px solid var(--blue);
-      border-right: 2px solid var(--blue);
-      transform: rotate(-135deg);
+      left: -7px;
+      top: -2px;
+      width: 8px;
+      height: 8px;
+      border-top: 1.6px solid var(--blue);
+      border-left: 1.6px solid var(--blue);
+      transform: rotate(-45deg);
+    }
+
+    .share-ico::after {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 1px;
+      width: 5px;
+      border-top: 1.6px solid var(--blue);
     }
 
     .detail-area {
       background: var(--pink-detail);
       border-top: 1px dashed rgba(88, 57, 73, 0.3);
       padding: 8px 10px 8px;
-      font-size: 9.6px;
+      font-size: 9.4px;
       font-weight: 200;
-      line-height: 1.2;
-      color: #31343a;
+      line-height: 1.18;
+      color: #3a3d45;
     }
 
     .detail-area a {
@@ -293,11 +304,11 @@
     }
 
     .ticket-number {
-      margin-top: 5px;
+      margin-top: 4px;
       padding-top: 6px;
       border-top: 1px solid rgba(88, 88, 96, 0.2);
       color: var(--blue);
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 700;
       display: flex;
       align-items: center;
