@@ -107,27 +107,27 @@
       background: var(--panel);
       border: 1px solid #d8d8dc;
       border-radius: 13px;
-      padding: 12px 13px 11px;
+      padding: 11px 12px 10px;
       margin-bottom: 10px;
     }
 
     .event-state {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .event-title {
-      font-size: 20px;
+      font-size: 18px;
       line-height: 1.26;
-      font-weight: 700;
+      font-weight: 650;
       letter-spacing: -0.01em;
     }
 
     .event-sub {
-      font-size: 12px;
+      font-size: 11px;
       color: #50545c;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .ticket-card {
@@ -138,7 +138,7 @@
     }
 
     .owner-row {
-      height: 53px;
+      height: 50px;
       background: var(--pink);
       color: #fff;
       display: flex;
@@ -149,34 +149,38 @@
     }
 
     .owner-name {
-      font-size: 21px;
+      font-size: 19px;
       font-weight: 700;
       letter-spacing: -0.01em;
     }
 
     .owner-index {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
     }
 
     .ticket-section {
       display: grid;
-      grid-template-columns: 104px 1fr;
-      gap: 10px;
-      padding: 10px 10px 10px;
+      grid-template-columns: 95px 1fr;
+      grid-template-areas:
+        "icon info"
+        "share share";
+      gap: 6px 10px;
+      padding: 9px 9px 10px;
       background: var(--pink-soft);
     }
 
     .ticket-icon-block {
+      grid-area: icon;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 7px;
+      gap: 0;
     }
 
     .pink-circle {
-      width: 88px;
-      height: 88px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: #e24699;
       display: grid;
@@ -184,8 +188,8 @@
     }
 
     .ticket-shape {
-      width: 47px;
-      height: 24px;
+      width: 44px;
+      height: 22px;
       background: #fff;
       border-radius: 4px;
       position: relative;
@@ -194,11 +198,11 @@
     .ticket-shape::before {
       content: "";
       position: absolute;
-      right: -5px;
+      right: -4px;
       top: 50%;
       transform: translateY(-50%);
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: #e24699;
     }
@@ -206,7 +210,7 @@
     .ticket-shape::after {
       content: "";
       position: absolute;
-      right: 8px;
+      right: 7px;
       top: 2px;
       bottom: 2px;
       border-right: 2px dotted #ea9ec3;
@@ -221,26 +225,32 @@
       font-weight: 700;
       line-height: 1;
       padding: 5px 12px 4px;
-      min-width: 84px;
+      min-width: 80px;
       text-align: center;
+      margin-top: -6px;
+    }
+
+    .ticket-main-info {
+      grid-area: info;
     }
 
     .ticket-type {
-      margin-top: 2px;
-      font-size: 22px;
-      font-weight: 800;
+      margin-top: 1px;
+      font-size: 19px;
+      font-weight: 700;
       letter-spacing: -0.01em;
     }
 
     .ticket-price {
-      margin-top: 14px;
-      font-size: 18px;
+      margin-top: 10px;
+      font-size: 17px;
       font-weight: 600;
       letter-spacing: -0.01em;
     }
 
     .distribute-btn {
-      margin-top: 12px;
+      grid-area: share;
+      margin-top: 0;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -254,6 +264,8 @@
       line-height: 1;
       text-decoration: none;
       white-space: nowrap;
+      justify-self: start;
+      margin-left: 6px;
     }
 
     .share-ico {
@@ -289,12 +301,12 @@
 
     .detail-area {
       background: var(--pink-detail);
-      border-top: 1px dashed rgba(88, 57, 73, 0.3);
+      border-top: 1px dashed rgba(88, 57, 73, 0.46);
       padding: 8px 10px 8px;
-      font-size: 9.8px;
-      font-weight: 300;
-      line-height: 1.21;
-      color: #3a3d45;
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 1.2;
+      color: #3c3d43;
     }
 
     .detail-area a {
@@ -308,7 +320,7 @@
       padding-top: 6px;
       border-top: 1px solid rgba(88, 88, 96, 0.2);
       color: var(--blue);
-      font-size: 13.5px;
+      font-size: 14px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -628,11 +640,11 @@
               </div>
               <div class="unused-badge">未使用</div>
             </div>
-            <div>
+            <div class="ticket-main-info">
               <div class="ticket-type">入場券幼児</div>
               <div class="ticket-price">¥400(税込)</div>
-              <a href="#" class="distribute-btn"><span class="share-ico"></span>同行者へ分配する</a>
             </div>
+            <a href="#" class="distribute-btn"><span class="share-ico"></span>同行者へ分配する</a>
           </div>
           <div class="detail-area">
             夢科テディベア美術館 入館券<br>
