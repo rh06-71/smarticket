@@ -55,20 +55,20 @@
     .screen.active { display: block; }
 
     .navbar {
-      height: 54px;
+      height: 56px;
       background: #fff;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 11px;
+      padding: 0 12px;
     }
 
     .back-btn {
       border: 0;
       background: transparent;
       color: var(--teal);
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 300;
       line-height: 1;
       cursor: pointer;
@@ -78,11 +78,11 @@
       border: 0;
       color: #fff;
       background: var(--pink);
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
       line-height: 1;
-      border-radius: 8px 0 0 8px;
-      padding: 10px 16px;
+      border-radius: 10px 0 0 10px;
+      padding: 11px 20px;
       position: relative;
       cursor: pointer;
     }
@@ -94,8 +94,8 @@
       right: -15px;
       width: 0;
       height: 0;
-      border-top: 17px solid transparent;
-      border-bottom: 17px solid transparent;
+      border-top: 18px solid transparent;
+      border-bottom: 18px solid transparent;
       border-left: 15px solid var(--pink);
     }
 
@@ -106,19 +106,19 @@
     .event-card {
       background: var(--panel);
       border: 1px solid #d8d8dc;
-      border-radius: 12px;
-      padding: 10px 11px 9px;
-      margin-bottom: 9px;
+      border-radius: 13px;
+      padding: 12px 13px 11px;
+      margin-bottom: 10px;
     }
 
     .event-state {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .event-title {
-      font-size: 19px;
+      font-size: 20px;
       line-height: 1.26;
       font-weight: 700;
       letter-spacing: -0.01em;
@@ -127,43 +127,43 @@
     .event-sub {
       font-size: 12px;
       color: #50545c;
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
     .ticket-card {
       border: 1px solid var(--pink-stroke);
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
       background: var(--pink-soft);
     }
 
     .owner-row {
-      height: 49px;
+      height: 53px;
       background: var(--pink);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 14px;
+      padding: 0 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.24);
     }
 
     .owner-name {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 700;
       letter-spacing: -0.01em;
     }
 
     .owner-index {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
     }
 
     .ticket-section {
       display: grid;
-      grid-template-columns: 94px 1fr;
-      gap: 8px;
-      padding: 9px 9px 10px;
+      grid-template-columns: 104px 1fr;
+      gap: 10px;
+      padding: 10px 10px 10px;
       background: var(--pink-soft);
     }
 
@@ -171,12 +171,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
 
     .pink-circle {
-      width: 79px;
-      height: 79px;
+      width: 88px;
+      height: 88px;
       border-radius: 50%;
       background: #e24699;
       display: grid;
@@ -184,8 +184,8 @@
     }
 
     .ticket-shape {
-      width: 42px;
-      height: 22px;
+      width: 47px;
+      height: 24px;
       background: #fff;
       border-radius: 4px;
       position: relative;
@@ -194,11 +194,11 @@
     .ticket-shape::before {
       content: "";
       position: absolute;
-      right: -4px;
+      right: -5px;
       top: 50%;
       transform: translateY(-50%);
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #e24699;
     }
@@ -206,7 +206,7 @@
     .ticket-shape::after {
       content: "";
       position: absolute;
-      right: 9px;
+      right: 8px;
       top: 2px;
       bottom: 2px;
       border-right: 2px dotted #ea9ec3;
@@ -216,40 +216,40 @@
       border: 2px solid #ea6cab;
       background: #ffeff8;
       color: #e5569f;
-      border-radius: 11px;
-      font-size: 12px;
+      border-radius: 13px;
+      font-size: 11px;
       font-weight: 700;
       line-height: 1;
-      padding: 4px 11px;
-      min-width: 96px;
+      padding: 5px 12px 4px;
+      min-width: 84px;
       text-align: center;
     }
 
     .ticket-type {
-      margin-top: 1px;
-      font-size: 21px;
+      margin-top: 2px;
+      font-size: 22px;
       font-weight: 800;
       letter-spacing: -0.01em;
     }
 
     .ticket-price {
-      margin-top: 13px;
-      font-size: 17px;
+      margin-top: 14px;
+      font-size: 18px;
       font-weight: 600;
       letter-spacing: -0.01em;
     }
 
     .distribute-btn {
-      margin-top: 10px;
+      margin-top: 12px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      border: 1.5px solid var(--blue);
-      border-radius: 10px;
+      border: 2px solid var(--blue);
+      border-radius: 12px;
       color: var(--blue);
       background: #fff;
-      padding: 5px 10px 5px 8px;
-      font-size: 12px;
+      padding: 4px 10px 5px 7px;
+      font-size: 11px;
       font-weight: 600;
       line-height: 1;
       text-decoration: none;
@@ -257,9 +257,9 @@
     }
 
     .share-ico {
-      width: 18px;
-      height: 12px;
-      border: 1.5px solid var(--blue);
+      width: 17px;
+      height: 11px;
+      border: 2px solid var(--blue);
       border-radius: 2px;
       position: relative;
       display: inline-block;
@@ -269,31 +269,31 @@
     .share-ico::before {
       content: "";
       position: absolute;
-      left: -7px;
-      top: -2px;
+      left: -8px;
+      top: -3px;
       width: 8px;
       height: 8px;
-      border-top: 1.6px solid var(--blue);
-      border-left: 1.6px solid var(--blue);
+      border-top: 2px solid var(--blue);
+      border-left: 2px solid var(--blue);
       transform: rotate(-45deg);
     }
 
     .share-ico::after {
       content: "";
       position: absolute;
-      left: -1px;
+      left: -2px;
       top: 1px;
       width: 5px;
-      border-top: 1.6px solid var(--blue);
+      border-top: 2px solid var(--blue);
     }
 
     .detail-area {
       background: var(--pink-detail);
       border-top: 1px dashed rgba(88, 57, 73, 0.3);
       padding: 8px 10px 8px;
-      font-size: 9.4px;
-      font-weight: 200;
-      line-height: 1.18;
+      font-size: 9.8px;
+      font-weight: 300;
+      line-height: 1.21;
       color: #3a3d45;
     }
 
@@ -308,7 +308,7 @@
       padding-top: 6px;
       border-top: 1px solid rgba(88, 88, 96, 0.2);
       color: var(--blue);
-      font-size: 14.5px;
+      font-size: 13.5px;
       font-weight: 700;
       display: flex;
       align-items: center;
