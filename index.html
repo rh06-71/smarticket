@@ -179,45 +179,61 @@
       flex-direction: column;
       align-items: center;
       position: relative;
-      padding-bottom: 14px;
+      padding-bottom: 20px;
     }
 
     .pink-circle {
-      width: 66px;
-      height: 57px;
-      border-radius: 10px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
       background: #e24699;
       display: grid;
       place-items: center;
+      flex-shrink: 0;
     }
 
     .ticket-shape {
-      width: 44px;
-      height: 22px;
+      width: 46px;
+      height: 28px;
       background: #fff;
-      border-radius: 4px;
+      border-radius: 5px;
       position: relative;
+      overflow: visible;
     }
 
+    /* 左ノッチ */
     .ticket-shape::before {
       content: "";
       position: absolute;
-      right: -4px;
+      left: -5px;
       top: 50%;
       transform: translateY(-50%);
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #e24699;
     }
 
+    /* 右ノッチ */
+    .ticket-shape .notch-right {
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e24699;
+    }
+
+    /* 破線（スタブ区切り） */
     .ticket-shape::after {
       content: "";
       position: absolute;
-      right: 7px;
-      top: 2px;
-      bottom: 2px;
-      border-right: 2px dotted #ea9ec3;
+      left: 32px;
+      top: 4px;
+      bottom: 4px;
+      border-left: 2px dashed rgba(232,70,153,0.55);
     }
 
     .unused-badge {
@@ -622,6 +638,8 @@
     .gray .ticket-section { background: var(--gray-main); }
     .gray .pink-circle { background: #adb6c5; }
     .gray .ticket-shape::before { background: #adb6c5; }
+    .gray .ticket-shape .notch-right { background: #adb6c5; }
+    .gray .ticket-shape::after { border-left-color: rgba(155,165,178,0.55); }
     .gray .detail-area { background: var(--gray-detail); }
   </style>
 </head>
@@ -649,7 +667,7 @@
           <div class="ticket-section">
             <div class="ticket-icon-block">
               <div class="pink-circle">
-                <div class="ticket-shape"></div>
+                <div class="ticket-shape"><span class="notch-right"></span></div>
               </div>
               <div class="unused-badge">未使用</div>
             </div>
@@ -741,7 +759,7 @@
           <div class="ticket-section">
             <div class="ticket-icon-block">
               <div class="pink-circle">
-                <div class="ticket-shape"></div>
+                <div class="ticket-shape"><span class="notch-right"></span></div>
               </div>
             </div>
             <div style="position:relative;">
